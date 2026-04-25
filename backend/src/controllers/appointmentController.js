@@ -3,8 +3,7 @@ const Appointment = require("../models/Appointment");
 // Crear turno
 const createAppointment = async (req, res) => {
   try {
-    const { clientName, service, date, time } = req.body;
-
+    const { clientName, service, date, time, duration } = req.body;
     // 🔍 Verificar si ya existe turno en ese horario
     const existing = await Appointment.findOne({ date, time });
 
@@ -19,6 +18,7 @@ const createAppointment = async (req, res) => {
       service,
       date,
       time,
+      duration,
     });
 
     const saved = await newAppointment.save();

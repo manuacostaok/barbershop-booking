@@ -1,11 +1,17 @@
 const mongoose = require("mongoose");
 
+
+
 const appointmentSchema = new mongoose.Schema(
   {
     clientName: {
       type: String,
       required: true,
     },
+    duration: {
+        type: Number,
+        required: true,
+        },
     service: {
       type: String,
       required: true,
@@ -29,4 +35,7 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
+
+
 module.exports = mongoose.model("Appointment", appointmentSchema);
+
