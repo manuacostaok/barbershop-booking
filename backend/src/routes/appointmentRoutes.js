@@ -6,4 +6,9 @@ const {
 
 router.post("/", createAppointment);
 
+const { getAvailability } = require("../controllers/appointmentController");
+
+router.get("/availability", getAvailability);
+
+
 module.exports = router;
