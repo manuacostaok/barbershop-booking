@@ -16,6 +16,10 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    barber: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     date: {
       type: String, // ej: "2026-04-25"
       required: true,
@@ -29,6 +33,7 @@ const appointmentSchema = new mongoose.Schema(
       enum: ["pending", "confirmed", "cancelled"],
       default: "pending",
     },
+    
   },
   {
     timestamps: true,

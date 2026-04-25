@@ -11,6 +11,7 @@ connectDB();
 // 🧩 Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", require("./routes/authRoutes"));
 
 // 📌 Rutas
 const appointmentRoutes = require("./routes/appointmentRoutes");

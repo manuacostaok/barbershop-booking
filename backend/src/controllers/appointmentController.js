@@ -1,6 +1,6 @@
 const Appointment = require("../models/Appointment");
 
-// función helper
+// helper
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
@@ -9,10 +9,9 @@ const timeToMinutes = (time) => {
 // Crear turno
 const createAppointment = async (req, res) => {
   try {
-    const { clientName, service, date, time, duration } = req.body;
+    const { clientName, service, date, time, duration, barber } = req.body;
 
-    // validar datos básicos
-    if (!clientName || !service || !date || !time || !duration) {
+    if (!clientName || !service || !date || !time || !duration || !barber) {
       return res.status(400).json({
         message: "Faltan datos obligatorios",
       });
@@ -21,14 +20,14 @@ const createAppointment = async (req, res) => {
     const newStart = timeToMinutes(time);
     const newEnd = newStart + duration;
 
-    // traer turnos del mismo día
-    const appointments = await Appointment.find({ date });
+    // 🔥 ahora filtramos por barbero también
+    const appointments = await Appointment.find({ date, barber });
 
-    // 🔥 validar solapamiento real
     for (let appt of appointments) {
       const apptStart = timeToMinutes(appt.time);
       const apptEnd = apptStart + appt.duration;
 
+      // overlap check
       if (newStart < apptEnd && newEnd > apptStart) {
         return res.status(400).json({
           message: "Este horario se solapa con otro turno",
@@ -42,6 +41,7 @@ const createAppointment = async (req, res) => {
       date,
       time,
       duration,
+      barber,
     });
 
     const saved = await newAppointment.save();
@@ -49,22 +49,24 @@ const createAppointment = async (req, res) => {
     res.status(201).json(saved);
 
   } catch (error) {
-    res.status(500).json({ message: "Error creating appointment", error });
+    res.status(500).json({
+      message: "Error creating appointment",
+      error,
+    });
   }
 };
 
-// Obtener disponibilidad por fecha
+// Disponibilidad por fecha + barbero
 const getAvailability = async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, barber } = req.query;
 
-    if (!date) {
+    if (!date || !barber) {
       return res.status(400).json({
-        message: "Falta la fecha",
+        message: "Falta fecha o barbero",
       });
     }
 
-    // slots cada 30 min
     const allSlots = [
       "09:00","09:30",
       "10:00","10:30",
@@ -77,14 +79,14 @@ const getAvailability = async (req, res) => {
       "17:00"
     ];
 
-    const appointments = await Appointment.find({ date });
+    const appointments = await Appointment.find({ date, barber });
 
     const addMinutes = (time, minutes) => {
       const [h, m] = time.split(":").map(Number);
       const dateObj = new Date();
       dateObj.setHours(h);
       dateObj.setMinutes(m + minutes);
-      return dateObj.toTimeString().slice(0,5);
+      return dateObj.toTimeString().slice(0, 5);
     };
 
     let occupiedSlots = [];
@@ -104,10 +106,16 @@ const getAvailability = async (req, res) => {
       (slot) => !occupiedSlots.includes(slot)
     );
 
-    res.json({ date, available });
+    res.json({
+      date,
+      barber,
+      available,
+    });
 
   } catch (error) {
-    res.status(500).json({ message: "Error getting availability" });
+    res.status(500).json({
+      message: "Error getting availability",
+    });
   }
 };
 
