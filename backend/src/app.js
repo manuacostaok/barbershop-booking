@@ -5,16 +5,23 @@ const connectDB = require("./config/db");
 
 const app = express();
 
-// conectar DB
+// 🔌 Conectar base de datos
 connectDB();
 
+// 🧩 Middlewares
 app.use(cors());
 app.use(express.json());
 
+// 📌 Rutas
+const appointmentRoutes = require("./routes/appointmentRoutes");
+app.use("/api/appointments", appointmentRoutes);
+
+// 🧪 Ruta test
 app.get("/", (req, res) => {
   res.send("API funcionando");
 });
 
+// 🚀 Levantar servidor
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
