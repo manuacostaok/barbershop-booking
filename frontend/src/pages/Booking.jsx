@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { motion } from "framer-motion";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -32,13 +32,15 @@ function Booking() {
     );
   };
 
+  // 🔥 barberos
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/users/barbers")
+    api
+      .get("/users/barbers")
       .then((res) => setBarbers(res.data))
       .catch(() => setSuccess("Error cargando barberos"));
   }, []);
 
+  // 🔥 disponibilidad (PÚBLICO o JWT según backend)
   const getAvailability = async () => {
     if (!date || !selectedBarber) {
       setSuccess("Seleccioná fecha y barbero");
@@ -48,10 +50,8 @@ function Booking() {
     setLoading(true);
 
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/appointments/availability?date=${formatDate(
-          date
-        )}&barber=${selectedBarber._id}`
+      const res = await api.get(
+        `/appointments/availability?date=${formatDate(date)}&barber=${selectedBarber._id}`
       );
 
       setSlots(res.data.available);
@@ -63,6 +63,7 @@ function Booking() {
     setLoading(false);
   };
 
+  // 🔥 crear turno (PROTEGIDO)
   const createAppointment = async () => {
     if (!selectedTime || !name || !selectedService) {
       setSuccess("Completá todos los campos");
@@ -75,7 +76,7 @@ function Booking() {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/appointments", {
+      await api.post("/appointments", {
         clientName: name,
         service: selectedService.name,
         date: formatDate(date),
@@ -104,11 +105,7 @@ function Booking() {
         <div className="title">Barber Booking</div>
 
         <div className="calendar-wrapper">
-          <Calendar
-            onChange={setDate}
-            value={date}
-            className="calendar"
-          />
+          <Calendar onChange={setDate} value={date} className="calendar" />
         </div>
 
         <button className="button" onClick={getAvailability}>

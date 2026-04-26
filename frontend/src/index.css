@@ -477,3 +477,161 @@ body {
   gap: 10px;
   margin-bottom: 20px;
 }
+
+.calendar-dropdown {
+  margin-top: 10px;
+  background: rgba(15, 23, 42, 0.95);
+  padding: 10px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #6366f1;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+
+.reactivate-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #020617;
+  padding: 20px;
+  border-radius: 16px;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.modal-actions button {
+  flex: 1;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-actions .danger {
+  background: #ef4444;
+  color: white;
+}
+
+.cancel-btn,
+.reactivate-btn,
+.delete-btn {
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover,
+.reactivate-btn:hover,
+.delete-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.cancel-btn,
+.reactivate-btn,
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.cancel-btn {
+  background: #f59e0b;
+  color: white;
+}
+
+.reactivate-btn {
+  background: #22c55e;
+  color: white;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.cancel-btn:hover,
+.reactivate-btn:hover,
+.delete-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.input-group svg {
+  color: #6366f1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header .button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+
+.header .button:hover {
+  transform: scale(1.05);
+}

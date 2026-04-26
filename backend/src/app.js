@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 
+
 // 📌 Rutas
 const appointmentRoutes = require("./routes/appointmentRoutes");
 app.use("/api/appointments", appointmentRoutes);

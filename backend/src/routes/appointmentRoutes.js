@@ -7,24 +7,24 @@ const {
 } = require("../controllers/appointmentController");
 
 const Appointment = require("../models/Appointment");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// ===============================
+// 🔥 CREAR TURNO (PROTEGIDO)
+// ===============================
+router.post("/", authMiddleware, createAppointment);
 
 
 // ===============================
-// 🔥 CREAR TURNO
-// ===============================
-router.post("/", createAppointment);
-
-
-// ===============================
-// 🔥 DISPONIBILIDAD POR FECHA + BARBERO
+// 🔥 DISPONIBILIDAD (PÚBLICO)
 // ===============================
 router.get("/availability", getAvailability);
 
 
 // ===============================
-// 🔥 PANEL ADMIN → TODOS LOS TURNOS
+// 🔥 PANEL ADMIN → TODOS LOS TURNOS (PROTEGIDO)
 // ===============================
-router.get("/all", async (req, res) => {
+router.get("/all", authMiddleware, async (req, res) => {
   try {
     const appointments = await Appointment.find()
       .populate("barber", "name");
@@ -42,39 +42,9 @@ router.get("/all", async (req, res) => {
 
 
 // ===============================
-// 🔥 CANCELAR TURNO (DELETE HARD)
+// 🔥 CANCELAR TURNO (SOFT DELETE) (PROTEGIDO)
 // ===============================
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deleted = await Appointment.findByIdAndDelete(id);
-
-    if (!deleted) {
-      return res.status(404).json({
-        message: "Turno no encontrado",
-      });
-    }
-
-    res.json({
-      message: "Turno cancelado correctamente",
-    });
-
-  } catch (error) {
-    console.log("ERROR DELETE:", error);
-
-    res.status(500).json({
-      message: "Error cancelando turno",
-    });
-  }
-});
-
-
-// ===============================
-// 🔥 OPCIÓN PRO → CANCELAR POR STATUS
-// (NO BORRA, MEJOR PARA NEGOCIO)
-// ===============================
-router.patch("/:id/cancel", async (req, res) => {
+router.patch("/:id/cancel", authMiddleware, async (req, res) => {
   try {
     const updated = await Appointment.findByIdAndUpdate(
       req.params.id,
@@ -99,5 +69,54 @@ router.patch("/:id/cancel", async (req, res) => {
   }
 });
 
+
+// ===============================
+// 🔥 REACTIVAR TURNO (PROTEGIDO)
+// ===============================
+router.patch("/:id/reactivate", authMiddleware, async (req, res) => {
+  try {
+    const updated = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      { status: "pending" },
+      { new: true }
+    );
+
+    res.json(updated);
+
+  } catch (error) {
+    console.log("ERROR REACTIVATE:", error);
+
+    res.status(500).json({
+      message: "Error reactivando turno",
+    });
+  }
+});
+
+
+// ===============================
+// 🔥 DELETE DEFINITIVO (PROTEGIDO)
+// ===============================
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const deleted = await Appointment.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        message: "Turno no encontrado",
+      });
+    }
+
+    res.json({
+      message: "Turno eliminado correctamente",
+    });
+
+  } catch (error) {
+    console.log("ERROR DELETE:", error);
+
+    res.status(500).json({
+      message: "Error eliminando turno",
+    });
+  }
+});
 
 module.exports = router;
