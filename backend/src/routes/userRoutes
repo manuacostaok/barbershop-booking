@@ -1,0 +1,53 @@
+const express = require("express");
+const router = express.Router();
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+
+// GET barberos
+router.get("/barbers", async (req, res) => {
+  try {
+    const barbers = await User.find({ role: "barber" }).select("-password");
+    res.json(barbers);
+  } catch (error) {
+    res.status(500).json({ message: "Error obteniendo barberos" });
+  }
+});
+
+// 🔥 crear barbero (PRO)
+router.post("/barber", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Faltan datos",
+      });
+    }
+
+    const existing = await User.findOne({ email });
+
+    if (existing) {
+      return res.status(400).json({
+        message: "El usuario ya existe",
+      });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const newBarber = new User({
+      name,
+      email,
+      password: hashed,
+      role: "barber",
+    });
+
+    const saved = await newBarber.save();
+
+    res.status(201).json(saved);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error creando barbero" });
+  }
+});
+
+module.exports = router;

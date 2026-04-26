@@ -11,23 +11,31 @@ const createAppointment = async (req, res) => {
   try {
     const { clientName, service, date, time, duration, barber } = req.body;
 
-    if (!clientName || !service || !date || !time || !duration || !barber) {
+    // 🔹 Validación general
+    if (!clientName || !service || !date || !time || !duration) {
       return res.status(400).json({
         message: "Faltan datos obligatorios",
+      });
+    }
+
+    // 🔥 VALIDACIÓN ESPECÍFICA DE BARBERO
+    if (!barber) {
+      return res.status(400).json({
+        message: "Debes seleccionar un barbero",
       });
     }
 
     const newStart = timeToMinutes(time);
     const newEnd = newStart + duration;
 
-    // 🔥 ahora filtramos por barbero también
+    // 🔥 filtrar por fecha + barbero
     const appointments = await Appointment.find({ date, barber });
 
     for (let appt of appointments) {
       const apptStart = timeToMinutes(appt.time);
       const apptEnd = apptStart + appt.duration;
 
-      // overlap check
+      // 🔥 chequeo de solapamiento real
       if (newStart < apptEnd && newEnd > apptStart) {
         return res.status(400).json({
           message: "Este horario se solapa con otro turno",
@@ -40,7 +48,7 @@ const createAppointment = async (req, res) => {
       service,
       date,
       time,
-      duration,
+      duration: duration || 30,
       barber,
     });
 
@@ -49,8 +57,10 @@ const createAppointment = async (req, res) => {
     res.status(201).json(saved);
 
   } catch (error) {
+    console.log("ERROR CREATE APPOINTMENT:", error);
+
     res.status(500).json({
-      message: "Error creating appointment",
+      message: "Error creando turno",
       error,
     });
   }
@@ -61,9 +71,15 @@ const getAvailability = async (req, res) => {
   try {
     const { date, barber } = req.query;
 
-    if (!date || !barber) {
+    if (!date) {
       return res.status(400).json({
-        message: "Falta fecha o barbero",
+        message: "Falta la fecha",
+      });
+    }
+
+    if (!barber) {
+      return res.status(400).json({
+        message: "Falta el barbero",
       });
     }
 
@@ -81,12 +97,9 @@ const getAvailability = async (req, res) => {
 
     const appointments = await Appointment.find({ date, barber });
 
-    const addMinutes = (time, minutes) => {
+    const timeToMinutes = (time) => {
       const [h, m] = time.split(":").map(Number);
-      const dateObj = new Date();
-      dateObj.setHours(h);
-      dateObj.setMinutes(m + minutes);
-      return dateObj.toTimeString().slice(0, 5);
+      return h * 60 + m;
     };
 
     let occupiedSlots = [];
@@ -97,7 +110,12 @@ const getAvailability = async (req, res) => {
 
       while (remaining > 0) {
         occupiedSlots.push(currentTime);
-        currentTime = addMinutes(currentTime, 30);
+
+        const minutes = timeToMinutes(currentTime) + 30;
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+
+        currentTime = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
         remaining -= 30;
       }
     });
@@ -106,18 +124,17 @@ const getAvailability = async (req, res) => {
       (slot) => !occupiedSlots.includes(slot)
     );
 
-    res.json({
-      date,
-      barber,
-      available,
-    });
+    res.json({ date, available });
 
   } catch (error) {
+    console.log("ERROR AVAILABILITY:", error); // 🔥 esto es clave
+
     res.status(500).json({
       message: "Error getting availability",
     });
   }
 };
+
 
 module.exports = {
   createAppointment,
