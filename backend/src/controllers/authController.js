@@ -25,4 +25,33 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login };
+
+const register = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ message: "Usuario ya existe" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "barber",
+    });
+
+    await user.save();
+
+    res.json({ message: "Usuario creado" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error creando usuario" });
+  }
+};
+
+
+module.exports = { login, register };

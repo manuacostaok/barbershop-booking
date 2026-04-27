@@ -1,14 +1,26 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from "../api";
 import { motion } from "framer-motion";
-import { FaLock, FaEnvelope } from "react-icons/fa";
+import { FaLock, FaEnvelope, FaArrowLeft } from "react-icons/fa";
 import Toast from "../components/Toast";
 
-function Login({ onLogin }) {
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 🔥 AUTO REDIRECT SI YA ESTÁ LOGUEADO
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (token && user) {
+      if (user.role === "admin") {
+        window.location.href = "/admin";
+      }
+    }
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -19,10 +31,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password }
-      );
+      const res = await api.post("/auth/login", { email, password });
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -30,7 +39,11 @@ function Login({ onLogin }) {
       setToast("Login exitoso 🔐");
 
       setTimeout(() => {
-        onLogin(res.data.user);
+        if (res.data.user.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
       }, 800);
 
     } catch (err) {
@@ -72,6 +85,14 @@ function Login({ onLogin }) {
 
         <button className="button" onClick={handleLogin}>
           {loading ? "Ingresando..." : "Ingresar"}
+        </button>
+
+        {/* 🔥 BOTÓN VOLVER */}
+        <button
+          className="back-btn"
+          onClick={() => (window.location.href = "/")}
+        >
+          <FaArrowLeft /> Volver al inicio
         </button>
 
         <Toast

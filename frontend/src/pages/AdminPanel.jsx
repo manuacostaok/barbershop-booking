@@ -59,11 +59,14 @@ function AdminPanel() {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login";
-  };
+    setToast("Cerrando sesión...");
 
+    setTimeout(() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }, 600);
+  };
   // 🔥 traer turnos
   const fetchAppointments = async () => {
     try {
@@ -113,7 +116,7 @@ function AdminPanel() {
         <div className="header">
           <div className="title">Adminstrador</div>
 
-          <button className="button" onClick={logout}>
+          <button className="logout-btn" onClick={logout}>
             Cerrar sesión
           </button>
         </div>
