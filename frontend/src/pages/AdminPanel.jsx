@@ -4,7 +4,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import Calendar from "react-calendar";
 import { AnimatePresence, motion } from "framer-motion";
 import Toast from "../components/Toast";
-import { FaTrash, FaUndo, FaTimes } from "react-icons/fa";
+import { FaTrash, FaEdit, FaSignOutAlt, FaUndo, FaTimes } from "react-icons/fa";
 import CreateBarberModal from "../components/CreateBarberModal";
 import StatsCharts from "../components/StatsCharts";
 import Navbar from "../components/Navbar";
@@ -31,7 +31,61 @@ function AdminPanel() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
+  const [createType, setCreateType] = useState(null); // "barber" | "service"
+  const [newPrice, setNewPrice] = useState("");
+
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const [services, setServices] = useState([]);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const [editBarber, setEditBarber] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
+
+  const openEditBarber = (barber) => {
+    setEditBarber(barber);
+    setEditName(barber.name);
+    setEditEmail(barber.email || "");
+  };
+
+  const updateBarber = async () => {
+    try {
+      await api.put(`/users/${editBarber._id}`, {
+        name: editName,
+        email: editEmail,
+      });
+
+      setToast("Barbero actualizado ✂️");
+
+      setEditBarber(null);
+
+      const res = await api.get("/users/barbers");
+      setBarbers(res.data);
+
+    } catch {
+      setToast("Error actualizando");
+    }
+  };
+
+  const deleteBarber = async () => {
+    try {
+      await api.delete(`/users/${editBarber._id}`);
+
+      setToast("Barbero eliminado 🗑️");
+
+      setEditBarber(null);
+      setConfirmDeleteBarber(false);
+
+      const res = await api.get("/users/barbers");
+      setBarbers(res.data);
+
+    } catch {
+      setToast("Error eliminando");
+    }
+  };
 
   const openModal = (id, type) => {
     setSelectedId(id);
@@ -128,6 +182,27 @@ function AdminPanel() {
     api.get("/appointments/stats").then(res => setStats(res.data));
   }, []);
 
+  useEffect(() => {
+    api.get("/services")
+      .then(res => setServices(res.data))
+      .catch(() => setToast("Error cargando cortes"));
+  }, []);
+
+  const deleteService = async (id) => {
+    try {
+      await api.delete(`/services/${id}`);
+
+      setToast("Corte eliminado 🗑️");
+
+      // refrescar lista
+      const res = await api.get("/services");
+      setServices(res.data);
+
+    } catch (err) {
+      setToast("Error eliminando corte");
+    }
+  };
+
   const formatDate = (date) => {
     if (!date) return "";
     return (
@@ -147,25 +222,138 @@ function AdminPanel() {
   });
 
 
+  const handleCreate = async () => {
+    try {
+      if (createType === "barber") {
+        if (!newName || !newEmail || !newPassword) {
+          return setToast("Completá todos los campos");
+        }
+
+        await api.post("/users/barbers", {
+          name: newName,
+          email: newEmail,
+          password: newPassword,
+        });
+
+        setToast("Barbero creado ✂️");
+      }
+
+      if (createType === "service") {
+        if (!newName || !newPrice) {
+          return setToast("Completá nombre y precio");
+        }
+
+        await api.post("/services", {
+          name: newName,
+          price: newPrice,
+        });
+
+        setToast("Corte creado 💈");
+      }
+
+      setShowCreateModal(false);
+      setNewName("");
+      setNewEmail("");
+      setNewPassword("");
+      setNewPrice("");
+
+    } catch (err) {
+      setToast(err.response?.data?.message || "Error creando");
+    }
+  };
+
 
   return (
     
     <div className="container">
-      
       <motion.div className="card" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-         <>
-        <Navbar />
+
         {/* HEADER */}
         <div className="header-pro">
           <div className="title">Administrador</div>
-          <button className="logout-btn" onClick={logout}>
-            Cerrar sesión
-          </button>
-        </div></>
+
+          <div className="header-right">
+            {user && (
+              <div className="user-box" onClick={logout}>
+                <span className="admin-name">{user.name}</span>
+                <FaSignOutAlt className="logout-icon" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ============================= */}
+        {/* 🔥 CREAR BARBERO / CORTE */}
+        {/* ============================= */}
+
+        <div className="section">
+          <div className="section-title">⚙️ Gestión</div>
+
+          <div className="filters">
+            {/* CREAR BARBERO */}
+            <button
+              className="button create-btn"
+              onClick={() => {
+                setCreateType("barber");
+                setShowCreateModal(true);
+              }}
+            >
+              + Crear barbero
+            </button>
+
+            {/* CREAR CORTE */}
+            <button
+              className="button create-btn"
+              onClick={() => {
+                setCreateType("service");
+                setShowCreateModal(true);
+              }}
+            >
+              + Crear corte
+            </button>
+          </div>
+        </div>
+
+
+        {/* ============================= */}
+        {/* 🔥 MODAL REUTILIZADO */}
+        {/* ============================= */}
+
+        <CreateBarberModal
+          key={createType} // 🔥 ESTO SOLUCIONA TODO
+
+          open={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setCreateType(null); // 🔥 limpia estado
+          }}
+          onCreate={handleCreate}
+
+          type={createType} // 🔥 clave
+
+          name={newName}
+          setName={setNewName}
+          email={newEmail}
+          setEmail={setNewEmail}
+          password={newPassword}
+          setPassword={setNewPassword}
+
+          price={newPrice}
+          setPrice={setNewPrice}
+        />
+
+        
+
+        <div className="section">
+
+        <div className="section-title">🧔 Barberos</div>
 
         <div className="barbers-row">
           {barbers.map((b) => (
             <div key={b._id} className="barber-card">
+               <div className="barber-edit" onClick={() => openEditBarber(b)}>
+                <FaEdit />
+              </div>
               <img
                 src={b.avatar || "https://i.pravatar.cc/100"}
                 alt={b.name}
@@ -174,32 +362,46 @@ function AdminPanel() {
             </div>
           ))}
         </div>
+        </div>
 
-        {stats && <StatsCharts stats={stats} />}
-
-        {/* CREAR BARBERO */}
         <div className="section">
-          <div className="section-title">✂️ Crear barbero</div>
 
-          <div className="filters">
-            <input className="input" placeholder="Nombre" onChange={e => setNewName(e.target.value)} />
-            <input className="input" placeholder="Email" onChange={e => setNewEmail(e.target.value)} />
-            <input
-              className="input"
-              type="password"
-              placeholder="Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <button className="button create-btn" onClick={() => setShowCreateModal(true)}>
-              + Crear barbero
-            </button>
+        <div className="section">
+          <div className="section-title">💈 Cortes</div>
+
+          <div className="barbers-row">
+            {services.map((s) => (
+              <div key={s._id} className="barber-card service-card">
+
+                <div className="service-info">
+                  <span className="service-name">{s.name}</span>
+                  <span className="service-price">${s.price}</span>
+                </div>
+
+                <button
+                  className="delete-service-btn"
+                  onClick={() => deleteService(s._id)}
+                >
+                  <FaTrash />
+                </button>
+
+              </div>
+            ))}
           </div>
         </div>
 
+
+        <div className="section-title">📊 Estadísticas</div>
+
+        {stats && <StatsCharts stats={stats} />}
+
+        </div>
+
+        
+
         {/* FILTROS */}
         <div className="section">
-          <div className="section-title">🔎 Filtros</div>
+          <div className="section-title">🔎 Filtrar turnos </div>
 
           <div className="filters">
             <button className="button" onClick={() => setShowCalendar(!showCalendar)}>
@@ -308,28 +510,61 @@ function AdminPanel() {
         </div>
 
         <ConfirmModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onConfirm={handleConfirm}
-          text={
-            actionType === "delete"
-              ? "¿Eliminar este turno definitivamente?"
-              : "¿Cancelar este turno?"
-          }
+          open={!!editBarber}
+          onClose={() => setEditBarber(null)}
+          hideButtons={true}
+        >
+          <div className="edit-modal">
+            <h3>Editar barbero ✂️</h3>
+
+            {/* AVATAR (placeholder por ahora) */}
+            <div className="avatar-preview">
+              <img
+                src={editBarber?.avatar || "https://i.pravatar.cc/100"}
+                alt="avatar"
+              />
+              <span className="avatar-text">Avatar próximamente</span>
+            </div>
+
+            <input
+              className="input"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Nombre"
+            />
+
+            <input
+              className="input"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              placeholder="Email"
+            />
+
+            <div className="modal-actions">
+              <button className="button" onClick={updateBarber}>
+                Confirmar
+              </button>
+
+              <button
+                className="delete-btn"
+                onClick={() => setConfirmDeleteBarber(true)}
+              >
+                Borrar
+              </button>
+            </div>
+          </div>
+        </ConfirmModal>
+        <ConfirmModal
+          open={confirmDeleteBarber}
+          onClose={() => setConfirmDeleteBarber(false)}
+          onConfirm={deleteBarber}
+          text="¿Seguro que querés eliminar este barbero?"
+          confirmText="Sí, eliminar"
+          cancelText="Cancelar"
         />
 
         <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
-        <CreateBarberModal
-          open={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onCreate={createBarber}
-          name={newName}
-          setName={setNewName}
-          email={newEmail}
-          setEmail={setNewEmail}
-          password={newPassword}
-          setPassword={setNewPassword}
-        />
+        
       </motion.div>
     </div>
     

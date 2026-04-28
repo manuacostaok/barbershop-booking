@@ -4,12 +4,21 @@ function CreateBarberModal({
   open,
   onClose,
   onCreate,
+
+  // 🔥 tipo: "barber" | "service"
+  type = "barber",
+
+  // 🔥 estados existentes
   name,
   setName,
   email,
   setEmail,
   password,
-  setPassword
+  setPassword,
+
+  // 🔥 nuevo (para cortes)
+  price,
+  setPrice
 }) {
   if (!open) return null;
 
@@ -22,30 +31,61 @@ function CreateBarberModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
         >
-          <h2>Crear nuevo barbero ✂️</h2>
+          {/* 🔥 TÍTULO DINÁMICO */}
+          <h2>
+            {type === "barber"
+              ? "Crear nuevo barbero ✂️"
+              : "Crear nuevo corte 💈"}
+          </h2>
 
-          <input
-            className="input"
-            placeholder="Nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          {/* 🔥 BARBER */}
+          {type === "barber" && (
+            <>
+              <input
+                className="input"
+                placeholder="Nombre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
 
-          <input
-            className="input"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+              <input
+                className="input"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
 
-          <input
-            className="input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+              <input
+                className="input"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </>
+          )}
 
+          {/* 🔥 SERVICE / CORTE */}
+          {type === "service" && (
+            <>
+              <input
+                className="input"
+                placeholder="Nombre del corte"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+
+              <input
+                className="input"
+                type="number"
+                placeholder="Precio"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </>
+          )}
+
+          {/* 🔥 ACCIONES */}
           <div className="modal-actions">
             <button className="button" onClick={onCreate}>
               Crear
