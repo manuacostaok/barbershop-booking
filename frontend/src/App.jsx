@@ -3,6 +3,8 @@ import Booking from "./pages/Booking";
 import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BarberDashboard from "./pages/BarberDashboard";
+
 
 function App() {
   return (
@@ -20,6 +22,16 @@ function App() {
             <ProtectedRoute role="admin">
                 <AdminPanel />
               </ProtectedRoute>
+          }
+        />
+        {/* 🔒 crear barber PROTEGIDO */}
+
+        <Route
+          path="/barber"
+          element={
+            <ProtectedRoute role="barber">
+              <BarberDashboard />
+            </ProtectedRoute>
           }
         />
       </Routes>

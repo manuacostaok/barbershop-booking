@@ -1,51 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-// GET barberos
+const User = require("../models/User");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// ===============================
+// 🔥 OBTENER BARBEROS
+// ===============================
 router.get("/barbers", async (req, res) => {
   try {
     const barbers = await User.find({ role: "barber" }).select("-password");
     res.json(barbers);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Error obteniendo barberos" });
   }
 });
 
-// 🔥 crear barbero (PRO)
-router.post("/barber", async (req, res) => {
+// ===============================
+// 🔒 CREAR BARBERO (SOLO ADMIN)
+// ===============================
+router.post("/barbers", authMiddleware, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        message: "Faltan datos",
-      });
-    }
+    const exists = await User.findOne({ email });
 
-    const existing = await User.findOne({ email });
-
-    if (existing) {
-      return res.status(400).json({
-        message: "El usuario ya existe",
-      });
+    if (exists) {
+      return res.status(400).json({ message: "Ya existe ese usuario" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
 
-    const newBarber = new User({
+    const user = new User({
       name,
       email,
       password: hashed,
       role: "barber",
     });
 
-    const saved = await newBarber.save();
+    await user.save();
 
-    res.status(201).json(saved);
+    res.json(user);
+
   } catch (error) {
-    console.log(error);
+    console.log("ERROR CREATE BARBER:", error);
     res.status(500).json({ message: "Error creando barbero" });
   }
 });

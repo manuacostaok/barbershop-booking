@@ -4,15 +4,9 @@ function ProtectedRoute({ children, role }) {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // 🔐 no logueado
-  if (!token || !user) {
-    return <Navigate to="/login" />;
-  }
+  if (!token || !user) return <Navigate to="/login" />;
 
-  // 🔒 control de rol (opcional)
-  if (role && user.role !== role) {
-    return <Navigate to="/" />;
-  }
+  if (role && user.role !== role) return <Navigate to="/" />;
 
   return children;
 }

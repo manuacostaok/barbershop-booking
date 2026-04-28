@@ -707,3 +707,169 @@ body {
   color: #fff;
   transform: translateX(-2px);
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #111;
+  color: white;
+}
+
+.logo {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-logout {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+}
+
+.header-pro {
+  transition: 0.3s;
+}
+
+.header-pro:hover {
+  box-shadow: 0 0 20px rgba(0,255,255,0.2);
+}
+
+/* SECCIONES */
+.section {
+  margin-top: 25px;
+}
+
+.section-title {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-bottom: 10px;
+}
+
+/* BOTÓN CREAR */
+.create-btn {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  border: none;
+}
+
+/* HOVER */
+.create-btn:hover {
+  transform: scale(1.05);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-box {
+  background: #111;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.navbar {
+  height: 70px;
+  background: #0d0d0d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid #222;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logout-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+
+.barbers-row {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 0;
+  margin-top: 10px;
+}
+
+.barbers-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.barbers-row::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+.barber-card {
+  min-width: 80px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.barber-card img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #222;
+}
+
+.barber-card span {
+  font-size: 12px;
+}
