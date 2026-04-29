@@ -4,10 +4,12 @@ import ConfirmModal from "../components/ConfirmModal";
 import Calendar from "react-calendar";
 import { AnimatePresence, motion } from "framer-motion";
 import Toast from "../components/Toast";
-import { FaTrash, FaEdit, FaSignOutAlt, FaUndo, FaTimes } from "react-icons/fa";
+import { FaTrash, FaHome, FaEdit, FaSignOutAlt, FaUndo, FaTimes } from "react-icons/fa";
 import CreateBarberModal from "../components/CreateBarberModal";
 import StatsCharts from "../components/StatsCharts";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
+
 
 function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
@@ -44,6 +46,9 @@ function AdminPanel() {
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
+
+
+  const navigate = useNavigate();
 
   const openEditBarber = (barber) => {
     setEditBarber(barber);
@@ -273,6 +278,15 @@ function AdminPanel() {
           <div className="title">Administrador</div>
 
           <div className="header-right">
+            {/* 🔥 BOTÓN HOME */}
+            <button
+              className="nav-icon-btn"
+              onClick={() => navigate("/")}
+            >
+              <FaHome />
+            </button>
+
+            {/* 🔥 USER + LOGOUT (igual que antes) */}
             {user && (
               <div className="user-box" onClick={logout}>
                 <span className="admin-name">{user.name}</span>
@@ -444,7 +458,7 @@ function AdminPanel() {
 
         {/* TURNOS */}
         <div className="section">
-          <div className="section-title">📅 Ver turnos</div>
+          <div className="section-title">📅 Lista turnos</div>
 
           {loading ? (
             <p>Cargando...</p>

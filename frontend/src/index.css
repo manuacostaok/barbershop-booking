@@ -741,11 +741,73 @@ body {
 }
 
 .header-pro {
+  position: relative;
+  transition: all 0.35s ease;
+  border-radius: 12px;
+}
+
+/* glow + elevación */
+.header-pro:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.06);
+}
+
+/* glow animado sutil */
+.header-pro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.15),
+    transparent 60%
+  );
+
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.header-pro:hover::after {
+  opacity: 1;
+}
+
+.title {
   transition: 0.3s;
 }
 
-.header-pro:hover {
-  box-shadow: 0 0 20px rgba(0,255,255,0.2);
+.header-pro:hover .title {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+
+/* botón icono moderno */
+.nav-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px; /* 👈 bajamos un poco */
+
+  border-radius: 8px;
+  border: 1px solid transparent;
+
+  background: rgba(255, 255, 255, 0.05);
+  color: #aaa;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.nav-icon-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
 }
 
 /* SECCIONES */
@@ -761,7 +823,7 @@ body {
 
 /* BOTÓN CREAR */
 .create-btn {
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  background: linear-gradient(135deg, #6318dd, #9591cc);
   border: none;
 }
 
