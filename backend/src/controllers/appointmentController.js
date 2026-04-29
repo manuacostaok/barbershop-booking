@@ -12,7 +12,7 @@ const createAppointment = async (req, res) => {
     const { clientName, service, date, time, duration, barber } = req.body;
 
     // 🔹 Validación general
-    if (!clientName || !service || !date || !time || !duration) {
+    if (!clientName || !service || !date || !time || ) {
       return res.status(400).json({
         message: "Faltan datos obligatorios",
       });

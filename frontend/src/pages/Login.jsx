@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api";
 import { motion } from "framer-motion";
-import { FaLock, FaEnvelope, FaArrowLeft } from "react-icons/fa";
+import { FaLock, FaEnvelope } from "react-icons/fa";
 import Toast from "../components/Toast";
 
 function Login() {
@@ -15,10 +15,8 @@ function Login() {
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user"));
 
-    if (token && user) {
-      if (user.role === "admin") {
-        window.location.href = "/admin";
-      }
+    if (token && user?.role === "admin") {
+      window.location.href = "/admin";
     }
   }, []);
 
@@ -44,7 +42,7 @@ function Login() {
         } else {
           window.location.href = "/";
         }
-      }, 800);
+      }, 600);
 
     } catch (err) {
       setToast(err.response?.data?.message || "Error login");
@@ -54,54 +52,51 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <motion.div
-        className="card"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="title">Admin Login</div>
+    <motion.div
+      className="card login-card"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      {/* 🔥 TITLE */}
+      <div className="title login-title">
+        🔐 Admin Login
+      </div>
 
-        <div className="input-group">
-          <FaEnvelope />
-          <input
-            className="input"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="input-group">
-          <FaLock />
-          <input
-            className="input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <button className="button" onClick={handleLogin}>
-          {loading ? "Ingresando..." : "Ingresar"}
-        </button>
-
-        {/* 🔥 BOTÓN VOLVER */}
-        <button
-          className="back-btn"
-          onClick={() => (window.location.href = "/")}
-        >
-          <FaArrowLeft /> Volver al inicio
-        </button>
-
-        <Toast
-          message={toast}
-          show={!!toast}
-          onClose={() => setToast("")}
+      {/* 📧 EMAIL */}
+      <div className="input-group">
+        <FaEnvelope />
+        <input
+          className="input"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-      </motion.div>
-    </div>
+      </div>
+
+      {/* 🔒 PASSWORD */}
+      <div className="input-group">
+        <FaLock />
+        <input
+          className="input"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      {/* 🚀 BUTTON */}
+      <button className="button" onClick={handleLogin}>
+        {loading ? "Ingresando..." : "Ingresar"}
+      </button>
+
+      {/* 🔥 TOAST */}
+      <Toast
+        message={toast}
+        show={!!toast}
+        onClose={() => setToast("")}
+      />
+    </motion.div>
   );
 }
 

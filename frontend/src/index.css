@@ -27,35 +27,220 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.login-modal {
+  width: 400px;
+  max-width: 90%;
+  padding: 24px;
+}
+
+.login-modal .card {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.login-modal-content {
+  width: 100%;
+}
+
+transition={{ type: "spring", stiffness: 200, damping: 20 }}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  font-size: 18px;
+  cursor: pointer;
+  color: #aaa;
+
+  transition: 0.2s;
+}
+
+.modal-close:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 14px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  color: #fff;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.login-btn:hover {
+  background: rgba(99,102,241,0.2);
+  border-color: #6366f1;
+  box-shadow: 0 0 12px rgba(99,102,241,0.4);
+}
+
 /* =========================
    TITLE
 ========================= */
-
-.title {
-  font-size: 2.3rem;
+* {
+  box-sizing: border-box;
+}
+/* ===== TITLE PRO ===== */
+.booking-title {
+  font-size: 26px;
   font-weight: 800;
   text-align: center;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  -webkit-background-clip: text;
-  color: transparent;
-  margin-bottom: 1.5rem;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
 }
+
+.logo-glow {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255,255,255,0.6);
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+/* ===== SERVICES ===== */
+.card-service {
+  width: 140px;
+  height: 70px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 12px;
+}
+
+.service-name {
+  font-weight: 600;
+}
+
+.service-price {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* ===== BARBERS ===== */
+.barbers {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.barber-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 80px;
+  cursor: pointer;
+}
+
+.barber-card img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+
+  border: 2px solid transparent;
+  transition: 0.2s;
+}
+
+.barber-card.active img {
+  border-color: #fff;
+}
+
+/* ===== CALENDAR ===== */
+.calendar-toggle {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.calendar-dropdown {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+
 
 /* =========================
    INPUT
 ========================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  transition: background-color 9999s ease-in-out 0s;
+  box-shadow: 0 0 0px 1000px #0f172a inset;
+}
 
 .input {
   width: 100%;
-  box-sizing: border-box;
   padding: 14px;
   margin-top: 12px;
   border-radius: 12px;
-  border: none;
-  outline: none;
-  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(15, 23, 42, 0.8);
   color: white;
+
+  transition: all 0.2s ease;
 }
+
+.input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 10px rgba(99,102,241,0.3);
+}
+
 
 /* =========================
    BUTTON
@@ -403,9 +588,7 @@ body {
   background: rgba(239,68,68,0.4);
 }
 
-/*:modal
 
-*/
 
 .modal-overlay {
   position: fixed;
@@ -637,12 +820,44 @@ body {
 }
 
 /* HEADER PRO */
+
 .header-pro {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  transition: all 0.35s ease;
+  border-radius: 12px;
 }
+
+.header-pro:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.06);
+}
+
+.header-pro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.15),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.header-pro:hover::after {
+  opacity: 1;
+}
+
+
 
 /* USER BOX */
 .user-box {
@@ -740,50 +955,12 @@ body {
   cursor: pointer;
 }
 
-.header-pro {
-  position: relative;
-  transition: all 0.35s ease;
-  border-radius: 12px;
-}
 
-/* glow + elevación */
-.header-pro:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(255, 255, 255, 0.06);
-}
-
-/* glow animado sutil */
-.header-pro::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-
-  background: radial-gradient(
-    circle at top right,
-    rgba(255, 255, 255, 0.15),
-    transparent 60%
-  );
-
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
-}
-
-.header-pro:hover::after {
-  opacity: 1;
-}
 
 .title {
   transition: 0.3s;
 }
 
-.header-pro:hover .title {
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.2);
-}
 
 
 /* botón icono moderno */
@@ -810,16 +987,15 @@ body {
   transform: translateY(-1px);
 }
 
+.nav-icon-btn svg {
+  font-size: 14px;
+}
+
 /* SECCIONES */
 .section {
   margin-top: 25px;
 }
 
-.section-title {
-  font-size: 14px;
-  opacity: 0.6;
-  margin-bottom: 10px;
-}
 
 /* BOTÓN CREAR */
 .create-btn {
@@ -1007,13 +1183,6 @@ body {
   align-items: center;
 }
 
-.header-pro {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: 20px;
-}
 
 .header-left {
   display: flex;
