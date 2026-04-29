@@ -49,4 +49,45 @@ router.post("/barbers", authMiddleware, async (req, res) => {
   }
 });
 
+// ===============================
+// 🔥 EDITAR BARBERO
+// ===============================
+router.put("/:id", authMiddleware, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Barbero no encontrado" });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Error actualizando barbero" });
+  }
+});
+
+// ===============================
+// 🔥 BORRAR BARBERO
+// ===============================
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Barbero no encontrado" });
+    }
+
+    res.json({ message: "Barbero eliminado" });
+  } catch (err) {
+    res.status(500).json({ message: "Error eliminando barbero" });
+  }
+});
+
+
 module.exports = router;
