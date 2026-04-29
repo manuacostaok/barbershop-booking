@@ -152,12 +152,13 @@ body {
 
 /* ===== SECTION TITLE ===== */
 .section-title {
+  font-size: 17px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
 
-  font-size: 14px;
-  color: #aaa;
+  color: #ffffff;
   margin-bottom: 10px;
 }
 
@@ -206,6 +207,10 @@ body {
 
   min-width: 80px;
   cursor: pointer;
+}
+
+.barber-card:hover {
+  z-index: 10;
 }
 
 .barber-card img {
@@ -283,7 +288,7 @@ input:-webkit-autofill:focus {
   border: none;
   border-radius: 12px;
 
-  background: linear-gradient(135deg, #d4af37, #facc15);
+  background: linear-gradient(90deg, #f0f0ea, #fffef7);
   color: #020617;
 
   font-weight: 700;
@@ -311,6 +316,13 @@ input:-webkit-autofill:focus {
    SERVICES
 ========================= */
 
+.services-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
 .services {
   display: flex;
   justify-content: center;
@@ -334,11 +346,14 @@ input:-webkit-autofill:focus {
 }
 
 .service:hover {
-  background: rgba(99,102,241,0.3);
+  background: rgba(123, 123, 131, 0.3);
 }
 
 .service.active {
-  background: linear-gradient(90deg, #6366f1, #a855f7);
+  background: linear-gradient(90deg, #dcdd81, #f7d726);
+
+  border-color: #d4af37;
+    box-shadow: 0 0 10px rgba(212,175,55,0.6);
 }
 
 /* =========================
@@ -600,18 +615,10 @@ input:-webkit-autofill:focus {
   gap: 10px;
 }
 
-/* fila */
-.row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 12px;
-  border-radius: 12px;
-  background: #0f172a;
-  transition: 0.2s;
-}
+
 
 .row:hover {
-  background: rgba(99,102,241,0.2);
+  background: rgba(212,175,55,0.15);
 }
 
 .cancel-btn {
@@ -1045,7 +1052,9 @@ input:-webkit-autofill:focus {
 
 /* BOTÓN CREAR */
 .create-btn {
-  background: linear-gradient(135deg, #6318dd, #9591cc);
+  background: linear-gradient(90deg, #ffffff, #ffffff);
+  border-color: #d4af37;
+  box-shadow: 0 0 10px rgba(212,175,55,0.6);
   border: none;
 }
 
@@ -1127,6 +1136,9 @@ input:-webkit-autofill:focus {
   display: flex;
   gap: 15px;
   overflow-x: auto;
+  overflow-y: visible; /* 👈 CLAVE */
+  padding-top: 20px; /* 👈 evita el corte visual */
+
   padding: 10px 0;
   margin-top: 10px;
 }
@@ -1144,6 +1156,8 @@ input:-webkit-autofill:focus {
   min-width: 80px;
   text-align: center;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 .barber-card img {
@@ -1249,18 +1263,51 @@ input:-webkit-autofill:focus {
 }
 
 
+.services-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.services-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.services-row::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
 .service-card {
+  flex: 0 0 auto;
+  min-width: 120px;
+  max-width: 180px;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 160px;
+
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.services-row {
+  scroll-snap-type: x mandatory;
+}
+
+.service-card {
+  scroll-snap-align: start;
 }
 
 .service-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
-
 .service-name {
   font-weight: 600;
 }
@@ -1271,6 +1318,7 @@ input:-webkit-autofill:focus {
 }
 
 .delete-service-btn {
+  margin-left: auto;
   background: transparent;
   border: none;
   color: #ff4d4d;
@@ -1395,4 +1443,449 @@ input:-webkit-autofill:focus {
 .modal-close:hover {
   color: #fff;
   transform: scale(1.2);
+}
+
+/* =========================
+   FIX CORTE (SERVICE CARD)
+========================= */
+
+.service-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0 !important;
+  padding: 12px;
+}
+
+/* rompe el estilo de barber-card dentro de service */
+.service-card img {
+  display: none !important;
+}
+
+/* info alineada */
+.service-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* tacho SIEMPRE a la derecha y centrado */
+.delete-service-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   MODAL BUTTON FIX
+========================= */
+
+.modal-actions button {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: rgb(0, 0, 0);
+}
+
+/* botón cancelar / volver */
+.modal-actions .cancel,
+.modal-actions .btn.cancel {
+  background: #d3c93c;
+  color: #f7f445;
+}
+
+/* botón confirmar */
+.modal-actions .danger,
+.modal-actions .btn.confirm {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* =========================
+   BARBER FILTER PRO
+========================= */
+
+.barber-filter {
+  margin-top: 10px;
+}
+
+.barber-filter-title {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+/* fila scroll horizontal */
+.barber-filter-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* ocultar scrollbar */
+.barber-filter-row::-webkit-scrollbar {
+  height: 4px;
+}
+.barber-filter-row::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+/* PILL */
+.barber-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+
+  color: #bbb;
+  font-size: 13px;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  flex: 0 0 auto;
+}
+
+/* avatar */
+.barber-pill img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* hover */
+.barber-pill:hover,
+.filter-date-pill:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  transform: none;
+}
+/* active */
+.barber-pill.active {
+  background: rgba(212,175,55,0.15);
+  border: 1px solid #ffffff;
+  color: white;
+}
+
+/* =========================
+   FILTER FLOW PRO
+========================= */
+
+
+.filter-block.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  flex-wrap: wrap; /* 🔥 importante para responsive */
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 🔥 clave */
+
+  gap: 6px;
+
+  text-align: left;
+  width: 100%;
+}
+
+/* botón fecha más limpio */
+.filter-button {
+  width: 100%;
+}
+
+/* barberos */
+.barber-filter-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+/* pills */
+.barber-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+
+  color: #bbb;
+  font-size: 13px;
+
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: 0.25s;
+}
+
+.barber-pill img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+/* hover */
+.barber-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(99,102,241,0.15);
+  color: #fff;
+}
+
+/* activo */
+
+
+/* resumen final */
+.filter-summary {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #888;
+  padding: 8px 10px;
+  border-left: 2px solid #6366f1;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+.filter-date-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  width: fit-content;
+  min-width: 220px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  color: white;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+
+
+.filter-date-pill.active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.filter-date-pill .icon {
+  opacity: 0.9;
+}
+
+.filter-date-pill .text {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.filter-date-pill .chevron {
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+.filter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-date-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  width: 100%; /* 👈 ocupa ancho pero elegante */
+  max-width: 320px; /* 👈 evita que sea gigante */
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: white;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+  margin-top: 2px; /* 👈 baja el salto visual */
+}
+
+
+
+.filter-date-pill .icon {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.filter-date-pill .text {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.filter-date-pill .chevron {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* CONTENEDOR SCROLL (FIX REAL DEL BUG) */
+.barber-filter-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: visible;   /* 🔥 CLAVE */
+  padding: 12px 4px 18px; /* 🔥 espacio para hover */
+  position: relative;
+  z-index: 1;
+  scroll-behavior: smooth;
+}
+
+/* cada pill puede sobresalir */
+.barber-pill {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+
+  color: #bbb;
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* hover flotante sin corte */
+.barber-pill:hover {
+  transform: translateY(-3px);
+  z-index: 10;
+  background: rgba(255,255,255,0.08);
+}
+
+
+
+/* 🔥 BOTÓN "TODOS" SIN VIOLETA */
+.barber-pill.active-all {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* hover de TODOS */
+.barber-pill.active-all:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+/* avatar */
+.barber-pill img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+/* 🔥 alinear título + botón en la misma línea */
+.date-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 📅 label más prolijo */
+.date-filter .filter-label {
+  width: auto;
+  margin: 0;
+}
+
+/* 🚫 desactivar hover SOLO para esta sección */
+.no-hover:hover {
+  transform: none !important;
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* 📅 botón más compacto al lado del título */
+.date-filter .filter-date-pill {
+  max-width: 260px;
+  margin-top: 0;
+}
+
+.filter-block.row {
+  transition: none !important;
+}
+
+.filter-block.row:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* ===== BLOQUEAR VIOLETA GLOBAL ===== */
+:root {
+  --accent: #d4af37; /* tu dorado */
+}
+
+/* reemplazos clave */
+.slot:hover {
+  background: rgba(212,175,55,0.2) !important;
+}
+
+.slot.active {
+  background: linear-gradient(90deg, #d4af37, #facc15) !important;
+}
+
+.react-calendar__tile:enabled:hover {
+  background: rgba(212,175,55,0.2) !important;
+}
+
+.react-calendar__tile--active {
+  background: linear-gradient(90deg, #d4af37, #facc15) !important;
 }

@@ -10,6 +10,7 @@ function CreateBarberModal({
 
   // 🔥 estados existentes
   name,
+  phone,
   setName,
   email,
   setEmail,
@@ -34,8 +35,8 @@ function CreateBarberModal({
           {/* 🔥 TÍTULO DINÁMICO */}
           <h2>
             {type === "barber"
-              ? "Crear nuevo barbero ✂️"
-              : "Crear nuevo corte 💈"}
+              ? "✂️Nuevo barbero"
+              : "💈Nuevo corte"}
           </h2>
 
           {/* 🔥 BARBER */}
@@ -47,7 +48,12 @@ function CreateBarberModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-
+              <input
+                className="input"
+                placeholder="Teléfono"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
               <input
                 className="input"
                 placeholder="Email"

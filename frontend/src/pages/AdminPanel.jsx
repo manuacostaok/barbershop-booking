@@ -30,6 +30,8 @@ function AdminPanel() {
   const [stats, setStats] = useState(null);
 
   const [newName, setNewName] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
@@ -44,6 +46,8 @@ function AdminPanel() {
 
   const [editBarber, setEditBarber] = useState(null);
   const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+
   const [editEmail, setEditEmail] = useState("");
   const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
 
@@ -53,6 +57,7 @@ function AdminPanel() {
   const openEditBarber = (barber) => {
     setEditBarber(barber);
     setEditName(barber.name);
+    setEditPhone(barber.phone)
     setEditEmail(barber.email || "");
   };
 
@@ -60,6 +65,7 @@ function AdminPanel() {
     try {
       await api.put(`/users/${editBarber._id}`, {
         name: editName,
+        phone: editPhone,
         email: editEmail,
       });
 
@@ -133,6 +139,8 @@ function AdminPanel() {
       setToast("Barbero creado ✂️");
 
       setNewName("");
+      setNewPhone("");
+
       setNewEmail("");
       setNewPassword("");
 
@@ -159,7 +167,7 @@ function AdminPanel() {
     setToast("Cerrando sesión...");
     setTimeout(() => {
       localStorage.clear();
-      window.location.href = "/login";
+      window.location.href = "/";
     }, 600);
   };
 
@@ -236,6 +244,7 @@ function AdminPanel() {
 
         await api.post("/users/barbers", {
           name: newName,
+          phone: newPhone,
           email: newEmail,
           password: newPassword,
         });
@@ -258,6 +267,8 @@ function AdminPanel() {
 
       setShowCreateModal(false);
       setNewName("");
+      setNewPhone("");
+
       setNewEmail("");
       setNewPassword("");
       setNewPrice("");
@@ -347,6 +358,8 @@ function AdminPanel() {
 
           name={newName}
           setName={setNewName}
+          setPhone={setNewPhone}
+
           email={newEmail}
           setEmail={setNewEmail}
           password={newPassword}
@@ -383,7 +396,7 @@ function AdminPanel() {
         <div className="section">
           <div className="section-title">💈 Cortes</div>
 
-          <div className="barbers-row">
+          <div className="services-row">
             {services.map((s) => (
               <div key={s._id} className="barber-card service-card">
 
@@ -415,45 +428,87 @@ function AdminPanel() {
 
         {/* FILTROS */}
         <div className="section">
-          <div className="section-title">🔎 Filtrar turnos </div>
+          <div className="section-title">🔎 Filtrar turnos</div>
 
-          <div className="filters">
-            <button className="button" onClick={() => setShowCalendar(!showCalendar)}>
-              {filterDate ? `Fecha: ${formatDate(filterDate)}` : "Elegir fecha"}
+          {/* STEP 1 - FECHA */}
+          <div className="filter-block row date-filter">
+            <div className="filter-label">
+              📅 Fecha
+            </div>
+
+            <button
+              className="filter-date-pill no-hover"
+              onClick={() => setShowCalendar(!showCalendar)}
+            >
+              <span className="icon">📅</span>
+
+              <span className="text">
+                {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
+              </span>
+
+              <span className="chevron">▼</span>
             </button>
 
-            <select
-              className="input"
-              value={filterBarber}
-              onChange={(e) => setFilterBarber(e.target.value)}
-            >
-              <option value="">Todos los barberos</option>
-              {barbers.map((b) => (
-                <option key={b._id} value={b._id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+            <AnimatePresence>
+              {showCalendar && (
+                <motion.div
+                  className="calendar-dropdown"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <Calendar
+                    onChange={(date) => {
+                      setFilterDate(date);
+                      setShowCalendar(false);
+                    }}
+                    value={filterDate}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <AnimatePresence>
-            {showCalendar && (
-              <motion.div
-                className="calendar-dropdown"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+          {/* STEP 2 - BARBEROS */}
+          <div className="filter-block barber-filter">
+            <div className="filter-label">✂️ Barbero</div>
+
+            <div className="barber-filter-row">
+              <button
+                className={`barber-pill ${filterBarber === "" ? "active-all" : ""}`}
+                onClick={() => setFilterBarber("")}
               >
-                <Calendar
-                  onChange={(date) => {
-                    setFilterDate(date);
-                    setShowCalendar(false);
-                  }}
-                  value={filterDate}
-                />
-              </motion.div>
+                Todos
+              </button>
+
+              {barbers.map((b) => (
+                <button
+                  key={b._id}
+                  className={`barber-pill ${filterBarber === b._id ? "active" : ""}`}
+                  onClick={() => setFilterBarber(b._id)}
+                >
+                  <img
+                    src={b.avatar || "https://i.pravatar.cc/100"}
+                    alt={b.name}
+                  />
+                  {b.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* STEP 3 - RESUMEN (opcional pero PRO) */}
+          <div className="filter-summary">
+            {filterDate || filterBarber ? (
+              <span>
+                Filtros activos:
+                {filterDate && ` 📅 ${formatDate(filterDate)}`}
+                {filterBarber && ` ✂️ ${barbers.find(b => b._id === filterBarber)?.name}`}
+              </span>
+            ) : (
+              <span>Mostrando todos los turnos</span>
             )}
-          </AnimatePresence>
+          </div>
         </div>
 
         {/* TURNOS */}
@@ -546,6 +601,12 @@ function AdminPanel() {
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Nombre"
             />
+            <input
+              className="input"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              placeholder="Teléfono"
+            />
 
             <input
               className="input"
@@ -575,6 +636,18 @@ function AdminPanel() {
           text="¿Seguro que querés eliminar este barbero?"
           confirmText="Sí, eliminar"
           cancelText="Cancelar"
+        />
+        <ConfirmModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onConfirm={handleConfirm}
+          text={
+            actionType === "cancel"
+              ? "¿Seguro que querés cancelar el turno?"
+              : "¿Seguro que querés eliminar el turno?"
+          }
+          confirmText={actionType === "cancel" ? "Cancelar turno" : "Eliminar"}
+          cancelText="Volver"
         />
 
         <Toast message={toast} show={!!toast} onClose={() => setToast("")} />

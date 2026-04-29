@@ -8,6 +8,12 @@ const appointmentSchema = new mongoose.Schema(
       trim: true,
     },
 
+    clientPhone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     service: {
       type: String,
       required: true,
@@ -22,23 +28,23 @@ const appointmentSchema = new mongoose.Schema(
     barber: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // 🔥 clave para multi-barbero real
+      required: true,
     },
 
     date: {
-      type: String, // "2026-04-25"
+      type: String,
       required: true,
     },
 
     time: {
-      type: String, // "14:30"
+      type: String,
       required: true,
     },
 
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
-      default: "confirmed", // 🔥 mejor UX directa
+      default: "confirmed",
     },
   },
   {
@@ -46,7 +52,6 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
-// 🔥 ÍNDICE IMPORTANTE (evita duplicados por barbero + horario)
 appointmentSchema.index({ date: 1, time: 1, barber: 1 }, { unique: true });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

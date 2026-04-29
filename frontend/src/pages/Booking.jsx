@@ -25,7 +25,7 @@ function Booking() {
   const [barbers, setBarbers] = useState([]);
   const [services, setServices] = useState([]);
   const [name, setName] = useState("");
-
+  const [phone, setPhone] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -89,10 +89,14 @@ function Booking() {
 
     if (!name)
       return setToast("Ingresá tu nombre 👤");
+    if (!phone)
+    return setToast("Ingresá tu teléfono 📱");
+
 
     try {
       await api.post("/appointments", {
         clientName: name,
+        clientPhone: phone,
         service: selectedService.name,
         date: formatDate(date),
         time: selectedTime,
@@ -103,7 +107,9 @@ function Booking() {
       setToast("Turno reservado con éxito 🔥");
 
       setSelectedTime("");
+      
       setName("");
+      setPhone("");
     } catch (err) {
       setToast(err.response?.data?.message || "Error");
     }
@@ -247,6 +253,12 @@ function Booking() {
             placeholder="Tu nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className="input"
+            placeholder="Tu teléfono"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
         </div>
 

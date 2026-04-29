@@ -9,15 +9,29 @@ const timeToMinutes = (time) => {
 // Crear turno
 const createAppointment = async (req, res) => {
   try {
-    const { clientName, service, date, time, duration, barber } = req.body;
+    const { clientName, clientPhone,service, date, time, duration, barber } = req.body;
 
     // 🔹 Validación general
-    if (!clientName || !service || !date || !time ) {
+    if (!clientName ) {
       return res.status(400).json({
-        message: "Faltan datos obligatorios",
+        message: "Faltan completar tu nombre",
       });
     }
-
+    if (!date || !time) {
+    return res.status(400).json({
+      message: "Falta seleccionar fecha y horario",
+    });
+    }
+    if (!service) {
+    return res.status(400).json({
+      message: "Falta seleccionar el corte",
+    });
+    }
+    if (!clientPhone) {
+    return res.status(400).json({
+      message: "El teléfono del cliente es obligatorio",
+    });
+    }
     // 🔥 VALIDACIÓN ESPECÍFICA DE BARBERO
     if (!barber) {
       return res.status(400).json({
@@ -45,6 +59,7 @@ const createAppointment = async (req, res) => {
 
     const newAppointment = new Appointment({
       clientName,
+      clientPhone,
       service,
       date,
       time,

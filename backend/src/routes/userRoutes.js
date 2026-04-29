@@ -22,10 +22,16 @@ router.get("/barbers", async (req, res) => {
 // ===============================
 router.post("/barbers", authMiddleware, async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
+
+     if (!phone) {
+      return res.status(400).json({ message: "El teléfono es obligatorio" });
+    }
 
     const exists = await User.findOne({ email });
+    
 
+    
     if (exists) {
       return res.status(400).json({ message: "Ya existe ese usuario" });
     }
@@ -36,6 +42,7 @@ router.post("/barbers", authMiddleware, async (req, res) => {
       name,
       email,
       password: hashed,
+      phone,
       role: "barber",
     });
 
@@ -54,11 +61,11 @@ router.post("/barbers", authMiddleware, async (req, res) => {
 // ===============================
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, phone } = req.body;
 
     const updated = await User.findByIdAndUpdate(
       req.params.id,
-      { name, email },
+      { name, email, phone },
       { new: true }
     );
 
