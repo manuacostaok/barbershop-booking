@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
+import AppBrand from "../components/AppBrand";
 
 function Booking() {
   const navigate = useNavigate();
@@ -125,21 +126,29 @@ function Booking() {
 
         {/* 🔥 HEADER PRO */}
         <div className="booking-header">
-          <div className="title booking-title">
-            💈✂ Barber Studio
+  
+          {/* LEFT: LOGO */}
+          <div className="header-left">
+            <AppBrand user={null} />
           </div>
 
-          {/* 🔥 BOTÓN LOGIN */}
+          {/* CENTER: TITLE */}
+          <div className="title booking-title">
+            💈Barber Studio ✂️
+          </div>
+
+          {/* RIGHT: LOGIN */}
           <button
             className="login-btn"
             onClick={() => setShowLogin(true)}
           >
             <FaSignInAlt /> Login
-            <LoginModal
-              open={showLogin}
-              onClose={() => setShowLogin(false)}
-            />
           </button>
+
+          <LoginModal
+            open={showLogin}
+            onClose={() => setShowLogin(false)}
+          />
         </div>
 
         {/* ✂️ SERVICIOS */}

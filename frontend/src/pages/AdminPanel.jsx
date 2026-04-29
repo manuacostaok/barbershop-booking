@@ -9,7 +9,7 @@ import CreateBarberModal from "../components/CreateBarberModal";
 import StatsCharts from "../components/StatsCharts";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-
+import AppBrand from "../components/AppBrand";
 
 function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
@@ -285,19 +285,24 @@ function AdminPanel() {
       <motion.div className="card" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
         {/* HEADER */}
-        <div className="header-pro">
-          <div className="title">Administrador</div>
+        <div className="header-saas">
 
+          {/* LEFT */}
+          <div className="header-left">
+            <AppBrand user={user} />
+          </div>
+
+          {/* CENTER */}
+          <div className="header-center">
+            <div className="title">Administrador</div>
+          </div>
+
+          {/* RIGHT */}
           <div className="header-right">
-            {/* 🔥 BOTÓN HOME */}
-            <button
-              className="nav-icon-btn"
-              onClick={() => navigate("/")}
-            >
+            <button className="nav-icon-btn" onClick={() => navigate("/")}>
               <FaHome />
             </button>
 
-            {/* 🔥 USER + LOGOUT (igual que antes) */}
             {user && (
               <div className="user-box" onClick={logout}>
                 <span className="admin-name">{user.name}</span>
@@ -305,13 +310,18 @@ function AdminPanel() {
               </div>
             )}
           </div>
+
         </div>
 
         {/* ============================= */}
         {/* 🔥 CREAR BARBERO / CORTE */}
         {/* ============================= */}
 
+        
+
+
         <div className="section">
+          <br />
           <div className="section-title">⚙️ Gestión</div>
 
           <div className="filters">
