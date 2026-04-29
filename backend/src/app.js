@@ -15,7 +15,17 @@ app.use(
     credentials: true,
   })
 );
+import cors from "cors";
 
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://task-manager-frontend-2r92.vercel.app"
+    ],
+    credentials: true
+  })
+);
 // 🧩 Middlewares
 app.use(express.json());
 
