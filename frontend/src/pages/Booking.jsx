@@ -120,8 +120,7 @@ function Booking() {
         {/* 🔥 HEADER PRO */}
         <div className="booking-header">
           <div className="title booking-title">
-            <span className="logo-glow">✂</span>
-            Barber Studio
+            💈✂ Barber Studio
           </div>
 
           {/* 🔥 BOTÓN LOGIN */}
