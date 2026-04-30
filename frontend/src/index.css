@@ -62,16 +62,26 @@ body {
   
 }
 
-.login-modal {
-  width: 400px;
-  max-width: 90%;
-  padding: 24px;
-  
-    align-self: start;   /* 👈 lo sube al top del grid */
-    margin-top: 6px;     /* opcional: micro ajuste */
-  
+.login-modal .input {
+  width: 100%;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+
+  background: #fff;
+  color: #000;
+
+  font-size: 14px;
+
+  transition: all 0.2s ease;
 }
 
+.login-modal .input:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.08);
+  outline: none;
+}
 .login-modal .card {
   background: transparent;
   box-shadow: none;
@@ -82,25 +92,60 @@ body {
   width: 100%;
 }
 
+.login-modal .button {
+  margin-top: 15px;
 
+  background: #000;
+  color: #fff;
+
+  border-radius: 10px;
+  padding: 12px;
+
+  font-weight: 600;
+
+  transition: 0.2s;
+}
+
+.login-modal .button:hover {
+  background: #222;
+}
+
+.login-modal h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #000;
+}
+.login-modal {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
+  inset: 0; /* 🔥 mejor que top/left/width/height */
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  z-index: 999;
-}
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
 
+  z-index: 1000;
+
+  padding: 20px; /* 🔥 evita que toque bordes en mobile */
+}
 .modal-close {
   position: absolute;
   top: 12px;
@@ -207,17 +252,24 @@ body {
 /* ===== BARBERS ===== */
 .barbers {
   display: flex;
-  gap: 12px;
+  gap: 14px;
+
   overflow-x: auto;
+  padding-bottom: 10px;
 }
 
 .barber-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
   min-width: 80px;
-  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.services {
+  scroll-snap-type: x mandatory;
+}
+
+.service,
+.barber-card {
+  scroll-snap-align: start;
 }
 
 .barber-card:hover {
@@ -261,12 +313,10 @@ body {
 /* =========================
    INPUT
 ========================= */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #fff;
-  transition: background-color 9999s ease-in-out 0s;
-  box-shadow: 0 0 0px 1000px #0f172a inset;
+.modal-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .input {
@@ -276,8 +326,8 @@ input:-webkit-autofill:focus {
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.08);
 
-  background: rgba(15, 23, 42, 0.8);
-  color: white;
+  background: rgba(255, 255, 255, 0.8);
+  color: rgb(2, 2, 2);
 
   transition: all 0.2s ease;
 }
@@ -334,14 +384,31 @@ input:-webkit-autofill:focus {
   margin-top: 10px;
 }
 
+.service {
+  min-width: 140px;  /* 🔥 importante */
+  flex-shrink: 0;    /* 🔥 evita que se compriman */
+}
+
 .services {
   display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  width: 100%;
+
+  overflow-x: auto;        /* 🔥 scroll horizontal */
+  overflow-y: hidden;
+
+  padding-bottom: 10px;
+
+  scroll-behavior: smooth;
+}
+
+/* ocultar scrollbar (opcional pero pro) */
+.services::-webkit-scrollbar {
+  height: 6px;
+}
+
+.services::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
 }
 
 .service {
@@ -663,20 +730,19 @@ border-color: hsl(0, 23%, 95%);
 }
 
 .modal {
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
+  background: #ffffff;
+  color: #000;
 
-  border-radius: 18px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 28px;
 
-  border: 1px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 25px 50px rgba(0,0,0,0.7),
-    0 0 20px rgba(212,175,55,0.1);
-
-  width: 350px;
+  width: 380px;
   max-width: 90%;
+
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.2);
+
+  position: relative;
 }
 
 .modal-actions {
@@ -739,14 +805,48 @@ border-color: hsl(0, 23%, 95%);
 
 .toast {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   right: 20px;
-  background: #6366f1;
-  color: white;
-  padding: 12px 18px;
+  
+
+  background: #ffffff;
+  color: #111;
+
+  padding: 14px 18px;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+  font-size: 14px;
+  font-weight: 500;
+
   z-index: 999;
+
+  animation: toastIn 0.3s ease;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.toast.success {
+  border-left: 4px solid #22c55e;
+}
+
+.toast.error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast.warning {
+  border-left: 4px solid #f59e0b;
 }
 
 .reactivate-btn {
@@ -831,10 +931,7 @@ border-color: hsl(0, 23%, 95%);
   font-size: 13px;
 }
 
-.cancel-btn {
-  background: #f59e0b;
-  color: white;
-}
+
 
 .reactivate-btn {
   background: #22c55e;
@@ -853,19 +950,9 @@ border-color: hsl(0, 23%, 95%);
   opacity: 0.9;
 }
 
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #0f172a;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
 
-.input-group svg {
-  color: #6366f1;
-}
+
+
 
 .header {
   display: flex;
@@ -1077,6 +1164,8 @@ border-color: hsl(0, 23%, 95%);
   border-color: #d4af37;
   box-shadow: 0 0 10px rgba(212,175,55,0.6);
   border: none;
+  font-family: 'Inter', sans-serif;
+
 }
 
 /* HOVER */
@@ -1084,27 +1173,13 @@ border-color: hsl(0, 23%, 95%);
   transform: scale(1.05);
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.modal,
+.login-modal {
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.modal {
-  background: #111;
-  padding: 20px;
-  border-radius: 12px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+
 
 .modal-actions {
   display: flex;
@@ -1201,10 +1276,15 @@ border-color: hsl(0, 23%, 95%);
 
 /* KPI CARDS */
 .stats-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 20px;
+  display: flex;
+  gap: 14px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding: 10px 4px;
+
+  scroll-behavior: smooth;
 }
 
 .stat-card {
@@ -1214,7 +1294,26 @@ border-color: hsl(0, 23%, 95%);
   border: 1px solid #1a1a1a;
   transition: 0.3s;
 }
+.stat-card {
+  flex: 0 0 auto; /* 🔥 clave */
+  min-width: 180px;
+  max-width: 220px;
+}
 
+.stats-cards::-webkit-scrollbar {
+  height: 6px;
+}
+.stats-cards {
+  scroll-snap-type: x mandatory;
+}
+
+.stat-card {
+  scroll-snap-align: start;
+}
+.stats-cards::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
 .stat-card:hover {
   transform: translateY(-3px);
   border-color: #333;
@@ -1453,20 +1552,20 @@ border-color: hsl(0, 23%, 95%);
 
 /* ❌ botón cerrar */
 .modal-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  position: relative;
+  top: 14px;
+  right: 14px;
+
+  font-size: 14px;
+  color: #777;
 
   cursor: pointer;
-  font-size: 14px;
-  color: #999;
-
   transition: 0.2s;
 }
 
 .modal-close:hover {
-  color: #fff;
-  transform: scale(1.2);
+  color: #000;
+  transform: scale(1.1);
 }
 
 /* =========================
@@ -1593,6 +1692,8 @@ border-color: hsl(0, 23%, 95%);
   background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.15);
   transform: none;
+  font-family: 'Inter', sans-serif;
+
 }
 /* active */
 .barber-pill.active {
@@ -2351,22 +2452,12 @@ body {
     text-align: center;
   }
 
-  .services {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .service {
-    max-width: 100%;
-  }
-
+  
   .slots {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .barbers {
-    justify-content: flex-start;
-  }
+  
 
   .input {
     font-size: 14px;
@@ -2374,6 +2465,20 @@ body {
 
   .button {
     font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .services {
+    flex-direction: row;      /* 🔥 mantener horizontal */
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;        /* 🔥 clave */
+  }
+
+  .service {
+    min-width: 120px;
+    flex-shrink: 0;
   }
 }
 @media (max-width: 768px) {
@@ -2533,4 +2638,174 @@ body {
   .chart-box {
     height: 240px;
   }
+}
+
+/* =========================
+   LOGIN CARD CLEAN
+========================= */
+
+.login-card {
+  width: 100%;
+}
+
+/* título limpio */
+.login-title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: #000;
+  margin-bottom: 20px;
+}
+
+.login-modal .input-group {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.login-modal .input-group svg {
+  color: #999;
+}
+
+.login-modal .input-group:focus-within {
+  border-color: #000;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+/* =========================
+   LOGIN PRO MINIMAL
+========================= */
+
+.login-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+/* CARD */
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* TITLE */
+.login-title {
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  color: #111;
+}
+
+/* FIELD */
+.login-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+
+  background: #fafafa;
+
+  transition: 0.2s;
+}
+
+.login-field svg {
+  color: #999;
+  font-size: 14px;
+}
+
+/* INPUT */
+.login-field input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: #111;
+}
+
+/* FOCUS */
+.login-field:focus-within {
+  border-color: #000;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+/* BUTTON */
+.login-button {
+  margin-top: 10px;
+
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+
+  background: #000;
+  color: #fff;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.crear-button {
+  margin-top: 10px;
+
+  padding: 14px;
+
+  background: #ffffff;
+  color: #080808;
+  border: black;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.login-button:hover .crear-button {
+  background: #222;
+}
+
+.login-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: rgba(0,0,0,0.05);
+  color: #111;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+/* hover PRO */
+.login-close:hover {
+  background: rgba(0,0,0,0.1);
+  transform: rotate(90deg);
+}
+
+/* icono */
+.login-close svg {
+  font-size: 14px;
+}
+
+.login-modal {
+  position: relative; /* 🔥 CLAVE */
 }

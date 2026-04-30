@@ -14,7 +14,7 @@ function LoginModal({ open, onClose }) {
           exit={{ opacity: 0 }}
         >
             <motion.div
-              className="modal login-modal"
+              className="login-modal"
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.85, opacity: 0, y: 40 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}

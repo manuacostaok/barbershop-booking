@@ -11,6 +11,7 @@ function CreateBarberModal({
   // 🔥 estados existentes
   name,
   phone,
+setPhone,
   setName,
   email,
   setEmail,
@@ -33,10 +34,10 @@ function CreateBarberModal({
           exit={{ scale: 0.8, opacity: 0 }}
         >
           {/* 🔥 TÍTULO DINÁMICO */}
-          <h2>
+          <h2 className="modal-title">
             {type === "barber"
-              ? "✂️Nuevo barbero"
-              : "💈Nuevo corte"}
+              ? "💈 Nuevo barbero 🧔"
+              : "💈 Nuevo corte ✂️"}
           </h2>
 
           {/* 🔥 BARBER */}
@@ -93,13 +94,16 @@ function CreateBarberModal({
 
           {/* 🔥 ACCIONES */}
           <div className="modal-actions">
-            <button className="button" onClick={onCreate}>
-              Crear
-            </button>
 
             <button className="cancel-btn" onClick={onClose}>
               Cancelar
             </button>
+
+            <button className="button create-btn" onClick={onCreate}>
+              Crear
+            </button>
+
+            
           </div>
         </motion.div>
       </motion.div>

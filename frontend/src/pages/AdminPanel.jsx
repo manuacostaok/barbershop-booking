@@ -333,7 +333,7 @@ function AdminPanel() {
                 setShowCreateModal(true);
               }}
             >
-              + Crear barbero
+              + Crear barbero 🧔
             </button>
 
             {/* CREAR CORTE */}
@@ -344,7 +344,7 @@ function AdminPanel() {
                 setShowCreateModal(true);
               }}
             >
-              + Crear corte
+              + Crear corte ✂️
             </button>
           </div>
         </div>
@@ -531,6 +531,18 @@ function AdminPanel() {
             <p>No hay turnos</p>
           ) : (
             <div className="admin-list">
+
+              {/* 🔥 HEADER */}
+              <div className="row header-row">
+                <div>Nombre</div>
+                <div>Servicio</div>
+                <div>Barbero</div>
+                <div>Fecha</div>
+                <div>Hora</div>
+                <div>Estado</div>
+                
+              </div>
+
               <AnimatePresence>
                 {filteredAppointments.map((appt) => (
                   <motion.div
@@ -555,32 +567,34 @@ function AdminPanel() {
                       {appt.status === "cancelled" && "Cancelado"}
                     </div>
 
-                    {appt.status !== "cancelled" && (
-                      <button
-                        className="cancel-btn"
-                        onClick={() => openModal(appt._id, "cancel")}
-                      >
-                        <FaTimes /> Cancelar
-                      </button>
-                    )}
-
-                    {appt.status === "cancelled" && (
-                      <>
+                    <div className="actions">
+                      {appt.status !== "cancelled" && (
                         <button
-                          className="reactivate-btn"
-                          onClick={() => reactivateAppointment(appt._id)}
+                          className="cancel-btn"
+                          onClick={() => openModal(appt._id, "cancel")}
                         >
-                          <FaUndo /> Reactivar
+                          <FaTimes /> Cancelar
                         </button>
+                      )}
 
-                        <button
-                          className="delete-btn"
-                          onClick={() => openModal(appt._id, "delete")}
-                        >
-                          <FaTrash /> Borrar
-                        </button>
-                      </>
-                    )}
+                      {appt.status === "cancelled" && (
+                        <>
+                          <button
+                            className="reactivate-btn"
+                            onClick={() => reactivateAppointment(appt._id)}
+                          >
+                            <FaUndo /> Reactivar
+                          </button>
+
+                          <button
+                            className="delete-btn"
+                            onClick={() => openModal(appt._id, "delete")}
+                          >
+                            <FaTrash /> Borrar
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
