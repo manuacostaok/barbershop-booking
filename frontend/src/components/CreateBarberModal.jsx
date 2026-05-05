@@ -1,113 +1,91 @@
-import { motion, AnimatePresence } from "framer-motion";
+import BaseModal from "./BaseModal";
+import { useLanguage } from "../components/LanguageContext";
 
 function CreateBarberModal({
   open,
   onClose,
   onCreate,
-
-  // 🔥 tipo: "barber" | "service"
   type = "barber",
-
-  // 🔥 estados existentes
   name,
-  phone,
-setPhone,
   setName,
+  phone,
+  setPhone,
   email,
   setEmail,
   password,
   setPassword,
-
-  // 🔥 nuevo (para cortes)
   price,
   setPrice
 }) {
-  if (!open) return null;
+  const { t } = useLanguage();
 
   return (
-    <AnimatePresence>
-      <motion.div className="modal-overlay">
-        <motion.div
-          className="modal"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
+    <BaseModal open={open} onClose={onClose}>
+      <div className="modal-header">
+        <h2 className="modal-title">
+          {type === "barber" ? t.newBarber : t.newService}
+        </h2>
+      </div>
+
+      <div className="modal-form">
+        <input
+          className="input"
+          placeholder={t.name}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        {type === "barber" && (
+          <>
+            <input
+              className="input"
+              placeholder={t.phone}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <input
+              className="input"
+              placeholder={t.email}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <input
+              className="input"
+              type="password"
+              placeholder={t.password}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </>
+        )}
+
+        {type === "service" && (
+          <input
+            className="input"
+            type="number"
+            placeholder={t.price}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+        )}
+      </div>
+
+      <div className="modal-actions">
+        <button className="btn-secondary" onClick={onClose}>
+          {t.cancel}
+        </button>
+
+        <button
+          className="btn-primary"
+          data-confirm="true"
+          onClick={onCreate}
         >
-          {/* 🔥 TÍTULO DINÁMICO */}
-          <h2 className="modal-title">
-            {type === "barber"
-              ? "💈 Nuevo barbero 🧔"
-              : "💈 Nuevo corte ✂️"}
-          </h2>
-
-          {/* 🔥 BARBER */}
-          {type === "barber" && (
-            <>
-              <input
-                className="input"
-                placeholder="Nombre"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <input
-                className="input"
-                placeholder="Teléfono"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <input
-                className="input"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-
-              <input
-                className="input"
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </>
-          )}
-
-          {/* 🔥 SERVICE / CORTE */}
-          {type === "service" && (
-            <>
-              <input
-                className="input"
-                placeholder="Nombre del corte"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-
-              <input
-                className="input"
-                type="number"
-                placeholder="Precio"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </>
-          )}
-
-          {/* 🔥 ACCIONES */}
-          <div className="modal-actions">
-
-            <button className="cancel-btn" onClick={onClose}>
-              Cancelar
-            </button>
-
-            <button className="button create-btn" onClick={onCreate}>
-              Crear
-            </button>
-
-            
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+          {t.create}
+        </button>
+      </div>
+    </BaseModal>
   );
 }
 

@@ -6,7 +6,7 @@ function AppBrand({ user, onEditAvatar }) {
       <div className="brand-avatar-wrapper">
 
         <img
-          src={user?.avatar || "/logo.png"}
+          src={user?.avatar || "/"}
           className="brand-avatar"
           alt="avatar"
         />

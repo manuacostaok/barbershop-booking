@@ -3,10 +3,8 @@ import { FaLock, FaEnvelope } from "react-icons/fa";
 function LoginForm({ email, password, setEmail, setPassword, onSubmit, loading }) {
   return (
     <>
-      <h2 className="login-title">Iniciar sesión</h2>
-
       <div className="login-field">
-        <FaEnvelope />
+        <FaEnvelope className="login-icon" />
         <input
           type="email"
           placeholder="Email"
@@ -16,7 +14,7 @@ function LoginForm({ email, password, setEmail, setPassword, onSubmit, loading }
       </div>
 
       <div className="login-field">
-        <FaLock />
+        <FaLock className="login-icon" />
         <input
           type="password"
           placeholder="Contraseña"

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import ConfirmModal from "../components/ConfirmModal";
 import Calendar from "react-calendar";
 import { AnimatePresence, motion } from "framer-motion";
 import Toast from "../components/Toast";
 import { FaTrash, FaHome, FaEdit, FaSignOutAlt, FaUndo, FaTimes } from "react-icons/fa";
 import CreateBarberModal from "../components/CreateBarberModal";
 import StatsCharts from "../components/StatsCharts";
-import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import AppBrand from "../components/AppBrand";
+import BaseModal from "../components/BaseModal";
+
 
 function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
@@ -163,12 +163,17 @@ function AdminPanel() {
     }
   };
 
-  const logout = () => {
-    setToast("Cerrando sesión...");
-    setTimeout(() => {
-      localStorage.clear();
-      window.location.href = "/";
-    }, 600);
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout"); // o el endpoint real
+    } catch (err) {
+      console.log("logout error ignorado");
+    }
+
+    localStorage.clear();
+    api.defaults.headers.common["Authorization"] = null;
+
+    navigate("/");
   };
 
   const fetchAppointments = async () => {
@@ -281,37 +286,16 @@ function AdminPanel() {
 
   return (
     
-    <div className="container">
-      <motion.div className="card" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div className="page">
+        <div className="main-content">
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
 
         {/* HEADER */}
-        <div className="header-saas">
-
-          {/* LEFT */}
-          <div className="header-left">
-            <AppBrand user={user} />
-          </div>
-
-          {/* CENTER */}
-          <div className="header-center">
-            <div className="title">Administrador</div>
-          </div>
-
-          {/* RIGHT */}
-          <div className="header-right">
-            <button className="nav-icon-btn" onClick={() => navigate("/")}>
-              <FaHome />
-            </button>
-
-            {user && (
-              <div className="user-box" onClick={logout}>
-                <span className="admin-name">{user.name}</span>
-                <FaSignOutAlt className="logout-icon" />
-              </div>
-            )}
-          </div>
-
-        </div>
+        
 
         {/* ============================= */}
         {/* 🔥 CREAR BARBERO / CORTE */}
@@ -324,27 +308,27 @@ function AdminPanel() {
           <br />
           <div className="section-title">⚙️ Gestión</div>
 
-          <div className="filters">
-            {/* CREAR BARBERO */}
+          <div className="section-actions">
             <button
-              className="button create-btn"
+              className="button primary"
               onClick={() => {
                 setCreateType("barber");
                 setShowCreateModal(true);
               }}
             >
-              + Crear barbero 🧔
+              + Crear barbero
+              <span>🧔 Nuevo profesional</span>
             </button>
 
-            {/* CREAR CORTE */}
             <button
-              className="button create-btn"
+              className="button secondary"
               onClick={() => {
                 setCreateType("service");
                 setShowCreateModal(true);
               }}
             >
-              + Crear corte ✂️
+              + Crear corte
+              <span>✂️ Nuevo corte</span>
             </button>
           </div>
         </div>
@@ -385,9 +369,8 @@ function AdminPanel() {
 
         <div className="section-title">🧔 Barberos</div>
 
-        <div className="barbers-row">
-          {barbers.map((b) => (
-            <div key={b._id} className="barber-card">
+          <div className="grid">          {barbers.map((b) => (
+            <div key={b._id} className="card">
                <div className="barber-edit" onClick={() => openEditBarber(b)}>
                 <FaEdit />
               </div>
@@ -602,29 +585,34 @@ function AdminPanel() {
           )}
         </div>
 
-        <ConfirmModal
+        <BaseModal
           open={!!editBarber}
           onClose={() => setEditBarber(null)}
-          hideButtons={true}
         >
-          <div className="edit-modal">
+          <div className="modal-content">
             <h3>Editar barbero ✂️</h3>
 
-            {/* AVATAR (placeholder por ahora) */}
-            <div className="avatar-preview">
-              <img
-                src={editBarber?.avatar || "https://i.pravatar.cc/100"}
-                alt="avatar"
-              />
-              <span className="avatar-text">Avatar próximamente</span>
-            </div>
+            <div className="avatar-editor">
+              <div className="avatar-wrapper">
+                <img
+                  src={editBarber?.avatar || "https://i.pravatar.cc/100"}
+                  alt="avatar"
+                />
 
+                <button className="avatar-edit-btn">
+                  <FaEdit />
+                </button>
+              </div>
+
+              <span className="avatar-hint">Cambiar imagen</span>
+            </div>
             <input
               className="input"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Nombre"
             />
+
             <input
               className="input"
               value={editPhone}
@@ -638,45 +626,72 @@ function AdminPanel() {
               onChange={(e) => setEditEmail(e.target.value)}
               placeholder="Email"
             />
-
-            <div className="modal-actions">
-              <button className="button" onClick={updateBarber}>
-                Confirmar
-              </button>
-
-              <button
-                className="delete-btn"
-                onClick={() => setConfirmDeleteBarber(true)}
-              >
-                Borrar
-              </button>
-            </div>
           </div>
-        </ConfirmModal>
-        <ConfirmModal
+
+          <div className="modal-actions">
+            <button className="button" onClick={updateBarber}>
+              Confirmar
+            </button>
+
+            <button
+              className="delete-btn"
+              onClick={() => setConfirmDeleteBarber(true)}
+            >
+              Borrar
+            </button>
+          </div>
+        </BaseModal>
+        <BaseModal
           open={confirmDeleteBarber}
           onClose={() => setConfirmDeleteBarber(false)}
-          onConfirm={deleteBarber}
-          text="¿Seguro que querés eliminar este barbero?"
-          confirmText="Sí, eliminar"
-          cancelText="Cancelar"
-        />
-        <ConfirmModal
+        >
+          <div className="modal-content">
+            <p>¿Seguro que querés eliminar este barbero?</p>
+          </div>
+
+          <div className="modal-actions">
+            <button
+              className="button"
+              onClick={() => setConfirmDeleteBarber(false)}
+            >
+              Cancelar
+            </button>
+
+            <button className="cancel-btn" onClick={deleteBarber}>
+              Sí, eliminar
+            </button>
+          </div>
+        </BaseModal>
+        <BaseModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
-          onConfirm={handleConfirm}
-          text={
-            actionType === "cancel"
-              ? "¿Seguro que querés cancelar el turno?"
-              : "¿Seguro que querés eliminar el turno?"
-          }
-          confirmText={actionType === "cancel" ? "Cancelar turno" : "Eliminar"}
-          cancelText="Volver"
-        />
+        >
+          <div className="modal-content">
+            <p>
+              {actionType === "cancel"
+                ? "¿Seguro que querés cancelar el turno?"
+                : "¿Seguro que querés eliminar el turno?"}
+            </p>
+          </div>
+
+          <div className="modal-actions">
+            <button
+              className="button"
+              onClick={() => setModalOpen(false)}
+            >
+              Volver
+            </button>
+
+            <button className="cancel-btn" onClick={handleConfirm}>
+              {actionType === "cancel" ? "Cancelar turno" : "Eliminar"}
+            </button>
+          </div>
+        </BaseModal>
 
         <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
         
       </motion.div>
+      </div>
     </div>
     
   );

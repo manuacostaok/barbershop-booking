@@ -1,39 +1,94 @@
-import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import LoginModal from "../components/LoginModal";
+import { useLanguage } from "../components/LanguageContext";
+
+import {
+  FaHome,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaUserShield
+} from "react-icons/fa";
 
 function Navbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { lang, toggleLang } = useLanguage();
+  const [showLogin, setShowLogin] = useState(false);
 
-  const logout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "admin";
+  const isAdminPanel = location.pathname.startsWith("/admin");
+
+  const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    navigate("/");
+  };
+
+  const handleAdminClick = () => {
+    if (isAdmin) navigate("/admin");
+    else setShowLogin(true);
   };
 
   return (
-    <div className="navbar">
-      <div className="logo" onClick={() => (window.location.href = "/")}>
-        BarberApp
-      </div>
+    <>
+      <header className="navbar-glass">
+        <div className="navbar-inner">
 
-      <div className="nav-right">
-        {user ? (
-          <>
-            <div className="nav-user">
-              <FaUserCircle />
-              <span>{user.name}</span>
-              <small>{user.role}</small>
-            </div>
+          {/* LOGO */}
+          <h1 className="logo">Barber Studio</h1>
 
-            <button className="nav-logout" onClick={logout}>
-              <FaSignOutAlt />
+          <div className="nav-right">
+
+            {/* =========================
+                ADMIN LOGUEADO
+            ========================= */}
+            {isAdmin ? (
+              <>
+                {!isAdminPanel && (
+                  <button className="nav-btn" onClick={() => navigate("/admin")}>
+                    <FaUserShield /> Admin
+                  </button>
+                )}
+
+                <button className="nav-btn" onClick={() => navigate("/")}>
+                  <FaHome /> Inicio
+                </button>
+
+                <button className="nav-btn danger" onClick={handleLogout}>
+                  <FaSignOutAlt /> Salir
+                </button>
+              </>
+            ) : (
+              <>
+                {/* NO LOGUEADO */}
+                <button className="nav-btn" onClick={handleAdminClick}>
+                  <FaSignInAlt /> Admin
+                </button>
+              </>
+            )}
+
+            {/* =========================
+                IDIOMA SIEMPRE
+            ========================= */}
+            <button className="lang-btn" onClick={toggleLang}>
+              {lang === "es" ? "EN 🇺🇸" : "ES 🇦🇷"}
             </button>
-          </>
-        ) : (
-          <button onClick={() => (window.location.href = "/login")}>
-            Login
-          </button>
-        )}
-      </div>
-    </div>
+
+          </div>
+        </div>
+      </header>
+
+      <LoginModal
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSuccess={() => {
+          setShowLogin(false);
+          navigate("/admin");
+        }}
+      />
+    </>
   );
 }
 

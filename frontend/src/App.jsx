@@ -1,41 +1,43 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./layouts/Layout";
+import { LanguageProvider } from "./components/LanguageContext";
 import Booking from "./pages/Booking";
 import AdminPanel from "./pages/AdminPanel";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
 import BarberDashboard from "./pages/BarberDashboard";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Booking />} />
+    <LanguageProvider>
+      <Layout>
+        <Routes>
 
-        {/* 🔐 LOGIN */}
-        <Route path="/login" element={<Login />} />
+          {/* PUBLIC */}
+          <Route path="/" element={<Booking />} />
 
-        {/* 🔒 ADMIN PROTEGIDO */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute role="admin">
+          {/* ADMIN */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute role="admin">
                 <AdminPanel />
               </ProtectedRoute>
-          }
-        />
-        {/* 🔒 crear barber PROTEGIDO */}
+            }
+          />
 
-        <Route
-          path="/barber"
-          element={
-            <ProtectedRoute role="barber">
-              <BarberDashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          {/* BARBER */}
+          <Route
+            path="/barber"
+            element={
+              <ProtectedRoute role="barber">
+                <BarberDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+        </Routes>
+      </Layout>
+    </LanguageProvider>
   );
 }
 

@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import {
   FaCut,
   FaUser,
   FaCalendarAlt,
-  FaClock,
-  FaSignInAlt
+  FaClock
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
-import AppBrand from "../components/AppBrand";
 
 function Booking() {
-  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [success, setSuccess] = useState(false);
 
   const [date, setDate] = useState(new Date());
   const [slots, setSlots] = useState([]);
@@ -30,7 +28,8 @@ function Booking() {
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
+
+  const [confirmedAppointment, setConfirmedAppointment] = useState(null);
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -43,29 +42,17 @@ function Booking() {
     );
   };
 
-  // 🔥 cargar datos
   useEffect(() => {
-    api
-      .get("/users/barbers")
-      .then((res) => setBarbers(res.data))
-      .catch(() => setToast("Error cargando barberos"));
-
-    api
-      .get("/services")
-      .then((res) => setServices(res.data))
-      .catch(() => setToast("Error cargando servicios"));
+    api.get("/users/barbers").then(res => setBarbers(res.data));
+    api.get("/services").then(res => setServices(res.data));
   }, []);
 
-  // 🔥 disponibilidad automática
   useEffect(() => {
-    if (selectedBarber && date) {
-      getAvailability();
-    }
+    if (selectedBarber && date) getAvailability();
   }, [selectedBarber, date]);
 
   const getAvailability = async () => {
     setLoading(true);
-
     try {
       const res = await api.get(
         `/appointments/availability?date=${formatDate(date)}&barber=${selectedBarber._id}`
@@ -74,27 +61,24 @@ function Booking() {
     } catch {
       setToast("Error cargando disponibilidad");
     }
-
     setLoading(false);
   };
 
   const createAppointment = async () => {
-    if (!selectedService)
-      return setToast("Seleccioná un servicio ✂️");
-
-    if (!selectedBarber)
-      return setToast("Seleccioná un barbero 🧔");
-
-    if (!selectedTime)
-      return setToast("Elegí un horario ⏱️");
-
-    if (!name)
-      return setToast("Ingresá tu nombre 👤");
-    if (!phone)
-    return setToast("Ingresá tu teléfono 📱");
-
+    if (!selectedService) return setToast("Seleccioná un servicio");
+    if (!selectedBarber) return setToast("Seleccioná un barbero");
+    if (!selectedTime) return setToast("Elegí un horario");
+    if (!name) return setToast("Ingresá tu nombre");
+    if (!phone) return setToast("Ingresá tu teléfono");
 
     try {
+      const appointmentData = {
+        service: selectedService,
+        barber: selectedBarber,
+        date: formatDate(date),
+        time: selectedTime,
+      };
+
       await api.post("/appointments", {
         clientName: name,
         clientPhone: phone,
@@ -105,184 +89,214 @@ function Booking() {
         barber: selectedBarber._id,
       });
 
-      setToast("Turno reservado con éxito 🔥");
+      setConfirmedAppointment(appointmentData);
+      setSuccess(true);
 
+      // RESET LIMPIO
+      setStep(1);
+      setDate(new Date());
       setSelectedTime("");
-      
+      setSelectedService(null);
+      setSelectedBarber(null);
       setName("");
       setPhone("");
+
     } catch (err) {
       setToast(err.response?.data?.message || "Error");
     }
   };
 
-  return (
-    <div className="container">
-      <motion.div
-        className="card"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+  if (success) {
+    return (
+      <div className="page center">
+        <div className="card success">
 
-        {/* 🔥 HEADER PRO */}
-        <div className="booking-header">
-  
-          {/* LEFT: LOGO */}
-          <div className="header-left">
-            <AppBrand user={null} />
-          </div>
+          <h2>✅ Turno confirmado</h2>
 
-          {/* CENTER: TITLE */}
-          <div className="title booking-title">
-            💈Barber Studio ✂️
-          </div>
-
-          {/* RIGHT: LOGIN */}
-          <button
-            className="login-btn"
-            onClick={() => setShowLogin(true)}
-          >
-            <FaSignInAlt /> Login
-          </button>
-
-          <LoginModal
-            open={showLogin}
-            onClose={() => setShowLogin(false)}
-          />
-        </div>
-
-        {/* ✂️ SERVICIOS */}
-        <div className="section">
-          <div className="section-title">
-            <FaCut /> Elegí tu servicio
-          </div>
-
-          <div className="services">
-            {services.map((s) => (
-              <div
-                key={s._id}
-                className={`service card-service ${
-                  selectedService?._id === s._id ? "active" : ""
-                }`}
-                onClick={() => setSelectedService(s)}
-              >
-                <div className="service-name">{s.name}</div>
-                <div className="service-price">${s.price}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 🧔 BARBEROS */}
-        <div className="section">
-          <div className="section-title">
-            <FaUser /> Elegí barbero
-          </div>
-
-          <div className="services barbers">
-            {barbers.map((b) => (
-              <div
-                key={b._id}
-                className={`barber-card ${
-                  selectedBarber?._id === b._id ? "active" : ""
-                }`}
-                onClick={() => setSelectedBarber(b)}
-              >
-                <img
-                  src={b.avatar || "https://i.pravatar.cc/100"}
-                  alt={b.name}
-                />
-                <span>{b.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 📅 FECHA */}
-        <div className="section">
-          <div className="section-title">
-            <FaCalendarAlt /> Elegí fecha
-          </div>
-
-          <button
-            className="calendar-toggle"
-            onClick={() => setShowCalendar(!showCalendar)}
-          >
-            📅 {formatDate(date)}
-          </button>
-
-          {showCalendar && (
-            <div className="calendar-dropdown">
-              <Calendar
-                value={date}
-                onChange={(d) => {
-                  setDate(d);
-                  setShowCalendar(false);
-                }}
-              />
+          {confirmedAppointment && (
+            <div className="success-details">
+              <p>✂️ {confirmedAppointment.service.name}</p>
+              <p>🧔 {confirmedAppointment.barber.name}</p>
+              <p>📅 {confirmedAppointment.date}</p>
+              <p>⏱️ {confirmedAppointment.time}</p>
             </div>
           )}
+
+          <button
+            className="button"
+            onClick={() => {
+              setSuccess(false);
+              setConfirmedAppointment(null);
+              setStep(1);
+            }}
+          >
+            Reservar otro
+          </button>
+
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+
+      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
+
+      {/* LANDING */}
+      <div className="landing small">
+        <div className="landing-content">
+          <h1>💈 Barber Studio</h1>
+          <p>Reservá tu turno en segundos</p>
+
+          <button
+            className="cta"
+            onClick={() =>
+              document
+                .getElementById("booking-section")
+                .scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            Reservar turno 🚀
+          </button>
+        </div>
+      </div>
+
+      {/* BOOKING */}
+      <div id="booking-section" className="main-content">
+
+        {/* PROGRESS */}
+        <div className="progress">
+          <div style={{ width: `${step * 20}%` }} />
         </div>
 
-        {/* ⏱️ HORARIOS */}
-        {selectedBarber && (
-          <div className="section">
-            <div className="section-title">
-              <FaClock /> Horarios disponibles
-            </div>
-
-            {loading ? (
-              <p>Cargando...</p>
-            ) : (
-              <div className="slots">
-                {slots.map((slot) => (
-                  <div
-                    key={slot}
-                    className={`slot ${
-                      selectedTime === slot ? "active" : ""
-                    }`}
-                    onClick={() => setSelectedTime(slot)}
-                  >
-                    {slot}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        {step > 1 && (
+          <button className="back" onClick={() => setStep(step - 1)}>
+            ← Volver
+          </button>
         )}
 
-        {/* 👤 NOMBRE */}
-        <div className="section">
-          <div className="section-title">
-            <FaUser /> Tus datos
-          </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+          >
 
-          <input
-            className="input"
-            placeholder="Tu nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Tu teléfono"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
+            {/* STEP 1 */}
+            {step === 1 && (
+              <section className="section">
+                <h2 className="section-title"><FaCut /> Servicios</h2>
 
-        {/* 🚀 BOTÓN */}
-        <button className="button" onClick={createAppointment}>
-          Reservar turno 🚀
-        </button>
+                <div className="grid">
+                  {services.map((s) => (
+                    <div
+                      key={s._id}
+                      className="card"
+                      onClick={() => {
+                        setSelectedService(s);
+                        setStep(2);
+                      }}
+                    >
+                      <h3>{s.name}</h3>
+                      <p>${s.price}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {/* 🔥 TOAST */}
-        <Toast
-          message={toast}
-          show={!!toast}
-          onClose={() => setToast("")}
-        />
-      </motion.div>
+            {/* STEP 2 */}
+            {step === 2 && (
+              <section className="section">
+                <h2 className="section-title"><FaUser /> Barberos</h2>
+
+                <div className="grid">
+                  {barbers.map((b) => (
+                    <div
+                      key={b._id}
+                      className="card"
+                      onClick={() => {
+                        setSelectedBarber(b);
+                        setStep(3);
+                      }}
+                    >
+                      <img src={b.avatar || "https://i.pravatar.cc/100"} />
+                      <p>{b.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <section className="section booking-split">
+
+                <div>
+                  <h2 className="section-title"><FaCalendarAlt /> Fecha</h2>
+
+                  <Calendar value={date} onChange={(d) => setDate(d)} />
+                </div>
+
+                <div>
+                  <h2 className="section-title"><FaClock /> Horarios</h2>
+
+                  {loading ? (
+                    <p>Cargando...</p>
+                  ) : (
+                    <div className="slots-grid">
+                      {slots.map((slot) => (
+                        <div
+                          key={slot}
+                          className={`slot ${selectedTime === slot ? "active" : ""}`}
+                          onClick={() => {
+                            setSelectedTime(slot);
+                            setStep(4);
+                          }}
+                        >
+                          {slot}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </section>
+            )}
+
+            {/* STEP 4 */}
+            {step === 4 && (
+              <section className="section">
+                <h2 className="section-title">Datos</h2>
+
+                <input
+                  className="input"
+                  placeholder="Nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+
+                <input
+                  className="input"
+                  placeholder="Teléfono"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+
+                <button className="button" onClick={createAppointment}>
+                  Confirmar turno 🚀
+                </button>
+              </section>
+            )}
+
+          </motion.div>
+        </AnimatePresence>
+
+      </div>
+
+      <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
     </div>
   );
 }
