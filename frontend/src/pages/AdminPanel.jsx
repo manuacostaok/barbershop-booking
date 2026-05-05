@@ -9,7 +9,7 @@ import StatsCharts from "../components/StatsCharts";
 import { useNavigate } from "react-router-dom";
 import AppBrand from "../components/AppBrand";
 import BaseModal from "../components/BaseModal";
-import { useLanguage } from "../components/LanguageContext";
+
 
 function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
@@ -50,7 +50,7 @@ function AdminPanel() {
 
   const [editEmail, setEditEmail] = useState("");
   const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
-  const { t, toggleLang, lang } = useLanguage();
+
 
   const navigate = useNavigate();
 
@@ -317,7 +317,7 @@ function AdminPanel() {
               }}
             >
               + Crear barbero
-              <span>🧔 Nuevo profesional</span>
+              <span>🧔Nuevo profesional</span>
             </button>
 
             <button
@@ -328,7 +328,7 @@ function AdminPanel() {
               }}
             >
               + Crear corte
-              <span>✂️ Nuevo corte</span>
+              <span>✂️Nuevo corte</span>
             </button>
           </div>
         </div>
