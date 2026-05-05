@@ -138,13 +138,69 @@ function Booking() {
     );
   }
 
+  
   return (
     <div className="page">
 
       <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
 
       {/* LANDING */}
-      <div className="landing small">
+      {/* LANDING */}
+      <div
+        className="landing small"
+        onMouseMove={(e) => {
+          const { innerWidth, innerHeight } = window;
+
+          const x = (e.clientX / innerWidth - 0.5) * 30;
+          const y = (e.clientY / innerHeight - 0.5) * 30;
+
+          document.documentElement.style.setProperty("--mouse-x", `${x}px`);
+          document.documentElement.style.setProperty("--mouse-y", `${y}px`);
+        }}
+      >
+
+        {/* ICONOS FLOTANTES */}
+        <div className="floating-icons">
+
+          <motion.div
+            className="icon i1"
+            animate={{ y: [0, -20, 0], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 8, repeat: Infinity }}
+            style={{ transform: "translate(var(--mouse-x), var(--mouse-y))" }}
+          >
+            <FaCut />
+          </motion.div>
+
+          <motion.div
+            className="icon i2"
+            animate={{ y: [0, 25, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 6, repeat: Infinity }}
+            style={{ transform: "translate(calc(var(--mouse-x) * -1), calc(var(--mouse-y) * -1))" }}
+          >
+            <FaUser />
+          </motion.div>
+
+          <motion.div
+            className="icon i3"
+            animate={{ y: [0, -15, 0], rotate: [0, -5, 5, 0] }}
+            transition={{ duration: 7, repeat: Infinity }}
+            style={{ transform: "translate(calc(var(--mouse-x) * 0.5), calc(var(--mouse-y) * 0.5))" }}
+          >
+            <FaCalendarAlt />
+          </motion.div>
+
+          <motion.div
+            className="icon i4"
+            animate={{ y: [0, 20, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 9, repeat: Infinity }}
+            style={{ transform: "translate(calc(var(--mouse-x) * -0.5), calc(var(--mouse-y) * -0.5))" }}
+          >
+            <FaClock />
+          </motion.div>
+
+        </div>
+
+        {/* CONTENIDO */}
         <div className="landing-content">
           <h1>💈 Barber Studio</h1>
           <p>Reservá tu turno en segundos</p>
