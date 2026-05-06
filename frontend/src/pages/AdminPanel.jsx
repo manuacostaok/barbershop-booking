@@ -51,9 +51,40 @@ function AdminPanel() {
   const [editEmail, setEditEmail] = useState("");
   const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
 
+ 
+  const [openBarber, setOpenBarber] = useState(false);
+
+  const [availability, setAvailability] = useState([]);
+  const [selectedBarber, setSelectedBarber] = useState("");
+  const [day, setDay] = useState(1);
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
 
   const navigate = useNavigate();
 
+
+  const getAvailability = async () => {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+
+      const res = await api.get(
+        `/appointments/availability?date=${today}&barber=${selectedBarber}`
+      );
+
+      setAvailability(res.data.available); // 👈 slots reales
+    } catch {
+      setToast("Error cargando disponibilidad");
+    }
+  };
+
+  const getAppointments = async () => {
+    try {
+      const res = await api.get(`/appointments/barber/${selectedBarber}`);
+      setAppointments(res.data);
+    } catch {
+      setToast("Error cargando turnos");
+    }
+  };
   const openEditBarber = (barber) => {
     setEditBarber(barber);
     setEditName(barber.name);
@@ -185,6 +216,13 @@ function AdminPanel() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (!selectedBarber) return;
+
+    getAvailability();
+    getAppointments();
+  }, [selectedBarber]);
 
   useEffect(() => {
     fetchAppointments();
@@ -409,7 +447,128 @@ function AdminPanel() {
             ))}
           </div>
         </div>
+        <div className="schedule-layout">
 
+          {/* IZQUIERDA → TU FORM */}
+          <div className="schedule-form">
+
+            <div className="schedule-card light">
+
+              <h2 className="section-title">⏰ Horarios</h2>
+
+              {/* BARBER */}
+              <div className="input-group">
+                <label>Barbero</label>
+
+                <div className="custom-select">
+                  <div
+                    className="select-trigger"
+                    onClick={() => setOpenBarber(!openBarber)}
+                  >
+                    {selectedBarber
+                      ? barbers.find(b => b._id === selectedBarber)?.name
+                      : "Seleccionar barbero"}
+                  </div>
+
+                  {openBarber && (
+                    <div className="select-dropdown">
+                      {barbers.map((b) => (
+                        <div
+                          key={b._id}
+                          className="select-option"
+                          onClick={() => {
+                            setSelectedBarber(b._id);
+                            setOpenBarber(false);
+                          }}
+                        >
+                          <img src={b.avatar || "https://i.pravatar.cc/40"} />
+                          <span>{b.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* DAY */}
+              <div className="input-group">
+                <label>Día</label>
+
+                <div className="day-grid">
+                  {[
+                    { label: "Lun", value: 1 },
+                    { label: "Mar", value: 2 },
+                    { label: "Mié", value: 3 },
+                    { label: "Jue", value: 4 },
+                    { label: "Vie", value: 5 },
+                    { label: "Sáb", value: 6 },
+                  ].map((d) => (
+                    <button
+                      key={d.value}
+                      className={`day-pill ${day === d.value ? "active" : ""}`}
+                      onClick={() => setDay(d.value)}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* TIME */}
+              <div className="time-row">
+                <div className="input-group">
+                  <label>Desde</label>
+                  <input
+                    type="time"
+                    className="input"
+                    onChange={(e) => setStart(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Hasta</label>
+                  <input
+                    type="time"
+                    className="input"
+                    onChange={(e) => setEnd(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* BUTTON */}
+              <button
+                className="button primary full"
+                onClick={async () => {
+                  await api.post("/availability", {
+                    barber: selectedBarber,
+                    dayOfWeek: Number(day),
+                    start,
+                    end,
+                  });
+
+                  setToast("Horario guardado 🔥");
+                  getAvailability();
+                }}
+              >
+                Guardar horario
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* DERECHA → LO NUEVO */}
+          <div className="schedule-side">
+
+            <SchedulePreview availability={availability} />
+
+            <ScheduleOccupied appointments={appointments} />
+
+            <ScheduleTips />
+
+          </div>
+
+        </div>
 
         <div className="section-title">📊 Estadísticas</div>
 
@@ -420,32 +579,36 @@ function AdminPanel() {
         
 
         {/* FILTROS */}
-        <div className="section">
-          <div className="section-title">🔎 Filtrar turnos</div>
+        <div className="filter-section">
 
-          {/* STEP 1 - FECHA */}
-          <div className="filter-block row date-filter">
-            <div className="filter-label">
+          <div className="filter-header">
+            🔎 Filtrar turnos
+          </div>
+
+          {/* STEP 1 - FECHA (NUEVO) */}
+          <div className="filter-date-block">
+
+            <div className="filter-date-label">
               📅 Fecha
             </div>
 
             <button
-              className="filter-date-pill no-hover"
+              className="filter-date-button"
               onClick={() => setShowCalendar(!showCalendar)}
             >
-              <span className="icon">📅</span>
+              <span className="filter-date-icon">📅</span>
 
-              <span className="text">
+              <span className="filter-date-text">
                 {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
               </span>
 
-              <span className="chevron">▼</span>
+              <span className="filter-date-chevron">▼</span>
             </button>
 
             <AnimatePresence>
               {showCalendar && (
                 <motion.div
-                  className="calendar-dropdown"
+                  className="filter-calendar-wrapper"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -460,9 +623,10 @@ function AdminPanel() {
                 </motion.div>
               )}
             </AnimatePresence>
+
           </div>
 
-          {/* STEP 2 - BARBEROS */}
+          {/* STEP 2 - BARBEROS (SIN CAMBIOS) */}
           <div className="filter-block barber-filter">
             <div className="filter-label">✂️ Barbero</div>
 
@@ -490,7 +654,7 @@ function AdminPanel() {
             </div>
           </div>
 
-          {/* STEP 3 - RESUMEN (opcional pero PRO) */}
+          {/* STEP 3 - RESUMEN (SIN CAMBIOS) */}
           <div className="filter-summary">
             {filterDate || filterBarber ? (
               <span>
@@ -502,6 +666,7 @@ function AdminPanel() {
               <span>Mostrando todos los turnos</span>
             )}
           </div>
+
         </div>
 
         {/* TURNOS */}
@@ -694,6 +859,59 @@ function AdminPanel() {
       </div>
     </div>
     
+  );
+}
+
+function SchedulePreview({ availability }) {
+  const days = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+  return (
+    <div className="card">
+      <h3>📅 Horarios configurados</h3>
+
+      {availability.length === 0 ? (
+        <p>No hay horarios</p>
+      ) : (
+        availability.map((a, i) => (
+          <div key={i} className="preview-row">
+            <span>{days[a.dayOfWeek]}</span>
+            <span>{a.start} - {a.end}</span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function ScheduleOccupied({ appointments }) {
+  return (
+    <div className="card">
+      <h3>🔴 Turnos ocupados</h3>
+
+      {appointments.length === 0 ? (
+        <p>Sin turnos</p>
+      ) : (
+        appointments.slice(0, 5).map((a, i) => (
+          <div key={i} className="preview-row">
+            <span>{a.clientName}</span>
+            <span>{a.time}</span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function ScheduleTips() {
+  return (
+    <div className="card">
+      <h3>💡 Tips</h3>
+      <ul>
+        <li>No superponer horarios</li>
+        <li>Usar bloques de 30 min</li>
+        <li>Dejar descansos</li>
+      </ul>
+    </div>
   );
 }
 

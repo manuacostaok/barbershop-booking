@@ -29,6 +29,7 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/appointments", require("./routes/appointmentRoutes"));
 app.use("/api/services", require("./routes/serviceRoutes"));
 
+app.use("/api/availability", require("./routes/availabilityRoutes"));
 // ===============================
 // 🧪 TEST
 // ===============================

@@ -17,8 +17,48 @@ router.post("/", createAppointment);
 // ===============================
 // 🔥 DISPONIBILIDAD (PÚBLICO)
 // ===============================
-router.get("/availability", getAvailability);
+// routes/appointments.js
 
+
+
+
+router.get("/availability", async (req, res) => {
+  const { date, barber } = req.query;
+
+  const day = new Date(date).getDay();
+
+  // ❌ verificar día bloqueado
+  const off = await DayOff.findOne({ barber, date });
+  if (off) return res.json({ available: [] });
+
+  // 📅 buscar config del barbero
+  const availability = await Availability.findOne({
+    barber,
+    dayOfWeek: day,
+    isActive: true,
+  });
+
+  if (!availability) return res.json({ available: [] });
+
+  // 🧠 generar slots
+  const slots = generateSlots(
+    availability.start,
+    availability.end,
+    availability.slotDuration
+  );
+
+  // 🚫 quitar ocupados
+  const appointments = await Appointment.find({
+    barber,
+    date,
+  });
+
+  const taken = appointments.map((a) => a.time);
+
+  const available = slots.filter((s) => !taken.includes(s));
+
+  res.json({ available });
+});
 // ===============================
 // 🔒 ADMIN → TODOS LOS TURNOS
 // ===============================
