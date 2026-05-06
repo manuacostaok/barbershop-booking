@@ -57,9 +57,45 @@ function AdminPanel() {
   const [availability, setAvailability] = useState([]);
   const [selectedBarber, setSelectedBarber] = useState("");
   const [day, setDay] = useState(1);
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+  
 
+  const [config, setConfig] = useState({
+    open: "09:00",
+    close: "22:00",
+    interval: 30,
+
+    hasBreak: false,
+    breakStart: "13:00",
+    breakEnd: "14:00",
+  });
+  const validateConfig = (config) => {
+    const toMinutes = (t) => {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const open = toMinutes(config.open);
+    const close = toMinutes(config.close);
+
+    if (open >= close) {
+      return "El horario de apertura debe ser menor al de cierre";
+    }
+
+    if (config.hasBreak) {
+      const bStart = toMinutes(config.breakStart);
+      const bEnd = toMinutes(config.breakEnd);
+
+      if (bStart >= bEnd) {
+        return "El break está mal configurado";
+      }
+
+      if (bStart < open || bEnd > close) {
+        return "El break debe estar dentro del horario del local";
+      }
+    }
+
+    return null;
+  };
   const navigate = useNavigate();
 
 
@@ -227,6 +263,15 @@ function AdminPanel() {
     setLoading(false);
   };
 
+
+  const saveConfig = async () => {
+    await api.put("/config", config);
+    setToast("Horario actualizado 🔥");
+  };
+
+  useEffect(() => {
+    api.get("/config").then((res) => setConfig(res.data));
+  }, []);
   useEffect(() => {
     if (!selectedBarber) {
       getAppointmentsAll();
@@ -288,7 +333,25 @@ function AdminPanel() {
       (!filterBarber || appt.barber?._id === filterBarber)
     );
   });
+  const generateSlots = (start = "09:00", end = "24:00", interval = 30) => {
+    const slots = [];
+    let [h, m] = start.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
 
+    while (h < endH || (h === endH && m < endM)) {
+      slots.push(
+        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+      );
+
+      m += interval;
+      if (m >= 60) {
+        m -= 60;
+        h++;
+      }
+    }
+
+    return slots;
+  };
 
   const handleCreate = async () => {
     try {
@@ -466,100 +529,118 @@ function AdminPanel() {
 
             <div className="schedule-card light">
 
-              <h2 className="section-title">⏰ Horarios</h2>
+              <h2 className="section-title">⏰ Horarios del local</h2>
 
-              {/* BARBER */}
+              {/* OPEN */}
               <div className="input-group">
-                <label>Barbero</label>
+                <label>Desde</label>
+                <input
+                  type="time"
+                  className="input"
+                  value={config.open}
+                  onChange={(e) =>
+                    setConfig({ ...config, open: e.target.value })
+                  }
+                />
+              </div>
 
-                <div className="custom-select">
-                  <div
-                    className="select-trigger"
-                    onClick={() => setOpenBarber(!openBarber)}
-                  >
-                    {selectedBarber
-                      ? barbers.find(b => b._id === selectedBarber)?.name
-                      : "Seleccionar barbero"}
+              {/* CLOSE */}
+              <div className="input-group">
+                <label>Hasta</label>
+                <input
+                  type="time"
+                  className="input"
+                  value={config.close}
+                  onChange={(e) =>
+                    setConfig({ ...config, close: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* INTERVAL */}
+              <div className="input-group">
+                <label>Intervalo de turnos</label>
+                <select
+                  className="input"
+                  value={config.interval}
+                  onChange={(e) =>
+                    setConfig({ ...config, interval: Number(e.target.value) })
+                  }
+                >
+                  <option value={30}>30 min</option>
+                  <option value={45}>45 min</option>
+                  <option value={60}>60 min</option>
+                </select>
+              </div>
+
+              {/* BREAK SWITCH */}
+              <div className="input-group">
+                <label>¿Corte al mediodía?</label>
+
+                <select
+                  className="input"
+                  value={config.hasBreak ? "yes" : "no"}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      hasBreak: e.target.value === "yes",
+                    })
+                  }
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Sí (ej: 13:00 - 14:00)</option>
+                </select>
+              </div>
+
+              {/* BREAK TIMES (solo si activado) */}
+              {config.hasBreak && (
+                <>
+                  <div className="input-group">
+                    <label>Inicio break</label>
+                    <input
+                      type="time"
+                      className="input"
+                      value={config.breakStart}
+                      onChange={(e) =>
+                        setConfig({ ...config, breakStart: e.target.value })
+                      }
+                    />
                   </div>
 
-                  {openBarber && (
-                    <div className="select-dropdown">
-                      {barbers.map((b) => (
-                        <div
-                          key={b._id}
-                          className="select-option"
-                          onClick={() => {
-                            setSelectedBarber(b._id);
-                            setOpenBarber(false);
-                          }}
-                        >
-                          <img src={b.avatar || "https://i.pravatar.cc/40"} />
-                          <span>{b.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+                  <div className="input-group">
+                    <label>Fin break</label>
+                    <input
+                      type="time"
+                      className="input"
+                      value={config.breakEnd}
+                      onChange={(e) =>
+                        setConfig({ ...config, breakEnd: e.target.value })
+                      }
+                    />
+                  </div>
+                </>
+              )}
 
-              {/* DAY */}
-              <div className="input-group">
-                <label>Día</label>
-
-                <div className="day-grid">
-                  {[
-                    { label: "Lun", value: 1 },
-                    { label: "Mar", value: 2 },
-                    { label: "Mié", value: 3 },
-                    { label: "Jue", value: 4 },
-                    { label: "Vie", value: 5 },
-                    { label: "Sáb", value: 6 },
-                  ].map((d) => (
-                    <button
-                      key={d.value}
-                      className={`day-pill ${day === d.value ? "active" : ""}`}
-                      onClick={() => setDay(d.value)}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* TIME */}
-              <div className="time-row">
-                <div className="input-group">
-                  <label>Desde</label>
-                  <input
-                    type="time"
-                    className="input"
-                    onChange={(e) => setStart(e.target.value)}
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label>Hasta</label>
-                  <input
-                    type="time"
-                    className="input"
-                    onChange={(e) => setEnd(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* BUTTON */}
+              {/* SAVE BUTTON */}
               <button
                 className="button primary full"
                 onClick={async () => {
-                  await api.post("/availability", {
-                    barber: selectedBarber,
-                    dayOfWeek: Number(day),
-                    start,
-                    end,
-                  });
+                  const error = validateConfig(config);
 
-                  setToast("Horario guardado 🔥");
-                  getAvailability();
+                  if (error) {
+                    setToast(error);
+                    return;
+                  }
+
+                  await api.post("/config", {
+                    open: start,
+                    close: end,
+                    interval: config.interval,
+                    hasBreak: config.hasBreak,
+                    breakStart: config.breakStart,
+                    breakEnd: config.breakEnd
+                  });
+                  setToast("Horario del local actualizado 🔥");
                 }}
               >
                 Guardar horario
@@ -569,18 +650,21 @@ function AdminPanel() {
 
           </div>
 
-          {/* DERECHA → LO NUEVO */}
-          <div className="schedule-side">
+              {/* DERECHA → LO NUEVO */}
+              <div className="schedule-side">
 
-            <SchedulePreview availability={availability} />
+                <SchedulePreview config={config} />
+                
+                <ScheduleOccupied appointments={appointments} />
 
-            <ScheduleOccupied appointments={appointments} />
+                <ScheduleTips />
 
-            <ScheduleTips />
-
-          </div>
+              </div>
 
         </div>
+        <br />
+        <br />
+        
 
         <div className="section-title">📊 Estadísticas</div>
 
@@ -874,27 +958,43 @@ function AdminPanel() {
   );
 }
 
-function SchedulePreview({ availability }) {
-  const days = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
-
+function SchedulePreview({ config }) {
   return (
     <div className="card">
-      <h3>📅 Horarios configurados</h3>
+      <h3>📅 Horario del local</h3>
 
-      {availability.length === 0 ? (
-        <p>No hay horarios</p>
+      {!config ? (
+        <p>No hay configuración</p>
       ) : (
-        availability.map((a, i) => (
-          <div key={i} className="preview-row">
-            <span>{days[a.dayOfWeek]}</span>
-            <span>{a.start} - {a.end}</span>
+        <>
+          <div className="preview-row">
+            <span>🟢 Apertura</span>
+            <span>{config.open}</span>
           </div>
-        ))
+
+          <div className="preview-row">
+            <span>🔴 Cierre</span>
+            <span>{config.close}</span>
+          </div>
+
+          <div className="preview-row">
+            <span>⏱ Intervalo</span>
+            <span>{config.interval} min</span>
+          </div>
+
+          <div className="preview-row">
+            <span>🍽 Break</span>
+            <span>
+              {config.hasBreak
+                ? `${config.breakStart} - ${config.breakEnd}`
+                : "Sin break"}
+            </span>
+          </div>
+        </>
       )}
     </div>
   );
 }
-
 function ScheduleOccupied({ appointments }) {
   return (
     <div className="card">

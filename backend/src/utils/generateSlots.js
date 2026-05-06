@@ -1,6 +1,4 @@
-// utils/generateSlots.js
-
-export function generateSlots(start, end, duration) {
+function generateSlots(start, end, duration) {
   const slots = [];
 
   let [h, m] = start.split(":").map(Number);
@@ -21,3 +19,5 @@ export function generateSlots(start, end, duration) {
 
   return slots;
 }
+
+module.exports = generateSlots;

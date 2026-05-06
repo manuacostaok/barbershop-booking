@@ -30,6 +30,8 @@ function Booking() {
   const [showLogin, setShowLogin] = useState(false);
 
   const [confirmedAppointment, setConfirmedAppointment] = useState(null);
+  const [config, setConfig] = useState(null);
+
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -47,21 +49,38 @@ function Booking() {
     api.get("/services").then(res => setServices(res.data));
   }, []);
 
+  
   useEffect(() => {
-    if (selectedBarber && date) getAvailability();
-  }, [selectedBarber, date]);
+    api.get("/config")
+      .then(res => setConfig(res.data))
+      .catch(() => {
+        setConfig({
+          open: "09:00",
+          close: "23:00",
+          interval: 30,
+          hasBreak: false,
+        });
+      });
+  }, []);
 
-  const getAvailability = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(
-        `/appointments/availability?date=${formatDate(date)}&barber=${selectedBarber._id}`
-      );
-      setSlots(res.data.available);
-    } catch {
-      setToast("Error cargando disponibilidad");
+  const generateSlots = (start, end, interval) => {
+    const slots = [];
+
+    let [h, m] = start.split(":").map(Number);
+    let [eh, em] = end.split(":").map(Number);
+
+    let current = new Date();
+    current.setHours(h, m, 0);
+
+    const endTime = new Date();
+    endTime.setHours(eh, em, 0);
+
+    while (current < endTime) {
+      slots.push(current.toTimeString().slice(0, 5));
+      current.setMinutes(current.getMinutes() + interval);
     }
-    setLoading(false);
+
+    return slots;
   };
 
   const createAppointment = async () => {
@@ -303,7 +322,12 @@ function Booking() {
                     <p>Cargando...</p>
                   ) : (
                     <div className="slots-grid">
-                      {slots.map((slot) => (
+                        {config &&
+                        generateSlots(
+                          config.open,
+                          config.close,
+                          config.interval
+                        ).map((slot) => (
                         <div
                           key={slot}
                           className={`slot ${selectedTime === slot ? "active" : ""}`}

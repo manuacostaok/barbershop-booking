@@ -9,6 +9,11 @@ const {
 const Appointment = require("../models/Appointment");
 const authMiddleware = require("../middlewares/authMiddleware");
 
+
+const Config = require("../models/Config");
+const generateSlots = require("../utils/generateSlots");
+
+
 // ===============================
 // 🔥 CREAR TURNO (PÚBLICO)
 // ===============================
@@ -31,43 +36,44 @@ router.get("/barber/:barberId", async (req, res) => {
 });
 
 
-
 router.get("/availability", async (req, res) => {
-  const { date, barber } = req.query;
+  try {
+    const { date, barber } = req.query;
 
-  const day = new Date(date).getDay();
+    const config = await Config.findOne();
 
-  // ❌ verificar día bloqueado
-  const off = await DayOff.findOne({ barber, date });
-  if (off) return res.json({ available: [] });
+    const open = config?.open || "09:00";
+    const close = config?.close || "22:00";
+    const interval = config?.interval || 30;
 
-  // 📅 buscar config del barbero
-  const availability = await Availability.findOne({
-    barber,
-    dayOfWeek: day,
-    isActive: true,
-  });
+    // 1. generar slots base
+    let slots = generateSlots(open, close, interval);
 
-  if (!availability) return res.json({ available: [] });
+    // 2. aplicar break si existe
+    if (config?.hasBreak) {
+      slots = slots.filter(slot => {
+        return !(slot >= config.breakStart && slot < config.breakEnd);
+      });
+    }
 
-  // 🧠 generar slots
-  const slots = generateSlots(
-    availability.start,
-    availability.end,
-    availability.slotDuration
-  );
+    // 3. buscar turnos ocupados REALES
+    const appointments = await Appointment.find({
+      barber,
+      date,
+      status: { $ne: "cancelled" }
+    });
 
-  // 🚫 quitar ocupados
-  const appointments = await Appointment.find({
-    barber,
-    date,
-  });
+    const booked = appointments.map(a => a.time);
 
-  const taken = appointments.map((a) => a.time);
+    // 4. filtrar disponibles
+    const available = slots.filter(s => !booked.includes(s));
 
-  const available = slots.filter((s) => !taken.includes(s));
+    res.json({ available });
 
-  res.json({ available });
+  } catch (err) {
+    console.log("ERROR AVAILABILITY:", err);
+    res.status(500).json({ message: err.message });
+  }
 });
 // ===============================
 // 🔒 ADMIN → TODOS LOS TURNOS
