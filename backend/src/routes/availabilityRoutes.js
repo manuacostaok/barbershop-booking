@@ -1,55 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const Availability = require("../models/Availability");
+
+const Config = require("../models/Config");
 const Appointment = require("../models/Appointment");
-// crear disponibilidad
-router.post("/", async (req, res) => {
-  try {
-    const { barber, dayOfWeek, start, end } = req.body;
+const generateSlots = require("../utils/generateSlots");
 
-    const availability = await Availability.create({
-      barber,
-      dayOfWeek,
-      start,
-      end,
-    });
 
-    res.json(availability);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// obtener disponibilidad por barbero
-router.get("/:barberId", async (req, res) => {
-  try {
-    const data = await Availability.find({
-      barber: req.params.barberId,
-      isActive: true,
-    });
-
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
+// ===============================
+// 🔥 OBTENER HORARIOS DISPONIBLES (LOCAL)
+// ===============================
 router.get("/availability", async (req, res) => {
   try {
-    const { barber } = req.query;
+    const config = await Config.findOne();
 
-    const config = await Availability.find({ barber });
+    const open = config?.open || "09:00";
+    const close = config?.close || "22:00";
+    const interval = config?.interval || 30;
 
-    let start = "09:00";
-    let end = "24:00";
+    let slots = generateSlots(open, close, interval);
 
-    // si hay config, override (podés mejorar esto después)
-    if (config.length > 0) {
-      start = config[0].start;
-      end = config[0].end;
-    }
+    // ===============================
+    // 🔥 OCUPADOS (EXCLUIR TURNOS YA RESERVADOS)
+    // ===============================
+    const appointments = await Appointment.find();
 
-    const slots = generateSlots(start, end, 30);
+    const bookedTimes = appointments.map((a) => a.time);
+
+    slots = slots.filter((slot) => !bookedTimes.includes(slot));
 
     return res.json({
       available: slots,
@@ -60,5 +37,6 @@ router.get("/availability", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 module.exports = router;

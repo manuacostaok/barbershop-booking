@@ -54,7 +54,6 @@ function AdminPanel() {
  
   const [openBarber, setOpenBarber] = useState(false);
 
-  const [availability, setAvailability] = useState([]);
   const [selectedBarber, setSelectedBarber] = useState("");
   const [day, setDay] = useState(1);
   
@@ -98,19 +97,16 @@ function AdminPanel() {
   };
   const navigate = useNavigate();
 
-
   const getAvailability = async () => {
+    setLoading(true);
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const res = await api.get("/appointments/availability");
 
-      const res = await api.get(
-        `/appointments/availability?date=${today}&barber=${selectedBarber}`
-      );
-
-      setAvailability(res.data.available); // 👈 slots reales
+      setSlots(res.data.available);
     } catch {
       setToast("Error cargando disponibilidad");
     }
+    setLoading(false);
   };
 
   const getAppointments = async () => {
@@ -272,14 +268,7 @@ function AdminPanel() {
   useEffect(() => {
     api.get("/config").then((res) => setConfig(res.data));
   }, []);
-  useEffect(() => {
-    if (!selectedBarber) {
-      getAppointmentsAll();
-      return;
-    }
-
-    getAppointmentsByBarber();
-  }, [selectedBarber]);
+  
 
   useEffect(() => {
     fetchAppointments();
@@ -333,21 +322,38 @@ function AdminPanel() {
       (!filterBarber || appt.barber?._id === filterBarber)
     );
   });
-  const generateSlots = (start = "09:00", end = "24:00", interval = 30) => {
+
+  const generateSlots = (config) => {
     const slots = [];
-    let [h, m] = start.split(":").map(Number);
-    const [endH, endM] = end.split(":").map(Number);
 
-    while (h < endH || (h === endH && m < endM)) {
-      slots.push(
-        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
-      );
+    const toMinutes = (t) => {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    };
 
-      m += interval;
-      if (m >= 60) {
-        m -= 60;
-        h++;
+    const fromMinutes = (min) => {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    };
+
+    let start = toMinutes(config.open);
+    const end = toMinutes(config.close);
+    const interval = config.interval;
+
+    const breakStart = config.hasBreak ? toMinutes(config.breakStart) : null;
+    const breakEnd = config.hasBreak ? toMinutes(config.breakEnd) : null;
+
+    while (start < end) {
+      const time = fromMinutes(start);
+
+      if (config.hasBreak && start >= breakStart && start < breakEnd) {
+        start += interval;
+        continue;
       }
+
+      slots.push(time);
+      start += interval;
     }
 
     return slots;
@@ -632,14 +638,11 @@ function AdminPanel() {
                     return;
                   }
 
-                  await api.post("/config", {
-                    open: start,
-                    close: end,
-                    interval: config.interval,
-                    hasBreak: config.hasBreak,
-                    breakStart: config.breakStart,
-                    breakEnd: config.breakEnd
-                  });
+                  await api.put("/config", config);
+
+                  const res = await api.get("/config");
+                  setConfig(res.data);
+
                   setToast("Horario del local actualizado 🔥");
                 }}
               >
