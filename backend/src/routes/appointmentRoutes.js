@@ -9,20 +9,72 @@ const {
 const Appointment = require("../models/Appointment");
 const authMiddleware = require("../middlewares/authMiddleware");
 
-
 const Config = require("../models/Config");
 const generateSlots = require("../utils/generateSlots");
 
 
 // ===============================
-// 🔥 CREAR TURNO (PÚBLICO)
+// 🔥 HELPERS (TIEMPO)
 // ===============================
-router.post("/", createAppointment);
+const toMinutes = (t) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
+const isInBreak = (time, config) => {
+  if (!config?.hasBreak) return false;
+
+  const t = toMinutes(time);
+  const bStart = toMinutes(config.breakStart);
+  const bEnd = toMinutes(config.breakEnd);
+
+  return t >= bStart && t < bEnd;
+};
+
 
 // ===============================
-// 🔥 DISPONIBILIDAD (PÚBLICO)
+// 🔥 CREAR TURNO (PÚBLICO + VALIDADO)
 // ===============================
-// routes/appointments.js
+router.post("/", async (req, res) => {
+  try {
+    const { time, barber, date } = req.body;
+
+    const config = await Config.findOne();
+
+    // ❌ BLOQUEO BREAK
+    if (isInBreak(time, config)) {
+      return res.status(400).json({
+        message: "No se pueden sacar turnos en el break",
+      });
+    }
+
+    // ❌ BLOQUEO DUPLICADOS
+    const exists = await Appointment.findOne({
+      barber,
+      date,
+      time,
+      status: { $ne: "cancelled" },
+    });
+
+    if (exists) {
+      return res.status(400).json({
+        message: "Ese horario ya está ocupado",
+      });
+    }
+
+    const appointment = await createAppointment(req, res);
+    return appointment;
+
+  } catch (err) {
+    console.log("ERROR CREATE:", err);
+    res.status(500).json({ message: "Error creando turno" });
+  }
+});
+
+
+// ===============================
+// 🔥 BARBER TURNOS
+// ===============================
 router.get("/barber/:barberId", async (req, res) => {
   try {
     const appointments = await Appointment.find({
@@ -36,6 +88,9 @@ router.get("/barber/:barberId", async (req, res) => {
 });
 
 
+// ===============================
+// 🔥 DISPONIBILIDAD (BOOKING)
+// ===============================
 router.get("/availability", async (req, res) => {
   try {
     const { date, barber } = req.query;
@@ -46,27 +101,31 @@ router.get("/availability", async (req, res) => {
     const close = config?.close || "22:00";
     const interval = config?.interval || 30;
 
-    // 1. generar slots base
+    // 1. slots base
     let slots = generateSlots(open, close, interval);
 
-    // 2. aplicar break si existe
+    // 2. FILTRO BREAK (FIX REAL)
     if (config?.hasBreak) {
-      slots = slots.filter(slot => {
-        return !(slot >= config.breakStart && slot < config.breakEnd);
+      const breakStart = toMinutes(config.breakStart);
+      const breakEnd = toMinutes(config.breakEnd);
+
+      slots = slots.filter((slot) => {
+        const t = toMinutes(slot);
+        return !(t >= breakStart && t < breakEnd);
       });
     }
 
-    // 3. buscar turnos ocupados REALES
+    // 3. TURNOS OCUPADOS
     const appointments = await Appointment.find({
       barber,
       date,
-      status: { $ne: "cancelled" }
+      status: { $ne: "cancelled" },
     });
+    console.log("CONFIG AVAILABILITY:", config);
+    const booked = appointments.map((a) => a.time);
 
-    const booked = appointments.map(a => a.time);
-
-    // 4. filtrar disponibles
-    const available = slots.filter(s => !booked.includes(s));
+    // 4. DISPONIBLES
+    const available = slots.filter((s) => !booked.includes(s));
 
     res.json({ available });
 
@@ -75,8 +134,10 @@ router.get("/availability", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
 // ===============================
-// 🔒 ADMIN → TODOS LOS TURNOS
+// 🔒 ADMIN ALL
 // ===============================
 router.get("/all", authMiddleware, async (req, res) => {
   try {
@@ -86,10 +147,10 @@ router.get("/all", authMiddleware, async (req, res) => {
     res.json(appointments);
 
   } catch (error) {
-    console.log("ERROR GET ALL:", error);
     res.status(500).json({ message: "Error obteniendo turnos" });
   }
 });
+
 
 // ===============================
 // 🔒 STATS
@@ -109,8 +170,9 @@ router.get("/stats", authMiddleware, async (req, res) => {
   }
 });
 
+
 // ===============================
-// 🔒 CANCELAR
+// 🔒 CANCEL
 // ===============================
 router.patch("/:id/cancel", authMiddleware, async (req, res) => {
   try {
@@ -120,20 +182,16 @@ router.patch("/:id/cancel", authMiddleware, async (req, res) => {
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Turno no encontrado" });
-    }
-
     res.json(updated);
 
   } catch (error) {
-    console.log("ERROR CANCEL:", error);
     res.status(500).json({ message: "Error cancelando turno" });
   }
 });
 
+
 // ===============================
-// 🔒 REACTIVAR
+// 🔒 REACTIVATE
 // ===============================
 router.patch("/:id/reactivate", authMiddleware, async (req, res) => {
   try {
@@ -146,10 +204,10 @@ router.patch("/:id/reactivate", authMiddleware, async (req, res) => {
     res.json(updated);
 
   } catch (error) {
-    console.log("ERROR REACTIVATE:", error);
     res.status(500).json({ message: "Error reactivando turno" });
   }
 });
+
 
 // ===============================
 // 🔒 DELETE
@@ -158,14 +216,9 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const deleted = await Appointment.findByIdAndDelete(req.params.id);
 
-    if (!deleted) {
-      return res.status(404).json({ message: "Turno no encontrado" });
-    }
-
     res.json({ message: "Turno eliminado correctamente" });
 
   } catch (error) {
-    console.log("ERROR DELETE:", error);
     res.status(500).json({ message: "Error eliminando turno" });
   }
 });

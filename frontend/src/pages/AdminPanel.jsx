@@ -266,9 +266,17 @@ function AdminPanel() {
   };
 
   useEffect(() => {
-    api.get("/config").then((res) => setConfig(res.data));
+    api.get("/config").then((res) => {
+      setConfig({
+        open: res.data.open ?? "09:00",
+        close: res.data.close ?? "22:00",
+        interval: res.data.interval ?? 30,
+        hasBreak: res.data.hasBreak ?? false,
+        breakStart: res.data.breakStart ?? "13:00",
+        breakEnd: res.data.breakEnd ?? "14:00",
+      });
+    });
   }, []);
-  
 
   useEffect(() => {
     fetchAppointments();
@@ -626,7 +634,7 @@ function AdminPanel() {
                   </div>
                 </>
               )}
-
+              
               {/* SAVE BUTTON */}
               <button
                 className="button primary full"
@@ -637,7 +645,8 @@ function AdminPanel() {
                     setToast(error);
                     return;
                   }
-
+                  console.log("CONFIG QUE ENVIO:", config);
+                  await api.put("/config", config);
                   await api.put("/config", config);
 
                   const res = await api.get("/config");

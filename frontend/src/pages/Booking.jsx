@@ -44,6 +44,29 @@ function Booking() {
     );
   };
 
+
+  const getAvailability = async () => {
+    setLoading(true);
+
+    try {
+      const res = await api.get(
+        `/appointments/availability?date=${formatDate(date)}&barber=${selectedBarber?._id}`
+      );
+
+      setSlots(res.data.available);
+
+      // si el horario seleccionado ya no existe → lo borramos
+      if (!res.data.available.includes(selectedTime)) {
+        setSelectedTime("");
+      }
+
+    } catch (err) {
+      setToast("Error cargando horarios");
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
     api.get("/users/barbers").then(res => setBarbers(res.data));
     api.get("/services").then(res => setServices(res.data));
@@ -63,25 +86,13 @@ function Booking() {
       });
   }, []);
 
-  const generateSlots = (start, end, interval) => {
-    const slots = [];
 
-    let [h, m] = start.split(":").map(Number);
-    let [eh, em] = end.split(":").map(Number);
+  useEffect(() => {
+    if (!selectedBarber || !config) return;
 
-    let current = new Date();
-    current.setHours(h, m, 0);
-
-    const endTime = new Date();
-    endTime.setHours(eh, em, 0);
-
-    while (current < endTime) {
-      slots.push(current.toTimeString().slice(0, 5));
-      current.setMinutes(current.getMinutes() + interval);
-    }
-
-    return slots;
-  };
+    getAvailability();
+  }, [date, selectedBarber, config]);
+ 
 
   const createAppointment = async () => {
     if (!selectedService) return setToast("Seleccioná un servicio");
@@ -310,24 +321,28 @@ function Booking() {
               <section className="section booking-split">
 
                 <div>
-                  <h2 className="section-title"><FaCalendarAlt /> Fecha</h2>
+                  <h2 className="section-title">
+                    <FaCalendarAlt /> Fecha
+                  </h2>
 
-                  <Calendar value={date} onChange={(d) => setDate(d)} />
+                  <Calendar
+                    value={date}
+                    onChange={(d) => setDate(d)}
+                  />
                 </div>
 
                 <div>
-                  <h2 className="section-title"><FaClock /> Horarios</h2>
+                  <h2 className="section-title">
+                    <FaClock /> Horarios
+                  </h2>
 
                   {loading ? (
                     <p>Cargando...</p>
+                  ) : slots.length === 0 ? (
+                    <p>No hay horarios disponibles</p>
                   ) : (
                     <div className="slots-grid">
-                        {config &&
-                        generateSlots(
-                          config.open,
-                          config.close,
-                          config.interval
-                        ).map((slot) => (
+                      {slots.map((slot) => (
                         <div
                           key={slot}
                           className={`slot ${selectedTime === slot ? "active" : ""}`}
@@ -345,7 +360,6 @@ function Booking() {
 
               </section>
             )}
-
             {/* STEP 4 */}
             {step === 4 && (
               <section className="section">

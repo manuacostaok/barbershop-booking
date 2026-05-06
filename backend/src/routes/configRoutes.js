@@ -2,18 +2,23 @@ const express = require("express");
 const router = express.Router();
 const Config = require("../models/Config");
 
-// obtener config
 router.get("/", async (req, res) => {
   let config = await Config.findOne();
 
   if (!config) {
-    config = await Config.create({});
+    config = await Config.create({
+      open: "09:00",
+      close: "21:00",
+      interval: 30,
+      hasBreak: false,
+      breakStart: "13:00",
+      breakEnd: "14:00",
+    });
   }
 
   res.json(config);
 });
 
-// actualizar config
 router.put("/", async (req, res) => {
   const { open, close, interval, hasBreak, breakStart, breakEnd } = req.body;
 
@@ -25,13 +30,15 @@ router.put("/", async (req, res) => {
   const openM = toMinutes(open);
   const closeM = toMinutes(close);
 
+  const hasBreakBool = hasBreak === true || hasBreak === "true";
+
   if (openM >= closeM) {
     return res.status(400).json({
       message: "Horario inválido: apertura debe ser menor a cierre",
     });
   }
 
-  if (hasBreak) {
+  if (hasBreakBool) {
     const bStart = toMinutes(breakStart);
     const bEnd = toMinutes(breakEnd);
 
@@ -45,12 +52,26 @@ router.put("/", async (req, res) => {
   let config = await Config.findOne();
 
   if (!config) {
-    config = await Config.create(req.body);
+    config = await Config.create({
+      open,
+      close,
+      interval,
+      hasBreak: hasBreakBool,
+      breakStart,
+      breakEnd,
+    });
   } else {
-    Object.assign(config, req.body);
+    config.open = open;
+    config.close = close;
+    config.interval = interval;
+    config.hasBreak = hasBreakBool;
+    config.breakStart = breakStart;
+    config.breakEnd = breakEnd;
+
     await config.save();
   }
 
   res.json(config);
 });
+
 module.exports = router;
