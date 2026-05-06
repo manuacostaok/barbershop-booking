@@ -18,7 +18,17 @@ router.post("/", createAppointment);
 // 🔥 DISPONIBILIDAD (PÚBLICO)
 // ===============================
 // routes/appointments.js
+router.get("/barber/:barberId", async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      barber: req.params.barberId,
+    });
 
+    res.json(appointments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
 

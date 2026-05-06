@@ -85,6 +85,16 @@ function AdminPanel() {
       setToast("Error cargando turnos");
     }
   };
+
+  const getAppointmentsAll = async () => {
+    const res = await api.get("/appointments/all");
+    setAppointments(res.data);
+  };
+
+  const getAppointmentsByBarber = async () => {
+    const res = await api.get(`/appointments/barber/${selectedBarber}`);
+    setAppointments(res.data);
+  };
   const openEditBarber = (barber) => {
     setEditBarber(barber);
     setEditName(barber.name);
@@ -218,10 +228,12 @@ function AdminPanel() {
   };
 
   useEffect(() => {
-    if (!selectedBarber) return;
+    if (!selectedBarber) {
+      getAppointmentsAll();
+      return;
+    }
 
-    getAvailability();
-    getAppointments();
+    getAppointmentsByBarber();
   }, [selectedBarber]);
 
   useEffect(() => {

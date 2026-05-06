@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Availability = require("../models/Availability");
-
+const Appointment = require("../models/Appointment");
 // crear disponibilidad
 router.post("/", async (req, res) => {
   try {
