@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
-
+import RegisterModal from "../components/RegisterModal";
 function Booking() {
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
@@ -25,13 +25,17 @@ function Booking() {
   const [services, setServices] = useState([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [mail, setMail] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
 
   const [confirmedAppointment, setConfirmedAppointment] = useState(null);
   const [config, setConfig] = useState(null);
 
+  const [modal, setModal] = useState(null); 
+  // "login" | "register" | null
+
+  const [user, setUser] = useState(null);
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -86,6 +90,16 @@ function Booking() {
       });
   }, []);
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+
+    if (storedUser) {
+      setName(storedUser.name || "");
+      setPhone(storedUser.phone || "");
+      setMail(storedUser.email || "");
+    }
+  }, [modal]);
 
   useEffect(() => {
     if (!selectedBarber || !config) return;
@@ -110,8 +124,9 @@ function Booking() {
       };
 
       await api.post("/appointments", {
-        clientName: name,
-        clientPhone: phone,
+        clientName: user?.name || name,
+        clientPhone: user?.phone || phone,
+        clientEmail: user?.email || mail,
         service: selectedService.name,
         date: formatDate(date),
         time: selectedTime,
@@ -128,8 +143,12 @@ function Booking() {
       setSelectedTime("");
       setSelectedService(null);
       setSelectedBarber(null);
-      setName("");
-      setPhone("");
+
+      if (!user) {
+        setName("");
+        setPhone("");
+        setMail("");
+      }
 
     } catch (err) {
       setToast(err.response?.data?.message || "Error");
@@ -172,8 +191,16 @@ function Booking() {
   return (
     <div className="page">
 
-      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
-
+      <LoginModal
+        open={modal === "login"}
+        onClose={() => setModal(null)}
+        onOpenRegister={() => setModal("register")}
+      />
+      <RegisterModal
+        open={modal === "register"}
+        onClose={() => setModal(null)}
+        onSuccess={() => setModal("login")}
+      />
       {/* LANDING */}
       {/* LANDING */}
       <div
@@ -245,6 +272,15 @@ function Booking() {
           >
             Reservar turno 🚀
           </button>
+          <p className="register-cta">
+            ¿Sos nuevo cliente?{" "}
+            <span
+              className="link-register"
+              onClick={() => setModal("register")}
+            >
+              Registrate y obtené beneficios
+            </span>
+          </p>
         </div>
       </div>
 
@@ -362,27 +398,37 @@ function Booking() {
             )}
             {/* STEP 4 */}
             {step === 4 && (
-              <section className="section">
-                <h2 className="section-title">Datos</h2>
+            <section className="section">
+              <h2 className="section-title">Datos</h2>
 
-                <input
-                  className="input"
-                  placeholder="Nombre"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+              <input
+                className="input"
+                placeholder="Nombre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={!!user} // 🔥 si está logueado no se edita
+              />
 
-                <input
-                  className="input"
-                  placeholder="Teléfono"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+              <input
+                className="input"
+                placeholder="Teléfono"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={!!user}
+              />
 
-                <button className="button" onClick={createAppointment}>
-                  Confirmar turno 🚀
-                </button>
-              </section>
+              <input
+                className="input"
+                placeholder="Mail"
+                value={mail}
+                onChange={(e) => setMail(e.target.value)}
+                disabled={!!user}
+              />
+
+              <button className="button" onClick={createAppointment}>
+                Confirmar turno 🚀
+              </button>
+            </section>
             )}
 
           </motion.div>

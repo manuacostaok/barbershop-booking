@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
+// 🔐 PROTECT (auth)
+const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -12,11 +13,27 @@ const authMiddleware = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // 🔥 guardamos usuario
+    req.user = decoded; // 🔥 { id, role }
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
 
-module.exports = authMiddleware;
+// 🛡️ ROLE CHECK
+const requireRole = (role) => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "No autorizado" });
+  }
+
+  if (req.user.role !== role) {
+    return res.status(403).json({ message: "No permitido" });
+  }
+
+  next();
+};
+
+module.exports = {
+  protect,
+  requireRole
+};

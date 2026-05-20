@@ -6,33 +6,38 @@ const timeToMinutes = (time) => {
   return h * 60 + m;
 };
 
-// Crear turno
+// =======================================
+// 🔥 CREAR TURNO
+// =======================================
 const createAppointment = async (req, res) => {
   try {
-    const { clientName, clientPhone,service, date, time, duration, barber } = req.body;
+    const { clientName, clientPhone, clientEmail, service, date, time, duration, barber } = req.body;
 
-    // 🔹 Validación general
-    if (!clientName ) {
+    // 🔹 Validaciones
+    if (!clientName) {
       return res.status(400).json({
         message: "Faltan completar tu nombre",
       });
     }
+
     if (!date || !time) {
-    return res.status(400).json({
-      message: "Falta seleccionar fecha y horario",
-    });
+      return res.status(400).json({
+        message: "Falta seleccionar fecha y horario",
+      });
     }
+
     if (!service) {
-    return res.status(400).json({
-      message: "Falta seleccionar el corte",
-    });
+      return res.status(400).json({
+        message: "Falta seleccionar el corte",
+      });
     }
+
     if (!clientPhone) {
-    return res.status(400).json({
-      message: "El teléfono del cliente es obligatorio",
-    });
+      return res.status(400).json({
+        message: "El teléfono del cliente es obligatorio",
+      });
     }
-    // 🔥 VALIDACIÓN ESPECÍFICA DE BARBERO
+
     if (!barber) {
       return res.status(400).json({
         message: "Debes seleccionar un barbero",
@@ -40,16 +45,14 @@ const createAppointment = async (req, res) => {
     }
 
     const newStart = timeToMinutes(time);
-    const newEnd = newStart + duration;
+    const newEnd = newStart + (duration || 30);
 
-    // 🔥 filtrar por fecha + barbero
     const appointments = await Appointment.find({ date, barber });
 
     for (let appt of appointments) {
       const apptStart = timeToMinutes(appt.time);
       const apptEnd = apptStart + appt.duration;
 
-      // 🔥 chequeo de solapamiento real
       if (newStart < apptEnd && newEnd > apptStart) {
         return res.status(400).json({
           message: "Este horario se solapa con otro turno",
@@ -60,6 +63,7 @@ const createAppointment = async (req, res) => {
     const newAppointment = new Appointment({
       clientName,
       clientPhone,
+      clientMail,
       service,
       date,
       time,
@@ -81,7 +85,9 @@ const createAppointment = async (req, res) => {
   }
 };
 
-// Disponibilidad por fecha + barbero
+// =======================================
+// 🔥 DISPONIBILIDAD
+// =======================================
 const getAvailability = async (req, res) => {
   try {
     const { date, barber } = req.query;
@@ -112,11 +118,6 @@ const getAvailability = async (req, res) => {
 
     const appointments = await Appointment.find({ date, barber });
 
-    const timeToMinutes = (time) => {
-      const [h, m] = time.split(":").map(Number);
-      return h * 60 + m;
-    };
-
     let occupiedSlots = [];
 
     appointments.forEach((appt) => {
@@ -142,7 +143,7 @@ const getAvailability = async (req, res) => {
     res.json({ date, available });
 
   } catch (error) {
-    console.log("ERROR AVAILABILITY:", error); // 🔥 esto es clave
+    console.log("ERROR AVAILABILITY:", error);
 
     res.status(500).json({
       message: "Error getting availability",
@@ -150,8 +151,110 @@ const getAvailability = async (req, res) => {
   }
 };
 
+// =======================================
+// 🔥 NUEVO: TURNOS DEL BARBERO LOGUEADO
+// =======================================
+const getMyAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      barber: req.user.id,
+    }).populate("barber", "name");
 
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({
+      message: "Error obteniendo turnos",
+    });
+  }
+};
+
+// =======================================
+// 🔥 NUEVO: TODOS LOS TURNOS (ADMIN)
+// =======================================
+const getAllAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find()
+      .populate("barber", "name");
+
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({
+      message: "Error obteniendo todos los turnos",
+    });
+  }
+};
+
+const completeAppointment = async (req, res) => {
+  try {
+    const appt = await Appointment.findById(req.params.id);
+
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    // 🔥 marcar como completado
+    appt.status = "completed";
+    await appt.save();
+
+    // 🔍 buscar cliente
+    const user = await User.findOne({ phone: appt.clientPhone });
+
+    if (user) {
+      // 🧾 historial
+      user.appointmentsHistory.push({
+        service: appt.service,
+        barber: appt.barber,
+        date: appt.date,
+        time: appt.time,
+        price: 0
+      });
+
+      // 🔥 contar servicios iguales
+      const sameServices = user.appointmentsHistory.filter(
+        (h) => h.service === appt.service
+      );
+
+      const count = sameServices.length;
+
+      let reward = null;
+
+      // 🎁 cada 5 → 1 gratis
+      if (count % 5 === 0) {
+        reward = `🎁 Corte gratis: ${appt.service}`;
+
+        // opcional: marcarlo
+        user.appointmentsHistory.push({
+          service: appt.service,
+          barber: appt.barber,
+          date: appt.date,
+          time: "REWARD",
+          price: 0,
+          reward: true
+        });
+      }
+
+      await user.save();
+
+      return res.json({
+        message: "Turno completado",
+        reward
+      });
+    }
+
+    res.json({ message: "Turno completado" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error completando turno" });
+  }
+};
+
+// =======================================
+// EXPORT
+// =======================================
 module.exports = {
   createAppointment,
   getAvailability,
+  getMyAppointments,
+  getAllAppointments,
+  completeAppointment
 };

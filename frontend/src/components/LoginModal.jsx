@@ -6,7 +6,7 @@ import LoginForm from "../components/LoginForm";
 import Toast from "../components/Toast";
 import { useLanguage } from "../components/LanguageContext";
 
-function LoginModal({ open, onClose, onSuccess }) {
+function LoginModal({ open, onClose, onSuccess, onOpenRegister }) {
   const { t } = useLanguage();
 
   const [email, setEmail] = useState("");
@@ -101,6 +101,17 @@ function LoginModal({ open, onClose, onSuccess }) {
               onSubmit={handleLogin}
               loading={loading}
             />
+            <p className="register-cta">
+              ¿No tenés cuenta?{" "}
+              <span
+                className="link-register"
+                onClick={() => {
+                  onOpenRegister?.();
+                }}
+              >
+                Registrate
+              </span>
+            </p>
 
             <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
           </motion.div>

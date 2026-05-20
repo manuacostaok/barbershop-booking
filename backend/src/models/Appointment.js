@@ -14,6 +14,12 @@ const appointmentSchema = new mongoose.Schema(
       trim: true,
     },
 
+    clientMail: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     service: {
       type: String,
       required: true,

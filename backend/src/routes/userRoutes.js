@@ -3,9 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
-const authMiddleware = require("../middlewares/authMiddleware");
-
-// ===============================
+const { protect, requireRole } = require("../middlewares/authMiddleware");// ===============================
 // 🔥 OBTENER BARBEROS
 // ===============================
 router.get("/barbers", async (req, res) => {
@@ -20,7 +18,7 @@ router.get("/barbers", async (req, res) => {
 // ===============================
 // 🔒 CREAR BARBERO (SOLO ADMIN)
 // ===============================
-router.post("/barbers", authMiddleware, async (req, res) => {
+router.post("/barbers", protect, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
@@ -59,7 +57,7 @@ router.post("/barbers", authMiddleware, async (req, res) => {
 // ===============================
 // 🔥 EDITAR BARBERO
 // ===============================
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", protect, async (req, res) => {
   try {
     const { name, email, phone } = req.body;
 
@@ -82,7 +80,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 // ===============================
 // 🔥 BORRAR BARBERO
 // ===============================
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", protect, async (req, res) => {
   try {
     const deleted = await User.findByIdAndDelete(req.params.id);
 
@@ -95,6 +93,8 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Error eliminando barbero" });
   }
 });
+
+
 
 
 module.exports = router;

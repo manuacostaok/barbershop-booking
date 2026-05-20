@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Service = require("../models/Service");
-const authMiddleware = require("../middlewares/authMiddleware");
-
+const { protect, requireRole } = require("../middlewares/authMiddleware");
 // 🔥 CREAR CORTE (ADMIN)
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", protect, requireRole("admin"), async (req, res) => {
   try {
     const { name, price } = req.body;
 
@@ -28,7 +27,7 @@ router.get("/", async (req, res) => {
   res.json(services);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protect, requireRole("admin"), async (req, res) => {
   await Service.findByIdAndDelete(req.params.id);
   res.json({ message: "Servicio eliminado" });
 });

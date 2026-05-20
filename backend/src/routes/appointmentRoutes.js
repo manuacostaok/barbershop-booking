@@ -3,14 +3,16 @@ const router = express.Router();
 
 const {
   createAppointment,
-  getAvailability,
 } = require("../controllers/appointmentController");
 
 const Appointment = require("../models/Appointment");
-const authMiddleware = require("../middlewares/authMiddleware");
 
+// ✅ FIX IMPORT
+const { protect, requireRole } = require("../middlewares/authMiddleware");
 const Config = require("../models/Config");
 const generateSlots = require("../utils/generateSlots");
+
+
 
 
 // ===============================
@@ -31,9 +33,13 @@ const isInBreak = (time, config) => {
   return t >= bStart && t < bEnd;
 };
 
+const { completeAppointment } = require("../controllers/appointmentController");
+
+router.patch("/:id/complete", protect, completeAppointment);
+
 
 // ===============================
-// 🔥 CREAR TURNO (PÚBLICO + VALIDADO)
+// 🔥 CREAR TURNO (PÚBLICO)
 // ===============================
 router.post("/", async (req, res) => {
   try {
@@ -62,8 +68,8 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const appointment = await createAppointment(req, res);
-    return appointment;
+    // ✅ CREACIÓN REAL
+    await createAppointment(req, res);
 
   } catch (err) {
     console.log("ERROR CREATE:", err);
@@ -73,7 +79,23 @@ router.post("/", async (req, res) => {
 
 
 // ===============================
-// 🔥 BARBER TURNOS
+// 🔥 BARBER → VER SUS TURNOS (PRO)
+// ===============================
+router.get("/my", protect, async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      barber: req.user.id,
+    }).sort({ date: 1, time: 1 });
+
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ message: "Error obteniendo turnos del barbero" });
+  }
+});
+
+
+// ===============================
+// 🔥 VER TURNOS DE UN BARBERO
 // ===============================
 router.get("/barber/:barberId", async (req, res) => {
   try {
@@ -104,7 +126,7 @@ router.get("/availability", async (req, res) => {
     // 1. slots base
     let slots = generateSlots(open, close, interval);
 
-    // 2. FILTRO BREAK (FIX REAL)
+    // 2. FILTRO BREAK
     if (config?.hasBreak) {
       const breakStart = toMinutes(config.breakStart);
       const breakEnd = toMinutes(config.breakEnd);
@@ -121,7 +143,7 @@ router.get("/availability", async (req, res) => {
       date,
       status: { $ne: "cancelled" },
     });
-    console.log("CONFIG AVAILABILITY:", config);
+
     const booked = appointments.map((a) => a.time);
 
     // 4. DISPONIBLES
@@ -137,9 +159,9 @@ router.get("/availability", async (req, res) => {
 
 
 // ===============================
-// 🔒 ADMIN ALL
+// 🔒 ADMIN → TODOS LOS TURNOS
 // ===============================
-router.get("/all", authMiddleware, async (req, res) => {
+router.get("/all", protect, requireRole("admin"), async (req, res) => {
   try {
     const appointments = await Appointment.find()
       .populate("barber", "name");
@@ -155,12 +177,14 @@ router.get("/all", authMiddleware, async (req, res) => {
 // ===============================
 // 🔒 STATS
 // ===============================
-router.get("/stats", authMiddleware, async (req, res) => {
+router.get("/stats", protect, requireRole("admin"), async (req, res) => {
   try {
     const appointments = await Appointment.find();
 
     const total = appointments.length;
     const confirmed = appointments.filter(a => a.status === "confirmed").length;
+
+    // ⚠️ después lo hacemos dinámico con precio real
     const income = confirmed * 5000;
 
     res.json({ total, confirmed, income });
@@ -174,7 +198,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
 // ===============================
 // 🔒 CANCEL
 // ===============================
-router.patch("/:id/cancel", authMiddleware, async (req, res) => {
+router.patch("/:id/cancel", protect, async (req, res) => {
   try {
     const updated = await Appointment.findByIdAndUpdate(
       req.params.id,
@@ -193,7 +217,7 @@ router.patch("/:id/cancel", authMiddleware, async (req, res) => {
 // ===============================
 // 🔒 REACTIVATE
 // ===============================
-router.patch("/:id/reactivate", authMiddleware, async (req, res) => {
+router.patch("/:id/reactivate", protect, async (req, res) => {
   try {
     const updated = await Appointment.findByIdAndUpdate(
       req.params.id,
@@ -212,9 +236,9 @@ router.patch("/:id/reactivate", authMiddleware, async (req, res) => {
 // ===============================
 // 🔒 DELETE
 // ===============================
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", protect, requireRole("admin"), async (req, res) => {
   try {
-    const deleted = await Appointment.findByIdAndDelete(req.params.id);
+    await Appointment.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Turno eliminado correctamente" });
 

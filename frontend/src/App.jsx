@@ -5,6 +5,7 @@ import Booking from "./pages/Booking";
 import AdminPanel from "./pages/AdminPanel";
 import BarberDashboard from "./pages/BarberDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ClientPanel from "./pages/ClientPanel";
 
 function App() {
   return (
@@ -31,6 +32,16 @@ function App() {
             element={
               <ProtectedRoute role="barber">
                 <BarberDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* CLIENT */}
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute role="client">
+                <ClientPanel />
               </ProtectedRoute>
             }
           />
