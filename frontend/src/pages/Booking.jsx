@@ -114,7 +114,9 @@ function Booking() {
     if (!selectedTime) return setToast("Elegí un horario");
     if (!name) return setToast("Ingresá tu nombre");
     if (!phone) return setToast("Ingresá tu teléfono");
-
+     // 🔥 DEBUG ACÁ
+    console.log("SERVICE:", selectedService);
+    console.log("BARBER:", selectedBarber);
     try {
       const appointmentData = {
         service: selectedService,
@@ -127,10 +129,9 @@ function Booking() {
         clientName: user?.name || name,
         clientPhone: user?.phone || phone,
         clientEmail: user?.email || mail,
-        service: selectedService.name,
+        service: selectedService._id,
         date: formatDate(date),
         time: selectedTime,
-        duration: selectedService.duration,
         barber: selectedBarber._id,
       });
 
@@ -151,8 +152,9 @@ function Booking() {
       }
 
     } catch (err) {
+      console.log("ERROR BACK:", err.response?.data); // 🔥 clave también
       setToast(err.response?.data?.message || "Error");
-    }
+      }
   };
 
   if (success) {

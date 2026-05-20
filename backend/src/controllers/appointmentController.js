@@ -19,6 +19,11 @@ const createAppointment = async (req, res) => {
         message: "Faltan completar tu nombre",
       });
     }
+    if (!clientEmail) {
+      return res.status(400).json({
+        message: "Falta completar tu mail",
+      });
+    }
 
     if (!date || !time) {
       return res.status(400).json({
@@ -63,7 +68,7 @@ const createAppointment = async (req, res) => {
     const newAppointment = new Appointment({
       clientName,
       clientPhone,
-      clientMail,
+      clientEmail,
       service,
       date,
       time,
