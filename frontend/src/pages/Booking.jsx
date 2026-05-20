@@ -114,9 +114,7 @@ function Booking() {
     if (!selectedTime) return setToast("Elegí un horario");
     if (!name) return setToast("Ingresá tu nombre");
     if (!phone) return setToast("Ingresá tu teléfono");
-     // 🔥 DEBUG ACÁ
-    console.log("SERVICE:", selectedService);
-    console.log("BARBER:", selectedBarber);
+    
     try {
       const appointmentData = {
         service: selectedService,

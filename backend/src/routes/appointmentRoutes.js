@@ -247,4 +247,16 @@ router.delete("/:id", protect, requireRole("admin"), async (req, res) => {
   }
 });
 
+router.get("/my", protect, async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      client: req.user.id
+    }).sort({ date: -1 });
+
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ message: "Error cargando turnos" });
+  }
+});
+
 module.exports = router;

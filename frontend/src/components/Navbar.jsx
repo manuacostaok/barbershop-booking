@@ -13,7 +13,6 @@ import {
 
 function Navbar() {
   const [modal, setModal] = useState(null);
-  // "login" | "register" | null
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,6 +23,7 @@ function Navbar() {
   const isBarber = user?.role === "barber";
   const isClient = user?.role === "client";
 
+  const isHome = location.pathname === "/";
   const isAdminPanel = location.pathname.startsWith("/admin");
   const isBarberPanel = location.pathname.startsWith("/barber");
   const isClientPanel = location.pathname.startsWith("/client");
@@ -41,68 +41,76 @@ function Navbar() {
     if (user.role === "client") navigate("/client");
   };
 
+  const btnClass = (active) =>
+    `nav-btn ${active ? "active" : ""}`;
+
   return (
     <>
       <header className="navbar-glass">
         <div className="navbar-inner">
 
           {/* LOGO */}
-          <h1 className="logo" onClick={() => navigate("/")}>
-            Barber Studio
-          </h1>
+          <div className="logo" onClick={() => navigate("/")}>
+            💈 Barber Studio
+          </div>
 
           <div className="nav-right">
 
-            {/* =========================
-                USUARIO LOGUEADO
-            ========================= */}
+            {/* HOME */}
+            {!isHome && (
+              <button
+                className={btnClass(false)}
+                onClick={() => navigate("/")}
+              >
+                <FaHome /> Inicio
+              </button>
+            )}
+
+            {/* USER LOGGED */}
             {user ? (
               <>
-                {/* PANEL ADMIN */}
-                {!isAdminPanel && isAdmin && (
-                  <button className="nav-btn" onClick={() => navigate("/admin")}>
+                {isAdmin && !isAdminPanel && (
+                  <button
+                    className={btnClass(false)}
+                    onClick={() => navigate("/admin")}
+                  >
                     <FaUserShield /> Admin
                   </button>
                 )}
 
-                {/* PANEL BARBER */}
-                {!isBarberPanel && isBarber && (
-                  <button className="nav-btn" onClick={() => navigate("/barber")}>
+                {isBarber && !isBarberPanel && (
+                  <button
+                    className={btnClass(false)}
+                    onClick={() => navigate("/barber")}
+                  >
                     <FaUserShield /> Panel
                   </button>
                 )}
 
-                {/* PANEL CLIENTE */}
-                {!isClientPanel && isClient && (
-                  <button className="nav-btn" onClick={() => navigate("/client")}>
+                {isClient && !isClientPanel && (
+                  <button
+                    className={btnClass(false)}
+                    onClick={() => navigate("/client")}
+                  >
                     <FaUser /> Mi cuenta
                   </button>
                 )}
 
-                {/* HOME */}
-                <button className="nav-btn" onClick={() => navigate("/")}>
-                  <FaHome /> Inicio
-                </button>
-
-                {/* LOGOUT */}
                 <button className="nav-btn danger" onClick={handleLogout}>
                   <FaSignOutAlt /> Salir
                 </button>
               </>
             ) : (
-              <>
-                {/* NO LOGUEADO */}
-                <button className="nav-btn" onClick={handleLoginClick}>
-                  <FaSignInAlt /> Ingresar
-                </button>
-              </>
+              <button className="nav-btn primary" onClick={handleLoginClick}>
+                <FaSignInAlt /> Ingresar
+              </button>
             )}
 
           </div>
         </div>
       </header>
 
-      {/* LOGIN MODAL */}
+      {/* MODALS */}
       <LoginModal
         open={modal === "login"}
         onClose={() => setModal(null)}
@@ -116,13 +124,10 @@ function Navbar() {
         onOpenRegister={() => setModal("register")}
       />
 
-      {/* REGISTER MODAL */}
       <RegisterModal
         open={modal === "register"}
         onClose={() => setModal(null)}
-        onSuccess={() => {
-          setModal("login"); // vuelve al login
-        }}
+        onSuccess={() => setModal("login")}
       />
     </>
   );

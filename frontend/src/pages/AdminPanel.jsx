@@ -381,6 +381,10 @@ function AdminPanel() {
           password: newPassword,
         });
 
+        // 🔥 REFRESH BARBERS
+        const res = await api.get("/users/barbers");
+        setBarbers(res.data);
+
         setToast("Barbero creado ✂️");
       }
 
@@ -394,13 +398,18 @@ function AdminPanel() {
           price: newPrice,
         });
 
+        // 🔥 REFRESH SERVICES
+        const res = await api.get("/services");
+        setServices(res.data);
+
         setToast("Corte creado 💈");
       }
 
       setShowCreateModal(false);
+
+      // limpiar inputs
       setNewName("");
       setNewPhone("");
-
       setNewEmail("");
       setNewPassword("");
       setNewPrice("");
