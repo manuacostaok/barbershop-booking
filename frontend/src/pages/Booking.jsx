@@ -129,9 +129,10 @@ function Booking() {
         clientName: user?.name || name,
         clientPhone: user?.phone || phone,
         clientEmail: user?.email || mail,
-        service: selectedService._id,
+        service: selectedService.name,
         date: formatDate(date),
         time: selectedTime,
+        duration: selectedService.duration,
         barber: selectedBarber._id,
       });
 
