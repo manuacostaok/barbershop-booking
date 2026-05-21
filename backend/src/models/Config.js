@@ -1,9 +1,22 @@
 const mongoose = require("mongoose");
 
 const configSchema = new mongoose.Schema({
-  open: { type: String, default: "09:00" },
-  close: { type: String, default: "22:00" },
-  interval: { type: Number, default: 30 },
+  open: String,
+  close: String,
+  interval: Number,
+
+  hasBreak: {
+    type: Boolean,
+    default: false,
+  },
+  breakStart: {
+    type: String,
+    default: "13:00",
+  },
+  breakEnd: {
+    type: String,
+    default: "14:00",
+  },
 });
 
 module.exports = mongoose.model("Config", configSchema);

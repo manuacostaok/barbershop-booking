@@ -659,6 +659,7 @@ function AdminPanel() {
                   await api.put("/config", config);
 
                   const res = await api.get("/config");
+                  console.log("CONFIG DEL BACK:", res.data);
                   setConfig(res.data);
 
                   setToast("Horario del local actualizado 🔥");
