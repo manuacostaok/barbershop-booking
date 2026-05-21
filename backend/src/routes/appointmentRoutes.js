@@ -83,7 +83,12 @@ router.get("/my", protect, async (req, res) => {
 
     // 🔥 si es cliente → ve SUS turnos
     if (req.user.role === "client") {
-      filter = { clientId: req.user.id };
+      filter = {
+        $or: [
+          { clientId: req.user.id },       // 👈 turnos logueado
+          { clientEmail: req.user.email }, // 👈 turnos invitados
+        ],
+      };
     }
 
     const appointments = await Appointment.find(filter)
