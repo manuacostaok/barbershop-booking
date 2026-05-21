@@ -128,20 +128,22 @@ function BarberDashboard() {
             <p>{today}</p>
           </div>
         </div>
-
+          <div>
+            <br />
+          </div>
         {/* =========================
             🔥 FILTRO FECHA
         ========================= */}
         <div className="section">
           <div className="filter-label">📅 Filtrar por fecha</div>
-
+          <br />
           <button
-            className="filter-date-pill"
+            className="button primary full"
             onClick={() => setShowCalendar(!showCalendar)}
           >
             {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
           </button>
-
+<br />
           <AnimatePresence>
             {showCalendar && (
               <motion.div

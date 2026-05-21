@@ -14,7 +14,7 @@ function ClientPanel() {
         setUser(userRes.data);
 
         const apptRes = await api.get("/appointments/my");
-        setAppointments(apptRes.data);
+                setAppointments(apptRes.data);
 
       } catch (err) {
         console.log("Error cargando datos");

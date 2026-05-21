@@ -99,7 +99,7 @@ function Booking() {
       setPhone(storedUser.phone || "");
       setMail(storedUser.email || "");
     }
-  }, [modal]);
+  }, []);
 
   useEffect(() => {
     if (!selectedBarber || !config) return;
@@ -173,7 +173,7 @@ function Booking() {
           )}
 
           <button
-            className="button"
+            className="button primary full"
             onClick={() => {
               setSuccess(false);
               setConfirmedAppointment(null);
@@ -426,7 +426,7 @@ function Booking() {
                 disabled={!!user}
               />
 
-              <button className="button" onClick={createAppointment}>
+              <button className="button primary full" onClick={createAppointment}>
                 Confirmar turno 🚀
               </button>
             </section>
