@@ -76,6 +76,9 @@ router.get("/my", protect, async (req, res) => {
   try {
     let filter = {};
 
+    // 🔥 DEBUG USER
+    console.log("USER:", req.user);
+
     // 🔥 si es barbero → ve sus turnos
     if (req.user.role === "barber") {
       filter = { barber: req.user.id };
@@ -83,6 +86,8 @@ router.get("/my", protect, async (req, res) => {
 
     // 🔥 si es cliente → ve SUS turnos
     if (req.user.role === "client") {
+      console.log("EMAIL USADO:", req.user.email);
+
       filter = {
         $or: [
           { clientId: req.user.id },       // 👈 turnos logueado
@@ -90,14 +95,20 @@ router.get("/my", protect, async (req, res) => {
         ],
       };
     }
-    console.log("USER:", req.user);
+
+    // 🔥 DEBUG FILTER
+    console.log("FILTER:", filter);
+
     const appointments = await Appointment.find(filter)
       .populate("barber", "name")
       .sort({ date: -1 });
 
+    console.log("RESULT:", appointments.length);
+
     res.json(appointments);
 
   } catch (err) {
+    console.log("ERROR /my:", err);
     res.status(500).json({ message: "Error cargando turnos" });
   }
 });
