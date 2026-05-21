@@ -34,7 +34,7 @@ const isInBreak = (time, config) => {
 router.patch("/:id/complete", protect, completeAppointment);
 
 // CREATE
-router.post("/", async (req, res) => {
+router.post("/", protect, async (req, res) => {
   try {
     const { time, barber, date } = req.body;
 
@@ -74,13 +74,26 @@ router.get("/availability", getAvailability);
 // CLIENT FIX 🔥
 router.get("/my", protect, async (req, res) => {
   try {
-    const appointments = await Appointment.find({
-      clientId: req.user.id,
-    }).sort({ date: -1 });
+    let filter = {};
+
+    // 🔥 si es barbero → ve sus turnos
+    if (req.user.role === "barber") {
+      filter = { barber: req.user.id };
+    }
+
+    // 🔥 si es cliente → ve SUS turnos
+    if (req.user.role === "client") {
+      filter = { clientId: req.user.id };
+    }
+
+    const appointments = await Appointment.find(filter)
+      .populate("barber", "name")
+      .sort({ date: -1 });
 
     res.json(appointments);
+
   } catch (err) {
-    res.status(500).json({ message: "Error cargando turnos cliente" });
+    res.status(500).json({ message: "Error cargando turnos" });
   }
 });
 
