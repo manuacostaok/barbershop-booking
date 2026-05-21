@@ -72,10 +72,10 @@ router.get("/all", protect, requireRole("admin"), getAllAppointments);
 router.get("/availability", getAvailability);
 
 // CLIENT FIX 🔥
-router.get("/client", protect, async (req, res) => {
+router.get("/my", protect, async (req, res) => {
   try {
     const appointments = await Appointment.find({
-      clientEmail: req.user.email,
+      clientId: req.user.id,
     }).sort({ date: -1 });
 
     res.json(appointments);
