@@ -90,7 +90,7 @@ router.get("/my", protect, async (req, res) => {
         ],
       };
     }
-
+    console.log("USER:", req.user);
     const appointments = await Appointment.find(filter)
       .populate("barber", "name")
       .sort({ date: -1 });
