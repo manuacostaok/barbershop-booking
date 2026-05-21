@@ -69,6 +69,8 @@ function ClientPanel() {
         <p>{user.email}</p>
         <p>📞 {user.phone}</p>
       </div>
+      <br />
+      
 
       {/* =========================
           📅 PRÓXIMO TURNO
