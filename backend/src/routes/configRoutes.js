@@ -1,3 +1,24 @@
+const express = require("express");
+const router = express.Router();
+const Config = require("../models/Config");
+
+router.get("/", async (req, res) => {
+  let config = await Config.findOne();
+
+  if (!config) {
+    config = await Config.create({
+      open: "09:00",
+      close: "21:00",
+      interval: 30,
+      hasBreak: false,
+      breakStart: "13:00",
+      breakEnd: "14:00",
+    });
+  }
+
+  res.json(config);
+});
+
 router.put("/", async (req, res) => {
   try {
     const { open, close, interval, hasBreak, breakStart, breakEnd } = req.body;
@@ -55,3 +76,5 @@ router.put("/", async (req, res) => {
     res.status(500).json({ message: "Error guardando configuración" });
   }
 });
+
+module.exports = router;
