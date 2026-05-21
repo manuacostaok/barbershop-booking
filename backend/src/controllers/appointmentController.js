@@ -1,5 +1,6 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/User"); // 🔥 FALTABA ESTO
+const Config = require("../models/Config"); // 🔥 agregá esto arriba
 
 // helper
 const timeToMinutes = (time) => {
@@ -75,13 +76,46 @@ const getAvailability = async (req, res) => {
   try {
     const { date, barber } = req.query;
 
-    const allSlots = [
-      "09:00","09:30","10:00","10:30",
-      "11:00","11:30","12:00","12:30",
-      "13:00","13:30","14:00","14:30",
-      "15:00","15:30","16:00","16:30","17:00"
-    ];
+    const config = await Config.findOne();
 
+    if (!config) {
+      return res.status(400).json({ message: "Config no encontrada" });
+    }
+
+    // helpers
+    const toMinutes = (t) => {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const fromMinutes = (min) => {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    };
+
+    // generar slots dinámicos
+    const slots = [];
+
+    let start = toMinutes(config.open);
+    const end = toMinutes(config.close);
+
+    const breakStart = config.hasBreak ? toMinutes(config.breakStart) : null;
+    const breakEnd = config.hasBreak ? toMinutes(config.breakEnd) : null;
+
+    while (start < end) {
+
+      // 🔥 APLICAR BREAK (LA CLAVE)
+      if (config.hasBreak && start >= breakStart && start < breakEnd) {
+        start += config.interval;
+        continue;
+      }
+
+      slots.push(fromMinutes(start));
+      start += config.interval;
+    }
+
+    // turnos ocupados
     const appointments = await Appointment.find({ date, barber });
 
     let occupiedSlots = [];
@@ -93,16 +127,14 @@ const getAvailability = async (req, res) => {
       while (remaining > 0) {
         occupiedSlots.push(currentTime);
 
-        const minutes = timeToMinutes(currentTime) + 30;
-        const h = Math.floor(minutes / 60);
-        const m = minutes % 60;
+        const minutes = toMinutes(currentTime) + config.interval;
+        currentTime = fromMinutes(minutes);
 
-        currentTime = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-        remaining -= 30;
+        remaining -= config.interval;
       }
     });
 
-    const available = allSlots.filter(
+    const available = slots.filter(
       (slot) => !occupiedSlots.includes(slot)
     );
 

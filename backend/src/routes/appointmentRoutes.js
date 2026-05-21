@@ -34,7 +34,7 @@ const isInBreak = (time, config) => {
 router.patch("/:id/complete", protect, completeAppointment);
 
 // CREATE
-router.post("/", protect, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { time, barber, date } = req.body;
 
