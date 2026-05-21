@@ -119,13 +119,24 @@ const getAvailability = async (req, res) => {
 // =======================================
 const getMyAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({
-      barber: req.user.id,
-    }).populate("barber", "name");
+    let query = {};
+
+    if (req.user.role === "barber") {
+      query = { barber: req.user.id };
+    } else {
+      query = { clientId: req.user.id };
+    }
+
+    const appointments = await Appointment.find(query)
+      .populate("barber", "name")
+      .sort({ date: -1 });
 
     res.json(appointments);
+
   } catch (err) {
-    res.status(500).json({ message: "Error obteniendo turnos" });
+    res.status(500).json({
+      message: "Error obteniendo turnos",
+    });
   }
 };
 
