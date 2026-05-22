@@ -9,7 +9,14 @@ import StatsCharts from "../components/StatsCharts";
 import { useNavigate } from "react-router-dom";
 import AppBrand from "../components/AppBrand";
 import BaseModal from "../components/BaseModal";
-
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
@@ -56,7 +63,7 @@ function AdminPanel() {
 
   const [selectedBarber, setSelectedBarber] = useState("");
   const [day, setDay] = useState(1);
-  
+  const [showStatsCalendar, setShowStatsCalendar] = useState(false);
 
   const [config, setConfig] = useState({
     open: "09:00",
@@ -288,9 +295,7 @@ function AdminPanel() {
       .catch(() => console.log("Error cargando barberos"));
   }, []);
 
-  useEffect(() => {
-    api.get("/appointments/stats").then(res => setStats(res.data));
-  }, []);
+  
 
   useEffect(() => {
     api.get("/services")
@@ -315,6 +320,13 @@ function AdminPanel() {
 
   const formatDate = (date) => {
     if (!date) return "";
+
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+
+    if (isNaN(date)) return ""; // evita fechas inválidas
+
     return (
       date.getFullYear() +
       "-" +
@@ -323,6 +335,7 @@ function AdminPanel() {
       String(date.getDate()).padStart(2, "0")
     );
   };
+
 
   const filteredAppointments = appointments.filter((appt) => {
     return (
@@ -419,7 +432,127 @@ function AdminPanel() {
     }
   };
 
+  // ==========================
+  // 📊 STATS DEL DÍA
+  // ==========================
 
+  const [statsDate, setStatsDate] = useState(new Date());
+  const selectedDate = formatDate(statsDate);
+
+  const today = formatDate(statsDate);
+  // 👉 turnos de hoy (no cancelados)
+  const todayAppointments = appointments.filter(
+    (a) => a.date === today && a.status !== "cancelled"
+  );
+
+  // 👉 helper precio
+  const getPrice = (serviceName) => {
+    const service = services.find((s) => s.name === serviceName);
+    return service ? service.price : 0;
+  };
+
+  // 👉 ganancias del día
+  const todayRevenue = todayAppointments.reduce((acc, appt) => {
+    return acc + getPrice(appt.service);
+  }, 0);
+
+  // 👉 total turnos
+  const totalToday = todayAppointments.length;
+
+  // 👉 cancelados hoy
+  const cancelledToday = appointments.filter(
+    (a) => a.date === today && a.status === "cancelled"
+  ).length;
+
+  // 👉 ganancias por barbero
+  const revenueByBarber = {};
+
+  todayAppointments.forEach((appt) => {
+    const barberName = appt.barber?.name || "Sin nombre";
+    const price = getPrice(appt.service);
+
+    if (!revenueByBarber[barberName]) {
+      revenueByBarber[barberName] = 0;
+    }
+
+    revenueByBarber[barberName] += price;
+  });
+  // ==========================
+  // 📊 STATS DE FECHA SELECCIONADA
+  // ==========================
+
+  // turnos del día seleccionado (no cancelados)
+  const selectedAppointments = appointments.filter(
+    (a) => a.date === selectedDate && a.status !== "cancelled"
+  );
+
+  // total turnos
+  const totalSelected = selectedAppointments.length;
+
+  // cancelados
+  const cancelledSelected = appointments.filter(
+    (a) => a.date === selectedDate && a.status === "cancelled"
+  ).length;
+
+  // ganancias
+  const selectedRevenue = selectedAppointments.reduce((acc, appt) => {
+    return acc + getPrice(appt.service);
+  }, 0);
+
+  // ==========================
+  // 💰 INGRESOS POR SERVICIO
+  // ==========================
+
+  const revenueByService = {};
+
+  selectedAppointments.forEach((appt) => {
+    const service = appt.service;
+    const price = getPrice(service);
+
+    if (!revenueByService[service]) {
+      revenueByService[service] = 0;
+    }
+
+    revenueByService[service] += price;
+  });
+  // ==========================
+  // 💰 GANANCIAS DEL MES
+  // ==========================
+
+  const currentMonth = today.slice(0, 7); // YYYY-MM
+
+  const monthAppointments = appointments.filter(
+    (a) =>
+      a.date.startsWith(currentMonth) &&
+      a.status !== "cancelled"
+  );
+
+  const monthRevenue = monthAppointments.reduce((acc, appt) => {
+    return acc + getPrice(appt.service);
+  }, 0);
+
+  // ==========================
+  // 📈 TURNOS POR DÍA
+  // ==========================
+
+  const appointmentsByDay = {};
+
+  monthAppointments.forEach((appt) => {
+    const day = appt.date;
+
+    if (!appointmentsByDay[day]) {
+      appointmentsByDay[day] = 0;
+    }
+
+    appointmentsByDay[day]++;
+  });
+
+  const chartData = Object.entries(appointmentsByDay).map(
+    ([date, count]) => ({
+      date,
+      turnos: count,
+    })
+  );
   return (
     
     <div className="page">
@@ -688,10 +821,127 @@ function AdminPanel() {
         <br />
         
 
-        <div className="section-title">📊 Estadísticas</div>
+        <div className="section-title">📊 Estadísticas económicas</div>
 
-        {stats && <StatsCharts stats={stats} />}
+          {/* =========================
+              📊 STATS DEL DÍA
+          ========================= */}
+          {/* =========================
+              📊 STATS CON FILTRO
+          ========================= */}
+          <div className="section">
 
+            {/* 📅 SELECTOR DE FECHA */}
+            <div className="card">
+              <h3>Seleccionar fecha para ver ingresos de ese día</h3>
+
+              <button
+                className="filter-date-button"
+                onClick={() => setShowStatsCalendar(!showStatsCalendar)}
+              >
+                <span className="filter-date-icon">📅</span>
+
+                <span className="filter-date-text">
+Seleccionar fecha
+                </span>
+
+                <span className="filter-date-chevron">▼</span>
+              </button>
+
+              <AnimatePresence>
+                {showStatsCalendar && (
+                  <motion.div
+                    className="filter-calendar-wrapper"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <Calendar
+                      value={statsDate}
+                      onChange={(date) => {
+                        setStatsDate(date);
+                        setShowStatsCalendar(false);
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <p style={{ marginTop: 10 }}>
+                📅 {formatDate(statsDate)}
+              </p>
+            </div>
+            <br />
+            {/* 📊 RESUMEN */}
+            <div className="grid">
+
+              <div className="card">
+                <h3>📅 Turnos</h3>
+                <p>{totalSelected}</p>
+              </div>
+
+              <div className="card">
+                <h3>💰 Ganancia</h3>
+                <p>${selectedRevenue}</p>
+              </div>
+
+              <div className="card">
+                <h3>❌ Cancelados</h3>
+                <p>{cancelledSelected}</p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* =========================
+              🏆 POR BARBERO
+          ========================= */}
+          <div className="section">
+            <div className="section-title">🏆 Ganancia por barbero</div>
+
+            <div className="grid">
+              {Object.entries(revenueByBarber).length === 0 ? (
+                <p>No hay datos</p>
+              ) : (
+                Object.entries(revenueByBarber).map(([name, total]) => (
+                  <div className="card" key={name}>
+                    <h3>{name}</h3>
+                    <p>${total}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* =========================
+              📈 GRÁFICO POR SERVICIO
+          ========================= */}
+          <div className="section">
+            <div className="section-title">📈 Ingresos por servicio</div>
+
+            <div className="grid">
+              {Object.entries(revenueByService).length === 0 ? (
+                <p>No hay datos</p>
+              ) : (
+                Object.entries(revenueByService).map(([service, total]) => (
+                  <div className="card" key={service}>
+                    <h3>{service}</h3>
+
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: `${(total / selectedRevenue) * 100 || 0}%`
+                        }}
+                      />
+                    </div>
+
+                    <p>${total}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
         

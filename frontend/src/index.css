@@ -2517,3 +2517,83 @@ body::after {
 
 
 
+/* =========================
+   CLIENT PANEL BASE
+========================= */
+
+.client-panel {
+  padding: 20px;
+}
+
+/* cards centradas */
+.client-panel .card {
+  width: 100%;
+  max-width: 650px;
+  margin: 10px auto;
+}
+
+/* grids desktop */
+.client-panel .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+/* progreso */
+.client-panel .progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.client-panel .progress-fill {
+  height: 100%;
+  background: #00ff88;
+}
+
+/* highlight */
+.client-panel .highlight {
+  border-left: 4px solid #00ff88;
+}
+
+/* =========================
+   📱 MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+  .client-panel {
+    padding: 12px;
+  }
+
+  .client-panel h1 {
+    font-size: 20px;
+  }
+
+  .client-panel h2 {
+    font-size: 18px;
+  }
+
+  /* 1 columna */
+  .client-panel .grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* cards más compactas */
+  .client-panel .card {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* próximo turno */
+  .client-panel .highlight {
+    padding: 15px;
+  }
+
+  /* botones full width si aparecen */
+  .client-panel button {
+    width: 100%;
+  }
+}

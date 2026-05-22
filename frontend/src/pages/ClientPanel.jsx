@@ -12,13 +12,14 @@ function ClientPanel() {
       try {
         const userRes = await api.get("/auth/me");
         setUser(userRes.data);
+
         const apptRes = await api.get("/appointments/my", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        setAppointments(apptRes.data);
 
+        setAppointments(apptRes.data);
       } catch (err) {
         console.log("Error cargando datos");
       }
@@ -34,7 +35,6 @@ function ClientPanel() {
 
       const userRes = await api.get("/auth/me");
       setUser(userRes.data);
-
     } catch (err) {
       console.log(err.response?.data?.message || "Error");
     }
@@ -62,7 +62,7 @@ function ClientPanel() {
     .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
   return (
-    <div className="page">
+    <div className="page client-panel">
 
       <h1>👤 Mi perfil</h1>
 
@@ -72,12 +72,10 @@ function ClientPanel() {
         <p>{user.email}</p>
         <p>📞 {user.phone}</p>
       </div>
-      <br />
-      
 
-      {/* =========================
-          📅 PRÓXIMO TURNO
-      ========================= */}
+      <br />
+
+      {/* PRÓXIMO TURNO */}
       {nextAppointment && (
         <div className="card highlight">
           <h2>📅 Próximo turno</h2>
@@ -91,19 +89,7 @@ function ClientPanel() {
         </div>
       )}
 
-      {/* =========================
-          🔎 FILTROS
-      ========================= 
-      <div className="filters">
-        <button onClick={() => setFilter("all")}>Todos</button>
-        <button onClick={() => setFilter("confirmed")}>Confirmados</button>
-        <button onClick={() => setFilter("cancelled")}>Cancelados</button>
-      </div>
- */}
-     
-      {/* =========================
-          🎁 RECOMPENSAS
-      ========================= */}
+      {/* BENEFICIOS */}
       <div className="section">
         <h2>🎁 Beneficios</h2>
 
@@ -154,9 +140,7 @@ function ClientPanel() {
         )}
       </div>
 
-      {/* =========================
-          📜 HISTORIAL
-      ========================= */}
+      {/* HISTORIAL */}
       <div className="section">
         <h2>📜 Historial de turnos</h2>
 

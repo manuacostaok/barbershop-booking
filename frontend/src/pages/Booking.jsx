@@ -34,7 +34,8 @@ function Booking() {
 
   const [modal, setModal] = useState(null); 
   // "login" | "register" | null
-
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
 
   const formatDate = (date) => {
@@ -365,6 +366,7 @@ function Booking() {
                   <Calendar
                     value={date}
                     onChange={(d) => setDate(d)}
+                  minDate={today}
                   />
                 </div>
 
