@@ -2597,3 +2597,77 @@ body::after {
     width: 100%;
   }
 }
+
+.schedule-layout {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-form,
+.schedule-side {
+  box-sizing: border-box;
+}
+
+/* 🔥 FIX MOBILE PADDING */
+@media (max-width: 768px) {
+  .schedule-layout {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .schedule-form,
+  .schedule-side {
+    padding-right: 8px;
+  }
+}
+
+.filter-date-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap; /* por si pantalla chica */
+}
+
+.selected-date {
+  font-size: 14px;
+  color: #ddd;
+  white-space: nowrap;
+}
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+.page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 420px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    padding: 16px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
