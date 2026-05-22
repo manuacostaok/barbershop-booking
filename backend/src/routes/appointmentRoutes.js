@@ -11,7 +11,7 @@ const {
 
 const Appointment = require("../models/Appointment");
 const Config = require("../models/Config");
-const { protect, requireRole } = require("../middlewares/authMiddleware");
+const { protect, requireRole, protectOptional } = require("../middlewares/authMiddleware");
 const generateSlots = require("../utils/generateSlots");
 
 // helpers
@@ -34,7 +34,7 @@ const isInBreak = (time, config) => {
 router.patch("/:id/complete", protect, completeAppointment);
 
 // CREATE
-router.post("/", async (req, res) => {
+  router.post("/", protectOptional, async (req, res) => {
   try {
     const { time, barber, date } = req.body;
 
@@ -90,8 +90,8 @@ router.get("/my", protect, async (req, res) => {
 
       filter = {
         $or: [
-          { clientId: req.user.id },       // 👈 turnos logueado
-          { clientEmail: req.user.email }, // 👈 turnos invitados
+          { clientId: req.user.id },
+          { clientEmail: { $regex: `^${req.user.email}$`, $options: "i" } }, // 👈 turnos invitados
         ],
       };
     }

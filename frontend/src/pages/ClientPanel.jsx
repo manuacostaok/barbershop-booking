@@ -12,9 +12,12 @@ function ClientPanel() {
       try {
         const userRes = await api.get("/auth/me");
         setUser(userRes.data);
-
-        const apptRes = await api.get("/appointments/my");
-                setAppointments(apptRes.data);
+        const apptRes = await api.get("/appointments/my", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setAppointments(apptRes.data);
 
       } catch (err) {
         console.log("Error cargando datos");
