@@ -216,10 +216,67 @@ const completeAppointment = async (req, res) => {
   }
 };
 
+const cancelAppointment = async (req, res) => {
+  try {
+    const appt = await Appointment.findById(req.params.id);
+
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    appt.status = "cancelled";
+    await appt.save();
+
+    res.json({ message: "Turno cancelado" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error cancelando turno" });
+  }
+};
+
+const reactivateAppointment = async (req, res) => {
+  try {
+    const appt = await Appointment.findById(req.params.id);
+
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    appt.status = "pending"; // o confirmed si usás eso
+
+    await appt.save();
+
+    res.json({ message: "Turno reactivado" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error reactivando turno" });
+  }
+};
+
+const deleteAppointment = async (req, res) => {
+  try {
+    const appt = await Appointment.findById(req.params.id);
+
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    await appt.deleteOne();
+
+    res.json({ message: "Turno eliminado" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error eliminando turno" });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAvailability,
   getMyAppointments,
   getAllAppointments,
-  completeAppointment
+  completeAppointment,
+  cancelAppointment,
+  reactivateAppointment,
+  deleteAppointment
 };

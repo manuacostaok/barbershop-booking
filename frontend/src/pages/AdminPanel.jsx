@@ -842,7 +842,7 @@ function AdminPanel() {
                 <span className="filter-date-icon">📅</span>
 
                 <span className="filter-date-text">
-Seleccionar fecha
+                    Seleccionar fecha
                 </span>
 
                 <span className="filter-date-chevron">▼</span>

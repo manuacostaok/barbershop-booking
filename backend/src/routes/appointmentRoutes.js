@@ -6,7 +6,10 @@ const {
   getMyAppointments,
   getAllAppointments,
   getAvailability,
-  completeAppointment
+  completeAppointment,
+  cancelAppointment,
+  reactivateAppointment,
+  deleteAppointment
 } = require("../controllers/appointmentController");
 
 const Appointment = require("../models/Appointment");
@@ -67,6 +70,11 @@ router.get("/my", protect, getMyAppointments);
 
 // ADMIN
 router.get("/all", protect, requireRole("admin"), getAllAppointments);
+
+router.patch("/:id/cancel", cancelAppointment);
+router.patch("/:id/reactivate", reactivateAppointment);
+router.delete("/:id", deleteAppointment);
+
 
 // AVAILABILITY
 router.get("/availability", getAvailability);
