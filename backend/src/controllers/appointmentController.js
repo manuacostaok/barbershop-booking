@@ -1,6 +1,6 @@
 const Appointment = require("../models/Appointment");
-const User = require("../models/User"); // 🔥 FALTABA ESTO
-const Config = require("../models/Config"); // 🔥 agregá esto arriba
+const User = require("../models/User");
+const Config = require("../models/Config");
 
 // helper
 const timeToMinutes = (time) => {
@@ -48,7 +48,7 @@ const createAppointment = async (req, res) => {
     }
 
     const newAppointment = new Appointment({
-      clientId: req.user?.id || null, // 🔥 FIX REAL
+      clientId: req.user?.id || null,
       clientName,
       clientPhone,
       clientEmail,
@@ -57,6 +57,7 @@ const createAppointment = async (req, res) => {
       time,
       duration: duration || 30,
       barber,
+      status: "pending", // 🔥 IMPORTANTE
     });
 
     const saved = await newAppointment.save();
@@ -82,7 +83,6 @@ const getAvailability = async (req, res) => {
       return res.status(400).json({ message: "Config no encontrada" });
     }
 
-    // helpers
     const toMinutes = (t) => {
       const [h, m] = t.split(":").map(Number);
       return h * 60 + m;
@@ -94,7 +94,6 @@ const getAvailability = async (req, res) => {
       return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     };
 
-    // generar slots dinámicos
     const slots = [];
 
     let start = toMinutes(config.open);
@@ -104,8 +103,6 @@ const getAvailability = async (req, res) => {
     const breakEnd = config.hasBreak ? toMinutes(config.breakEnd) : null;
 
     while (start < end) {
-
-      // 🔥 APLICAR BREAK (LA CLAVE)
       if (config.hasBreak && start >= breakStart && start < breakEnd) {
         start += config.interval;
         continue;
@@ -115,7 +112,6 @@ const getAvailability = async (req, res) => {
       start += config.interval;
     }
 
-    // turnos ocupados
     const appointments = await Appointment.find({ date, barber });
 
     let occupiedSlots = [];
@@ -190,7 +186,12 @@ const getAllAppointments = async (req, res) => {
 const completeAppointment = async (req, res) => {
   try {
     const appt = await Appointment.findById(req.params.id);
+
     if (!appt) return res.status(404).json({ message: "Turno no encontrado" });
+
+    if (appt.status === "cancelled") {
+      return res.status(400).json({ message: "No podés completar un turno cancelado" });
+    }
 
     appt.status = "completed";
     await appt.save();
@@ -216,12 +217,44 @@ const completeAppointment = async (req, res) => {
   }
 };
 
+// =======================================
+// 🔥 CONFIRMAR
+// =======================================
+const confirmAppointment = async (req, res) => {
+  try {
+    const appt = await Appointment.findById(req.params.id);
+
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    if (appt.status !== "pending") {
+      return res.status(400).json({ message: "Solo se pueden confirmar turnos pendientes" });
+    }
+
+    appt.status = "confirmed";
+    await appt.save();
+
+    res.json({ message: "Turno confirmado" });
+
+  } catch {
+    res.status(500).json({ message: "Error confirmando turno" });
+  }
+};
+
+// =======================================
+// 🔥 CANCELAR
+// =======================================
 const cancelAppointment = async (req, res) => {
   try {
     const appt = await Appointment.findById(req.params.id);
 
     if (!appt) {
       return res.status(404).json({ message: "Turno no encontrado" });
+    }
+
+    if (appt.status === "completed") {
+      return res.status(400).json({ message: "No podés cancelar un turno ya completado" });
     }
 
     appt.status = "cancelled";
@@ -234,6 +267,9 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// =======================================
+// 🔥 REACTIVAR
+// =======================================
 const reactivateAppointment = async (req, res) => {
   try {
     const appt = await Appointment.findById(req.params.id);
@@ -242,8 +278,11 @@ const reactivateAppointment = async (req, res) => {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
 
-    appt.status = "pending"; // o confirmed si usás eso
+    if (appt.status !== "cancelled") {
+      return res.status(400).json({ message: "Solo podés reactivar turnos cancelados" });
+    }
 
+    appt.status = "pending";
     await appt.save();
 
     res.json({ message: "Turno reactivado" });
@@ -253,6 +292,9 @@ const reactivateAppointment = async (req, res) => {
   }
 };
 
+// =======================================
+// 🔥 DELETE
+// =======================================
 const deleteAppointment = async (req, res) => {
   try {
     const appt = await Appointment.findById(req.params.id);
@@ -276,6 +318,7 @@ module.exports = {
   getMyAppointments,
   getAllAppointments,
   completeAppointment,
+  confirmAppointment, 
   cancelAppointment,
   reactivateAppointment,
   deleteAppointment

@@ -9,6 +9,7 @@ const {
   completeAppointment,
   cancelAppointment,
   reactivateAppointment,
+  confirmAppointment,
   deleteAppointment
 } = require("../controllers/appointmentController");
 
@@ -74,6 +75,8 @@ router.get("/all", protect, requireRole("admin"), getAllAppointments);
 router.patch("/:id/cancel", cancelAppointment);
 router.patch("/:id/reactivate", reactivateAppointment);
 router.delete("/:id", deleteAppointment);
+
+router.patch("/:id/confirm", confirmAppointment);
 
 
 // AVAILABILITY
