@@ -166,7 +166,7 @@ const redeemFreeCut = async (req, res) => {
 
     if (cuts.length < 5) {
       return res.status(400).json({
-        message: "No tenés suficientes cortes para canjear asd",
+        message: "No tenés suficientes cortes para canjear",
       });
     }
 
