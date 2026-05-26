@@ -3,7 +3,7 @@ import api from "../api";
 import Calendar from "react-calendar";
 import { AnimatePresence, motion } from "framer-motion";
 import Toast from "../components/Toast";
-import { FaTrash, FaHome, FaEdit, FaSignOutAlt, FaUndo, FaTimes } from "react-icons/fa";
+import { FaTrash, FaHome, FaEdit, FaSignOutAlt, FaUndo, FaTimes, FaCheck } from "react-icons/fa";
 import CreateBarberModal from "../components/CreateBarberModal";
 import StatsCharts from "../components/StatsCharts";
 import { useNavigate } from "react-router-dom";
@@ -64,7 +64,15 @@ function AdminPanel() {
   const [selectedBarber, setSelectedBarber] = useState("");
   const [day, setDay] = useState(1);
   const [showStatsCalendar, setShowStatsCalendar] = useState(false);
-
+  const completeAppointment = async (id) => {
+    try {
+      await api.patch(`/appointments/${id}/complete`);
+      setToast("Turno completado ✅");
+      fetchAppointments();
+    } catch {
+      setToast("Error completando turno");
+    }
+  };
   const [config, setConfig] = useState({
     open: "09:00",
     close: "22:00",
@@ -787,8 +795,6 @@ function AdminPanel() {
                     setToast(error);
                     return;
                   }
-                  console.log("CONFIG QUE ENVIO:", config);
-                  await api.put("/config", config);
                   await api.put("/config", config);
 
                   const res = await api.get("/config");
@@ -931,8 +937,9 @@ function AdminPanel() {
                       <div
                         className="progress-fill"
                         style={{
-                          width: `${(total / selectedRevenue) * 100 || 0}%`
-                        }}
+                      width: selectedRevenue
+                      ? `${(total / selectedRevenue) * 100}%`
+                      : "0%"                        }}
                       />
                     </div>
 
@@ -1081,9 +1088,20 @@ function AdminPanel() {
                       {appt.status === "pending" && "Pendiente"}
                       {appt.status === "confirmed" && "Confirmado"}
                       {appt.status === "cancelled" && "Cancelado"}
+                      {appt.status === "completed" && "Completado"}
                     </div>
 
                     <div className="actions">
+
+
+                      {appt.status !== "completed" && appt.status !== "cancelled" && (
+                        <button
+                          className="complete-btn"
+                          onClick={() => completeAppointment(appt._id)}
+                        >
+                          <FaCheck  /> Completar
+                        </button>
+                      )}
                       {appt.status !== "cancelled" && (
                         <button
                           className="cancel-btn"

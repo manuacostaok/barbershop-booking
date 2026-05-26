@@ -552,7 +552,8 @@
 
 .cancel-btn,
 .delete-btn,
-.reactivate-btn {
+.reactivate-btn,
+.complete-btn {
   padding: 8px 12px;
   border-radius: 8px;
   border: none;
@@ -569,7 +570,8 @@
   color: white;
 }
 
-.reactivate-btn {
+.reactivate-btn,
+.complete-btn {
   background: #e6f7ee;
   color: #1a7f37;
 }

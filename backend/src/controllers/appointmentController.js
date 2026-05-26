@@ -196,8 +196,7 @@ const completeAppointment = async (req, res) => {
     appt.status = "completed";
     await appt.save();
 
-    const user = await User.findOne({ phone: appt.clientPhone });
-
+    const user = await User.findById(appt.clientId);
     if (user) {
       user.appointmentsHistory.push({
         service: appt.service,
