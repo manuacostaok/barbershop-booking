@@ -152,6 +152,9 @@ const redeemFreeCut = async (req, res) => {
 
     const user = await User.findById(userId);
 
+    console.log("SERVICE QUE VIENE:", service);
+    console.log("HISTORIAL:", user.appointmentsHistory);
+
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -163,7 +166,7 @@ const redeemFreeCut = async (req, res) => {
 
     if (cuts.length < 5) {
       return res.status(400).json({
-        message: "No tenés suficientes cortes para canjear",
+        message: "No tenés suficientes cortes para canjear asd",
       });
     }
 

@@ -2671,3 +2671,40 @@ html, body {
 * {
   box-sizing: border-box;
 }
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.confirmed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.completed {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.row {
+  transition: all 0.2s ease;
+}
+
+.row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
