@@ -359,6 +359,7 @@ function BarberDashboard() {
             <h3>🎟️ Validar cupón</h3>
 
             <input
+              className="input"
               type="text"
               placeholder="Ingresar código"
               value={couponCode}
@@ -378,14 +379,21 @@ function BarberDashboard() {
             {/* RESULTADO */}
             {couponResult && (
               <div style={{ marginTop: 15 }}>
-                {couponResult.valid ? (
-                  <div style={{ color: "#00ff88" }}>
-                    <p>✅ Cupón válido</p>
-                    <p><strong>Cliente:</strong> {couponResult.coupon.userId?.name}</p>
-                    <p><strong>Servicio:</strong> {couponResult.coupon.service}</p>
-                    <p><strong>Fecha:</strong> {new Date(couponResult.coupon.usedAt).toLocaleString()}</p>
-                  </div>
-                ) : (
+                  {couponResult.valid ? (
+                    <div style={{ color: "#00ff88" }}>
+                      <p>✅ Cupón válido</p>
+
+                      <p><strong>Cliente:</strong> {couponResult.coupon.userId?.name}</p>
+                      <p><strong>Servicio:</strong> {couponResult.coupon.service}</p>
+                      <p><strong>Fecha:</strong> {new Date(couponResult.coupon.usedAt).toLocaleString()}</p>
+
+                      {couponResult.coupon.redeemedAt && (
+                        <p style={{ color: "#ff9800" }}>
+                          ⚠ Ya fue usado el {new Date(couponResult.coupon.redeemedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
                   <p style={{ color: "red" }}>❌ Cupón inválido</p>
                 )}
               </div>

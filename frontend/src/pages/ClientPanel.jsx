@@ -13,7 +13,7 @@ function ClientPanel() {
   // 🔥 NUEVOS
   const [redeemModal, setRedeemModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-
+  const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
   useEffect(() => {
     const load = async () => {
       try {
@@ -97,8 +97,9 @@ function ClientPanel() {
 
           {/* 🔥 QR NIVEL DIOS */}
           <div style={{ marginTop: 20 }}>
+
             <QRCode
-              value={`${window.location.origin}/barber?code=${couponUsed.code}`}
+              value={`${baseUrl}/barber?code=${couponUsed.code}`}
               size={140}
             />
           </div>
