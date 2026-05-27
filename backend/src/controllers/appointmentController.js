@@ -203,33 +203,24 @@ const completeAppointment = async (req, res) => {
       });
     }
 
-    // ✅ marcar como completado
     appt.status = "completed";
     await appt.save();
 
     let user = null;
 
-    // =========================
-    // 🔥 1. USUARIO LOGUEADO
-    // =========================
+    // 🔥 por ID
     if (appt.clientId) {
       user = await User.findById(appt.clientId);
     }
 
-    // =========================
-    // 🔥 2. USUARIO INVITADO → BUSCAR POR EMAIL
-    // =========================
+    // 🔥 por EMAIL (solo si existe)
     if (!user && appt.clientEmail) {
       user = await User.findOne({
         email: { $regex: `^${appt.clientEmail}$`, $options: "i" },
       });
     }
 
-    // =========================
-    // 🔥 3. SI ENCONTRAMOS USER → GUARDAR HISTORIAL
-    // =========================
     if (user) {
-      // asegurar array
       if (!user.appointmentsHistory) {
         user.appointmentsHistory = [];
       }
@@ -239,28 +230,19 @@ const completeAppointment = async (req, res) => {
         barber: appt.barber,
         date: appt.date,
         time: appt.time,
-        price: 0, // 🔥 después podés meter precio real
+        price: 0,
       });
 
-      // 💰 BONUS: sumar puntos (opcional)
-      user.points += 1;
+      user.points = (user.points || 0) + 1;
 
       await user.save();
-
-      console.log("✅ Historial guardado para:", user.email);
-    } else {
-      console.log("⚠️ Turno completado sin usuario asociado");
     }
 
-    res.json({
-      message: "Turno completado correctamente",
-    });
+    res.json({ message: "Turno completado correctamente" });
 
   } catch (err) {
     console.log("🔥 ERROR COMPLETING:", err);
-    res.status(500).json({
-      message: "Error completando turno",
-    });
+    res.status(500).json({ message: "Error completando turno" });
   }
 };
 
