@@ -187,32 +187,80 @@ const completeAppointment = async (req, res) => {
   try {
     const appt = await Appointment.findById(req.params.id);
 
-    if (!appt) return res.status(404).json({ message: "Turno no encontrado" });
-
-    if (appt.status === "cancelled") {
-      return res.status(400).json({ message: "No podés completar un turno cancelado" });
+    if (!appt) {
+      return res.status(404).json({ message: "Turno no encontrado" });
     }
 
+    if (appt.status === "cancelled") {
+      return res.status(400).json({
+        message: "No podés completar un turno cancelado",
+      });
+    }
+
+    if (appt.status === "completed") {
+      return res.status(400).json({
+        message: "El turno ya está completado",
+      });
+    }
+
+    // ✅ marcar como completado
     appt.status = "completed";
     await appt.save();
 
-    const user = await User.findById(appt.clientId);
+    let user = null;
+
+    // =========================
+    // 🔥 1. USUARIO LOGUEADO
+    // =========================
+    if (appt.clientId) {
+      user = await User.findById(appt.clientId);
+    }
+
+    // =========================
+    // 🔥 2. USUARIO INVITADO → BUSCAR POR EMAIL
+    // =========================
+    if (!user && appt.clientEmail) {
+      user = await User.findOne({
+        email: { $regex: `^${appt.clientEmail}$`, $options: "i" },
+      });
+    }
+
+    // =========================
+    // 🔥 3. SI ENCONTRAMOS USER → GUARDAR HISTORIAL
+    // =========================
     if (user) {
+      // asegurar array
+      if (!user.appointmentsHistory) {
+        user.appointmentsHistory = [];
+      }
+
       user.appointmentsHistory.push({
         service: appt.service,
         barber: appt.barber,
         date: appt.date,
         time: appt.time,
-        price: 0
+        price: 0, // 🔥 después podés meter precio real
       });
 
+      // 💰 BONUS: sumar puntos (opcional)
+      user.points += 1;
+
       await user.save();
+
+      console.log("✅ Historial guardado para:", user.email);
+    } else {
+      console.log("⚠️ Turno completado sin usuario asociado");
     }
 
-    res.json({ message: "Turno completado" });
+    res.json({
+      message: "Turno completado correctamente",
+    });
 
   } catch (err) {
-    res.status(500).json({ message: "Error completando turno" });
+    console.log("🔥 ERROR COMPLETING:", err);
+    res.status(500).json({
+      message: "Error completando turno",
+    });
   }
 };
 
