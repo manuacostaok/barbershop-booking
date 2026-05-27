@@ -192,56 +192,44 @@ const completeAppointment = async (req, res) => {
     }
 
     if (appt.status === "cancelled") {
-      return res.status(400).json({
-        message: "No podés completar un turno cancelado",
-      });
-    }
-
-    if (appt.status === "completed") {
-      return res.status(400).json({
-        message: "El turno ya está completado",
-      });
+      return res.status(400).json({ message: "No podés completar un turno cancelado" });
     }
 
     appt.status = "completed";
     await appt.save();
 
-    let user = null;
-
-    // 🔥 por ID
+    // 🔥 SOLO SI HAY CLIENTE LOGUEADO
     if (appt.clientId) {
-      user = await User.findById(appt.clientId);
-    }
+      const user = await User.findById(appt.clientId);
 
-    // 🔥 por EMAIL (solo si existe)
-    if (!user && appt.clientEmail) {
-      user = await User.findOne({
-        email: { $regex: `^${appt.clientEmail}$`, $options: "i" },
-      });
-    }
+      if (user) {
 
-    if (user) {
-      if (!user.appointmentsHistory) {
-        user.appointmentsHistory = [];
+        // 🔥 FIX CLAVE
+        if (!user.appointmentsHistory) {
+          user.appointmentsHistory = [];
+        }
+
+        user.appointmentsHistory.push({
+          service: appt.service,
+          barber: appt.barber,
+          date: appt.date,
+          time: appt.time,
+          price: 0,
+        });
+
+        await user.save();
       }
-
-      user.appointmentsHistory.push({
-        service: appt.service,
-        barber: appt.barber,
-        date: appt.date,
-        time: appt.time,
-        price: 0,
-      });
-
-      user.points = (user.points || 0) + 1;
-
-      await user.save();
     }
 
-    res.json({ message: "Turno completado correctamente" });
+    res.json({
+      message: "Turno completado",
+      suggestion: appt.clientId
+        ? null
+        : "Este cliente no está registrado. Si se registra con este email podrá ver su historial.",
+    });
 
   } catch (err) {
-    console.log("🔥 ERROR COMPLETING:", err);
+    console.log("🔥 ERROR COMPLETE:", err); // IMPORTANTE
     res.status(500).json({ message: "Error completando turno" });
   }
 };

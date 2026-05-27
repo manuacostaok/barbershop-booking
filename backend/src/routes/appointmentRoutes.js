@@ -66,8 +66,6 @@ router.patch("/:id/complete", protect, completeAppointment);
   }
 });
 
-// BARBER
-router.get("/my", protect, getMyAppointments);
 
 // ADMIN
 router.get("/all", protect, requireRole("admin"), getAllAppointments);
@@ -82,39 +80,31 @@ router.patch("/:id/confirm", confirmAppointment);
 // AVAILABILITY
 router.get("/availability", getAvailability);
 
-// CLIENT FIX 🔥
+// CLIENT y Barber
 router.get("/my", protect, async (req, res) => {
   try {
     let filter = {};
 
-    // 🔥 DEBUG USER
-    console.log("USER:", req.user);
-
-    // 🔥 si es barbero → ve sus turnos
     if (req.user.role === "barber") {
       filter = { barber: req.user.id };
     }
 
-    // 🔥 si es cliente → ve SUS turnos
     if (req.user.role === "client") {
-      console.log("EMAIL USADO:", req.user.email);
-
       filter = {
         $or: [
           { clientId: req.user.id },
-          { clientEmail: { $regex: `^${req.user.email}$`, $options: "i" } }, // 👈 turnos invitados
+          { clientEmail: { $regex: `^${req.user.email}$`, $options: "i" } },
         ],
       };
     }
 
-    // 🔥 DEBUG FILTER
-    console.log("FILTER:", filter);
+    if (req.user.role === "admin") {
+      filter = {}; // ve todo
+    }
 
     const appointments = await Appointment.find(filter)
       .populate("barber", "name")
       .sort({ date: -1 });
-
-    console.log("RESULT:", appointments.length);
 
     res.json(appointments);
 
