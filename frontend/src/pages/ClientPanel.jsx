@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import QRCode from "react-qr-code";
+import { QRCode } from "react-qr-code";
 import BaseModal from "../components/BaseModal";
 
 function ClientPanel() {
@@ -84,7 +84,7 @@ function ClientPanel() {
         <div className="coupon-proof">
           <h2>🎟️ Corte GRATIS aplicado</h2>
 
-          <p><strong>Cliente:</strong> {couponUsed.user}</p>
+          <p><strong>Cliente:</strong> {user.name}</p>
           <p><strong>Servicio:</strong> {couponUsed.service}</p>
 
           <p><strong>Fecha:</strong></p>
@@ -98,12 +98,7 @@ function ClientPanel() {
           {/* 🔥 QR NIVEL DIOS */}
           <div style={{ marginTop: 20 }}>
             <QRCode
-              value={JSON.stringify({
-                code: couponUsed.code,
-                user: couponUsed.user,
-                service: couponUsed.service,
-                usedAt: couponUsed.usedAt,
-              })}
+              value={`${window.location.origin}/barber?code=${couponUsed.code}`}
               size={140}
             />
           </div>

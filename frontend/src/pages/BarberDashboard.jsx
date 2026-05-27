@@ -5,6 +5,7 @@ import Calendar from "react-calendar";
 import Toast from "../components/Toast";
 import BaseModal from "../components/BaseModal";
 import { FaClock, FaUser, FaCalendarAlt, FaTimes, FaUndo, FaCheck } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 function BarberDashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -21,7 +22,7 @@ function BarberDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("");
-
+  const location = useLocation();
   // =========================
   // 🔥 FETCH TURNOS DEL BARBER
   // =========================
@@ -41,6 +42,16 @@ function BarberDashboard() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+
+    if (code) {
+      setCouponCode(code);
+      setValidateModal(true);
+    }
+  }, [location]);
 
   useEffect(() => {
     fetchAppointments();
@@ -119,6 +130,22 @@ function BarberDashboard() {
       a.status !== "cancelled"
   ).length;
 
+
+  const [validateModal, setValidateModal] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponResult, setCouponResult] = useState(null);
+
+  const validateCoupon = async () => {
+    try {
+      const res = await api.post("/coupons/validate", {
+        code: couponCode,
+      });
+
+      setCouponResult(res.data);
+    } catch {
+      setCouponResult({ valid: false });
+    }
+  };
   // =========================
   // UI
   // =========================
@@ -130,7 +157,14 @@ function BarberDashboard() {
         <div className="section-title">
           💈 Panel de {user?.name}
         </div>
-
+        <div style={{ marginBottom: 20 }}>
+          <button
+            className="button primary"
+            onClick={() => setValidateModal(true)}
+          >
+            🎟️ Validar cupón
+          </button>
+        </div>
         {/* =========================
             🔥 STATS
         ========================= */}
@@ -319,7 +353,46 @@ function BarberDashboard() {
             </div>
           </div>
         </BaseModal>
+        <BaseModal open={validateModal} onClose={() => setValidateModal(false)}>
+          <div className="confirm-modal">
 
+            <h3>🎟️ Validar cupón</h3>
+
+            <input
+              type="text"
+              placeholder="Ingresar código"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                marginTop: 10,
+                marginBottom: 10,
+              }}
+            />
+
+            <button className="button primary" onClick={validateCoupon}>
+              Validar
+            </button>
+
+            {/* RESULTADO */}
+            {couponResult && (
+              <div style={{ marginTop: 15 }}>
+                {couponResult.valid ? (
+                  <div style={{ color: "#00ff88" }}>
+                    <p>✅ Cupón válido</p>
+                    <p><strong>Cliente:</strong> {couponResult.coupon.userId?.name}</p>
+                    <p><strong>Servicio:</strong> {couponResult.coupon.service}</p>
+                    <p><strong>Fecha:</strong> {new Date(couponResult.coupon.usedAt).toLocaleString()}</p>
+                  </div>
+                ) : (
+                  <p style={{ color: "red" }}>❌ Cupón inválido</p>
+                )}
+              </div>
+            )}
+
+          </div>
+        </BaseModal>
         {/* =========================
             🔥 TOAST
         ========================= */}
