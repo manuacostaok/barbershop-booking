@@ -15,6 +15,8 @@ const { protect } = require("../middlewares/authMiddleware");
 router.post("/register", register);
 router.post("/login", login);
 router.post("/redeem", protect, redeemFreeCut);
+
+
 // 🔥 NUEVOS (PRO)
 router.get("/me", protect, getMe);        // obtener usuario actual
 router.put("/avatar", protect, updateAvatar); // cambiar avatar

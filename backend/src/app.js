@@ -5,6 +5,9 @@ const connectDB = require("./config/db");
 
 const app = express();
 
+const couponRoutes = require("./routes/couponRoutes");
+
+
 // ===============================
 // 🔌 DB
 // ===============================
@@ -44,6 +47,7 @@ app.use("/api/services", require("./routes/serviceRoutes"));
 app.use("/api/availability", require("./routes/availabilityRoutes"));
 app.use("/api/config", require("./routes/configRoutes"));
 
+app.use("/api/coupons", couponRoutes);
 // ===============================
 // 🧪 TEST
 // ===============================

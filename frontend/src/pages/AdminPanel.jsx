@@ -58,7 +58,7 @@ function AdminPanel() {
   const [editEmail, setEditEmail] = useState("");
   const [confirmDeleteBarber, setConfirmDeleteBarber] = useState(false);
 
- 
+  const [filterStatus, setFilterStatus] = useState("");
   const [openBarber, setOpenBarber] = useState(false);
 
   const [selectedBarber, setSelectedBarber] = useState("");
@@ -348,7 +348,8 @@ function AdminPanel() {
   const filteredAppointments = appointments.filter((appt) => {
     return (
       (!filterDate || appt.date === formatDate(filterDate)) &&
-      (!filterBarber || appt.barber?._id === filterBarber)
+      (!filterBarber || appt.barber?._id === filterBarber) &&
+      (!filterStatus || appt.status === filterStatus)
     );
   });
 
@@ -1000,7 +1001,17 @@ function AdminPanel() {
             </AnimatePresence>
 
           </div>
+          <div className="filter-block">
+            <div className="filter-label">📌 Estado</div>
 
+            <div className="barber-filter-row">
+              <button className="barber-pill" onClick={() => setFilterStatus("")}>Todos</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("pending")}>Pendiente</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("confirmed")}>Confirmado</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("completed")}>Completado</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("cancelled")}>Cancelado</button>
+            </div>
+          </div>
           {/* STEP 2 - BARBEROS (SIN CAMBIOS) */}
           <div className="filter-block barber-filter">
             <div className="filter-label">✂️ Barbero</div>
@@ -1031,11 +1042,22 @@ function AdminPanel() {
 
           {/* STEP 3 - RESUMEN (SIN CAMBIOS) */}
           <div className="filter-summary">
-            {filterDate || filterBarber ? (
+            {(filterDate || filterBarber || filterStatus) ? (
               <span>
-                Filtros activos:
-                {filterDate && ` 📅 ${formatDate(filterDate)}`}
-                {filterBarber && ` ✂️ ${barbers.find(b => b._id === filterBarber)?.name}`}
+                Mostrando turnos
+
+                {filterStatus && (
+                  ` ${{
+                    pending: "pendientes",
+                    confirmed: "confirmados",
+                    completed: "completados",
+                    cancelled: "cancelados",
+                  }[filterStatus]}`
+                )}
+
+                {filterDate && ` del ${formatDate(filterDate)}`}
+
+                {filterBarber && ` con ${barbers.find(b => b._id === filterBarber)?.name}`}
               </span>
             ) : (
               <span>Mostrando todos los turnos</span>
@@ -1102,7 +1124,16 @@ function AdminPanel() {
                           <FaCheck  /> Completar
                         </button>
                       )}
-                      {appt.status !== "cancelled" && (
+                      {appt.status === "completed" && (
+                        <button
+                          className="delete-btn"
+                          onClick={() => openModal(appt._id, "delete")}
+                        >
+                          <FaTrash /> Borrar
+                        </button>
+                      )}
+
+                      {appt.status !== "completed" && appt.status !== "cancelled" && (
                         <button
                           className="cancel-btn"
                           onClick={() => openModal(appt._id, "cancel")}

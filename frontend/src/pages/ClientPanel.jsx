@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import QRCode from "react-qr-code";
+import BaseModal from "../components/BaseModal";
 
 function ClientPanel() {
   const [user, setUser] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [couponUsed, setCouponUsed] = useState(null);
+
+  // 🔥 NUEVOS
+  const [redeemModal, setRedeemModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -31,7 +38,13 @@ function ClientPanel() {
 
   const redeemCut = async (service) => {
     try {
-      await api.post("/auth/redeem", { service });
+      const res = await api.post("/auth/redeem", { service }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      setCouponUsed(res.data.coupon);
 
       const userRes = await api.get("/auth/me");
       setUser(userRes.data);
@@ -66,6 +79,43 @@ function ClientPanel() {
 
       <h1>👤 Mi perfil</h1>
 
+      {/* 🔥 CUPÓN MOSTRADO */}
+      {couponUsed && (
+        <div className="coupon-proof">
+          <h2>🎟️ Corte GRATIS aplicado</h2>
+
+          <p><strong>Cliente:</strong> {couponUsed.user}</p>
+          <p><strong>Servicio:</strong> {couponUsed.service}</p>
+
+          <p><strong>Fecha:</strong></p>
+          <p>{new Date(couponUsed.usedAt).toLocaleString()}</p>
+
+          <p><strong>Código único:</strong></p>
+          <div className="coupon-code">
+            {couponUsed.code}
+          </div>
+
+          {/* 🔥 QR NIVEL DIOS */}
+          <div style={{ marginTop: 20 }}>
+            <QRCode
+              value={JSON.stringify({
+                code: couponUsed.code,
+                user: couponUsed.user,
+                service: couponUsed.service,
+                usedAt: couponUsed.usedAt,
+              })}
+              size={140}
+            />
+          </div>
+
+          <p>Cupones usados: {couponUsed.totalUsed}</p>
+
+          <p>⏱️ Hora actual: {new Date().toLocaleTimeString()}</p>
+
+          <span className="coupon-status">✔ Validado</span>
+        </div>
+      )}
+
       {/* INFO */}
       <div className="card">
         <h3>{user.name}</h3>
@@ -89,7 +139,7 @@ function ClientPanel() {
         </div>
       )}
 
-      {/* BENEFICIOS */}
+      {/* BENEFICIOS const progress = count % 5; */}
       <div className="section">
         <h2>🎁 Beneficios</h2>
 
@@ -99,7 +149,7 @@ function ClientPanel() {
           <div className="grid">
 
             {Object.entries(serviceCount).map(([service, count]) => {
-              const progress = count % 5;
+              const progress = 0;;
               const remaining = 5 - progress;
 
               return (
@@ -125,7 +175,10 @@ function ClientPanel() {
 
                       <button
                         className="button"
-                        onClick={() => redeemCut(service)}
+                        onClick={() => {
+                          setSelectedService(service);
+                          setRedeemModal(true);
+                        }}
                       >
                         Usar ahora
                       </button>
@@ -167,6 +220,38 @@ function ClientPanel() {
           </div>
         )}
       </div>
+
+      {/* 🔥 MODAL CONFIRMAR CUPÓN */}
+      <BaseModal open={redeemModal} onClose={() => setRedeemModal(false)}>
+        <div className="confirm-modal">
+          <h3>🎟️ Confirmar corte GRATIS</h3>
+
+          <p>
+            Vas a usar tu beneficio en:
+            <strong> {selectedService}</strong>
+          </p>
+
+          <p style={{ color: "#ff9800" }}>
+            ⚠️ Este cupón es único y no se puede reutilizar
+          </p>
+
+          <div className="modal-actions">
+            <button onClick={() => setRedeemModal(false)}>
+              Cancelar
+            </button>
+
+            <button
+              className="danger"
+              onClick={async () => {
+                await redeemCut(selectedService);
+                setRedeemModal(false);
+              }}
+            >
+              Confirmar uso
+            </button>
+          </div>
+        </div>
+      </BaseModal>
 
     </div>
   );

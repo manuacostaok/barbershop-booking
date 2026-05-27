@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Calendar from "react-calendar";
 import Toast from "../components/Toast";
 import BaseModal from "../components/BaseModal";
-import { FaClock, FaUser, FaCalendarAlt, FaTimes, FaUndo } from "react-icons/fa";
+import { FaClock, FaUser, FaCalendarAlt, FaTimes, FaUndo, FaCheck } from "react-icons/fa";
 
 function BarberDashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -20,6 +20,7 @@ function BarberDashboard() {
   const [actionType, setActionType] = useState(null);
 
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("");
 
   // =========================
   // 🔥 FETCH TURNOS DEL BARBER
@@ -63,7 +64,10 @@ function BarberDashboard() {
   // 🔥 FILTRO
   // =========================
   const filteredAppointments = appointments.filter((appt) => {
-    return !filterDate || appt.date === formatDate(filterDate);
+    return (
+      (!filterDate || appt.date === formatDate(filterDate)) &&
+      (!filterStatus || appt.status === filterStatus)
+    );
   });
 
   // =========================
@@ -93,13 +97,26 @@ function BarberDashboard() {
       setToast("Error en la acción");
     }
   };
+  const completeAppointment = async (id) => {
+    try {
+      await api.patch(`/appointments/${id}/complete`);
+      setToast("Turno completado ✅");
+      fetchAppointments();
+    } catch {
+      setToast("Error completando turno");
+    }
+  };
+
+
 
   // =========================
   // 🔥 STATS
   // =========================
   const total = appointments.length;
   const today = appointments.filter(
-    (a) => a.date === formatDate(new Date())
+    (a) =>
+      a.date === formatDate(new Date()) &&
+      a.status !== "cancelled"
   ).length;
 
   // =========================
@@ -162,8 +179,29 @@ function BarberDashboard() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+          <div className="filter-block">
+            <div className="filter-label">📌 Estado</div>
 
+            <div className="barber-filter-row">
+              <button className="barber-pill" onClick={() => setFilterStatus("")}>Todos</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("pending")}>Pendiente</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("confirmed")}>Confirmado</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("completed")}>Completado</button>
+              <button className="barber-pill" onClick={() => setFilterStatus("cancelled")}>Cancelado</button>
+            </div>
+          </div>
+        </div>
+        <div className="filter-summary">
+          {filterDate || filterStatus ? (
+            <span>
+              Filtros activos:
+              {filterDate && ` 📅 ${formatDate(filterDate)}`}
+              {filterStatus && ` 📌 ${filterStatus}`}
+            </span>
+          ) : (
+            <span>Mostrando todos los turnos</span>
+          )}
+        </div>
         {/* =========================
             🔥 LISTA TURNOS
         ========================= */}
@@ -206,12 +244,26 @@ function BarberDashboard() {
                     <div>{appt.time}</div>
 
                     <div className={`status ${appt.status}`}>
-                      {appt.status}
+                      {appt.status === "pending" && "Pendiente"}
+                      {appt.status === "confirmed" && "Confirmado"}
+                      {appt.status === "completed" && "Completado"}
+                      {appt.status === "cancelled" && "Cancelado"}
                     </div>
 
                     <div className="actions">
 
-                      {appt.status !== "cancelled" && (
+                      {/* ✅ COMPLETAR */}
+                      {appt.status !== "completed" && appt.status !== "cancelled" && (
+                        <button
+                          className="complete-btn"
+                          onClick={() => completeAppointment(appt._id)}
+                        >
+                          <FaCheck  /> Completar
+                        </button>
+                      )}
+
+                      {/* ❌ CANCELAR */}
+                      {appt.status !== "completed" && appt.status !== "cancelled" && (
                         <button
                           className="cancel-btn"
                           onClick={() => openModal(appt._id, "cancel")}
@@ -220,6 +272,7 @@ function BarberDashboard() {
                         </button>
                       )}
 
+                      {/* 🔁 REACTIVAR */}
                       {appt.status === "cancelled" && (
                         <button
                           className="reactivate-btn"
@@ -227,6 +280,13 @@ function BarberDashboard() {
                         >
                           <FaUndo /> Reactivar
                         </button>
+                      )}
+
+                      {/* 🔒 COMPLETADO (bloqueado) */}
+                      {appt.status === "completed" && (
+                        <span style={{ color: "#4caf50", fontWeight: "bold" }}>
+                          ✔ Finalizado
+                        </span>
                       )}
 
                     </div>

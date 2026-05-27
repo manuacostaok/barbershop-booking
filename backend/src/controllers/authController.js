@@ -12,6 +12,7 @@ const generateToken = (user) => {
     { expiresIn: "7d" }
   );
 };
+const Coupon = require("../models/Coupon");
 
 // ===============================
 // 🔐 LOGIN
@@ -145,52 +146,42 @@ const updateAvatar = async (req, res) => {
 // ===============================
 // 🎁 CANJEAR CORTE GRATIS
 // ===============================
+
 const redeemFreeCut = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const user = req.user;
     const { service } = req.body;
 
-    const user = await User.findById(userId);
+    // 🔥 GENERAR CÓDIGO ÚNICO
+    const code =
+      "CUT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    console.log("SERVICE QUE VIENE:", service);
-    console.log("HISTORIAL:", user.appointmentsHistory);
-
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    // contar cortes de ese servicio
-    const cuts = user.appointmentsHistory.filter(
-      (appt) => appt.service === service
-    );
-
-    if (cuts.length < 5) {
-      return res.status(400).json({
-        message: "No tenés suficientes cortes para canjear",
-      });
-    }
-
-    // 🔥 eliminar los primeros 5 cortes usados
-    let removed = 0;
-
-    user.appointmentsHistory = user.appointmentsHistory.filter((appt) => {
-      if (appt.service === service && removed < 5) {
-        removed++;
-        return false;
-      }
-      return true;
+    // 🔥 GUARDAR CUPÓN
+    const newCoupon = await Coupon.create({
+      userId: user._id,
+      service,
+      code,
+      usedAt: new Date(),
     });
 
-    await user.save();
+    // 🔥 CONTAR CUÁNTOS USÓ
+    const totalUsed = await Coupon.countDocuments({
+      userId: user._id,
+    });
 
     res.json({
-      message: "Corte gratis canjeado 🎉",
+      success: true,
+      coupon: {
+        code,
+        service,
+        usedAt: newCoupon.usedAt,
+        user: user.name,
+        totalUsed,
+      },
     });
-
   } catch (err) {
-    res.status(500).json({
-      message: "Error canjeando corte",
-    });
+    console.log(err);
+    res.status(500).json({ message: "Error redeem" });
   }
 };
 

@@ -2710,3 +2710,27 @@ html, body {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
+
+.coupon-proof {
+  background: #0f172a;
+  border: 2px solid #00ff88;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.coupon-code {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  background: black;
+  padding: 10px;
+  border-radius: 8px;
+  color: #00ff88;
+}
+
+.coupon-status {
+  color: #00ff88;
+  font-weight: bold;
+}
