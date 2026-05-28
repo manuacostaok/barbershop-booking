@@ -13,7 +13,10 @@ function ClientPanel() {
   // 🔥 NUEVOS
   const [redeemModal, setRedeemModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [config, setConfig] = useState(null); // 🔥 CONFIG
+
   const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -27,6 +30,11 @@ function ClientPanel() {
         });
 
         setAppointments(apptRes.data);
+
+        // 🔥 TRAER CONFIG
+        const configRes = await api.get("/config");
+        setConfig(configRes.data);
+
       } catch (err) {
         console.log("Error cargando datos");
       }
@@ -56,12 +64,15 @@ function ClientPanel() {
   if (loading) return <p className="page">Cargando...</p>;
   if (!user) return <p className="page">No autenticado</p>;
 
+  // 🔥 SOLO TURNOS CONFIRMADOS
   const serviceCount = {};
 
-  appointments.forEach((appt) => {
-    serviceCount[appt.service] =
-      (serviceCount[appt.service] || 0) + 1;
-  });
+  appointments
+    .filter((a) => a.status === "confirmed")
+    .forEach((appt) => {
+      serviceCount[appt.service] =
+        (serviceCount[appt.service] || 0) + 1;
+    });
 
   const filteredAppointments = appointments.filter((a) => {
     if (filter === "all") return true;
@@ -95,9 +106,7 @@ function ClientPanel() {
             {couponUsed.code}
           </div>
 
-          {/* 🔥 QR NIVEL DIOS */}
           <div style={{ marginTop: 20 }}>
-
             <QRCode
               value={`${baseUrl}/barber?code=${couponUsed.code}`}
               size={140}
@@ -105,7 +114,6 @@ function ClientPanel() {
           </div>
 
           <p>Cupones usados: {couponUsed.totalUsed}</p>
-
           <p>⏱️ Hora actual: {new Date().toLocaleTimeString()}</p>
 
           <span className="coupon-status">✔ Validado</span>
@@ -135,18 +143,22 @@ function ClientPanel() {
         </div>
       )}
 
-      {/* BENEFICIOS const progress = count % 5; */}
+      {/* BENEFICIOS */}
       <div className="section">
         <h2>🎁 Beneficios</h2>
 
-        {Object.keys(serviceCount).length === 0 ? (
+        {!config?.loyaltyEnabled ? (
+          <p>El sistema de premios no está activo</p>
+        ) : Object.keys(serviceCount).length === 0 ? (
           <p>No tenés historial todavía</p>
         ) : (
           <div className="grid">
 
             {Object.entries(serviceCount).map(([service, count]) => {
-              const progress = 0;;
-              const remaining = 5 - progress;
+
+              const cutsNeeded = config?.loyaltyCuts || 5;
+              const progress = count % cutsNeeded;
+              const remaining = cutsNeeded - progress;
 
               return (
                 <div key={service} className="card">
@@ -158,7 +170,7 @@ function ClientPanel() {
                     <div
                       className="progress-fill"
                       style={{
-                        width: `${(progress / 5) * 100}%`,
+                        width: `${(progress / cutsNeeded) * 100}%`,
                       }}
                     />
                   </div>
@@ -166,7 +178,7 @@ function ClientPanel() {
                   {progress === 0 && count > 0 ? (
                     <>
                       <p style={{ color: "#00ff88" }}>
-                        🎉 Corte GRATIS disponible
+                        🎉 {config?.loyaltyReward || "Premio disponible"}
                       </p>
 
                       <button
@@ -180,7 +192,7 @@ function ClientPanel() {
                       </button>
                     </>
                   ) : (
-                    <p>Te faltan {remaining} para uno gratis</p>
+                    <p>Te faltan {remaining} para tu premio</p>
                   )}
                 </div>
               );
@@ -217,10 +229,10 @@ function ClientPanel() {
         )}
       </div>
 
-      {/* 🔥 MODAL CONFIRMAR CUPÓN */}
+      {/* MODAL */}
       <BaseModal open={redeemModal} onClose={() => setRedeemModal(false)}>
         <div className="confirm-modal">
-          <h3>🎟️ Confirmar corte GRATIS</h3>
+          <h3>🎟️ Confirmar premio</h3>
 
           <p>
             Vas a usar tu beneficio en:

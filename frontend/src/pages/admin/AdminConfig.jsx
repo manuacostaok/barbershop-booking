@@ -9,9 +9,14 @@ function AdminConfig() {
     hasBreak: false,
     breakStart: "13:00",
     breakEnd: "14:00",
+
+    // 🔥 NUEVO: LOYALTY
+    loyaltyEnabled: false,
+    loyaltyCuts: 5,
+    loyaltyReward: "Corte gratis",
   });
 
-  // 🔥 NUEVO: LOCAL
+  // 🔥 LOCAL
   const [local, setLocal] = useState({
     name: "",
     address: "",
@@ -35,11 +40,15 @@ function AdminConfig() {
           hasBreak: res.data.hasBreak ?? false,
           breakStart: res.data.breakStart ?? "13:00",
           breakEnd: res.data.breakEnd ?? "14:00",
+
+          // 🔥 LOYALTY
+          loyaltyEnabled: res.data.loyaltyEnabled ?? false,
+          loyaltyCuts: res.data.loyaltyCuts ?? 5,
+          loyaltyReward: res.data.loyaltyReward ?? "Corte gratis",
         });
       })
       .catch(() => setToast("Error cargando config"));
 
-    // 🔥 LOCAL
     api.get("/local")
       .then((res) => {
         setLocal({
@@ -75,6 +84,12 @@ function AdminConfig() {
       if (b1 < open || b2 > close) return "Break fuera de horario";
     }
 
+    // 🔥 VALIDACIÓN LOYALTY
+    if (cfg.loyaltyEnabled) {
+      if (cfg.loyaltyCuts <= 0) return "Cantidad de cortes inválida";
+      if (!cfg.loyaltyReward) return "Definí el premio";
+    }
+
     return null;
   };
 
@@ -94,7 +109,7 @@ function AdminConfig() {
   };
 
   // ------------------------
-  // 🔥 GUARDAR LOCAL
+  // GUARDAR LOCAL
   // ------------------------
   const saveLocal = async () => {
     try {
@@ -105,9 +120,6 @@ function AdminConfig() {
     }
   };
 
-  // ------------------------
-  // UI
-  // ------------------------
   return (
     <div className="section">
 
@@ -119,9 +131,7 @@ function AdminConfig() {
 
       <div className="card">
 
-        {/* IMAGEN */}
-        <label>Imagen del local (URL)</label><br />
-        <br />
+        <label>Imagen del local (URL)</label><br /><br />
         <input
           className="input"
           type="text"
@@ -132,7 +142,6 @@ function AdminConfig() {
           }
         />
 
-        {/* PREVIEW IMG */}
         {local.image && (
           <img
             src={local.image}
@@ -149,9 +158,7 @@ function AdminConfig() {
 
         <br />
 
-        {/* NAME */}
-        <label>Nombre del local</label><br />
-        <br />
+        <label>Nombre del local</label><br /><br />
         <input
           className="input"
           value={local.name}
@@ -160,9 +167,7 @@ function AdminConfig() {
           }
         />
 
-        {/* ADDRESS */}
-        <label>Dirección</label><br />
-        <br />
+        <label>Dirección</label><br /><br />
         <input
           className="input"
           value={local.address}
@@ -171,9 +176,7 @@ function AdminConfig() {
           }
         />
 
-        {/* PHONE */}
-        <label>Teléfono</label><br />
-        <br />
+        <label>Teléfono</label><br /><br />
         <input
           className="input"
           value={local.phone}
@@ -182,9 +185,7 @@ function AdminConfig() {
           }
         />
 
-        {/* DESCRIPTION */}
-        <label>Descripción</label><br />
-        <br />
+        <label>Descripción</label><br /><br />
         <textarea
           className="input"
           value={local.description}
@@ -204,16 +205,15 @@ function AdminConfig() {
       <br />
 
       {/* ========================= */}
-      {/* ⚙️ CONFIG HORARIOS */}
+      {/* ⚙️ CONFIG HORARIOS + PREMIOS */}
       {/* ========================= */}
 
-      <div className="section-title">⚙️ Configuración de horarios</div>
+      <div className="section-title">⚙️ Configuración del sistema</div>
 
       <div className="card">
 
-        {/* OPEN */}
-        <label>Horario apertura</label><br />
-        <br />
+        {/* HORARIOS */}
+        <label>Horario apertura</label><br /><br />
         <input
           className="input"
           type="time"
@@ -225,9 +225,7 @@ function AdminConfig() {
 
         <br />
 
-        {/* CLOSE */}
-        <label>Horario cierre</label><br />
-        <br />
+        <label>Horario cierre</label><br /><br />
         <input
           className="input"
           type="time"
@@ -239,9 +237,7 @@ function AdminConfig() {
 
         <br />
 
-        {/* INTERVAL */}
-        <label>Intervalo de turnos</label><br />
-        <br />
+        <label>Intervalo de turnos</label><br /><br />
         <select
           className="input"
           value={config.interval}
@@ -254,9 +250,7 @@ function AdminConfig() {
           <option value={60}>60 min</option>
         </select>
 
-        {/* BREAK */}
-        <label>¿Break?</label><br />
-        <br />
+        <label>¿Break?</label><br /><br />
         <select
           className="input"
           value={config.hasBreak ? "yes" : "no"}
@@ -273,8 +267,7 @@ function AdminConfig() {
 
         {config.hasBreak && (
           <>
-            <label>Inicio break</label>
-            <br />
+            <label>Inicio break</label><br />
             <input
               className="input"
               type="time"
@@ -284,14 +277,62 @@ function AdminConfig() {
               }
             />
 
-            <label>Fin break</label>
-            <br />
+            <label>Fin break</label><br />
             <input
               className="input"
               type="time"
               value={config.breakEnd}
               onChange={(e) =>
                 setConfig({ ...config, breakEnd: e.target.value })
+              }
+            />
+          </>
+        )}
+
+        {/* 🎁 SISTEMA DE PREMIOS */}
+        <hr />
+
+        <label>¿Sistema de premios?</label><br /><br />
+        <select
+          className="input"
+          value={config.loyaltyEnabled ? "yes" : "no"}
+          onChange={(e) =>
+            setConfig({
+              ...config,
+              loyaltyEnabled: e.target.value === "yes",
+            })
+          }
+        >
+          <option value="no">No</option>
+          <option value="yes">Sí</option>
+        </select>
+
+        {config.loyaltyEnabled && (
+          <>
+            <label>Cada cuántos cortes</label><br />
+            <input
+              className="input"
+              type="number"
+              min={1}
+              value={config.loyaltyCuts}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  loyaltyCuts: Number(e.target.value),
+                })
+              }
+            />
+
+            <label>Premio</label><br />
+            <input
+              className="input"
+              type="text"
+              value={config.loyaltyReward}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  loyaltyReward: e.target.value,
+                })
               }
             />
           </>
@@ -319,11 +360,20 @@ function AdminConfig() {
         <p>🟢 Abre: {config.open}</p>
         <p>🔴 Cierra: {config.close}</p>
         <p>⏱ Intervalo: {config.interval} min</p>
+
         <p>
           🍽 Break:{" "}
           {config.hasBreak
             ? `${config.breakStart} - ${config.breakEnd}`
             : "No"}
+        </p>
+
+        {/* 🔥 BONUS */}
+        <p>
+          🎁 Premio:{" "}
+          {config.loyaltyEnabled
+            ? `${config.loyaltyReward} cada ${config.loyaltyCuts} cortes`
+            : "No activo"}
         </p>
       </div>
 
