@@ -11,10 +11,19 @@ function AdminConfig() {
     breakEnd: "14:00",
   });
 
+  // 🔥 NUEVO: LOCAL
+  const [local, setLocal] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    image: "",
+    description: "",
+  });
+
   const [toast, setToast] = useState("");
 
   // ------------------------
-  // FETCH CONFIG
+  // FETCH CONFIG + LOCAL
   // ------------------------
   useEffect(() => {
     api.get("/config")
@@ -29,6 +38,19 @@ function AdminConfig() {
         });
       })
       .catch(() => setToast("Error cargando config"));
+
+    // 🔥 LOCAL
+    api.get("/local")
+      .then((res) => {
+        setLocal({
+          name: res.data.name || "",
+          address: res.data.address || "",
+          phone: res.data.phone || "",
+          image: res.data.image || "",
+          description: res.data.description || "",
+        });
+      })
+      .catch(() => setToast("Error cargando local"));
   }, []);
 
   // ------------------------
@@ -57,9 +79,9 @@ function AdminConfig() {
   };
 
   // ------------------------
-  // GUARDAR
+  // GUARDAR CONFIG
   // ------------------------
-  const save = async () => {
+  const saveConfig = async () => {
     const error = validate(config);
     if (error) return setToast(error);
 
@@ -67,7 +89,19 @@ function AdminConfig() {
       await api.put("/config", config);
       setToast("Configuración guardada 🔥");
     } catch {
-      setToast("Error guardando");
+      setToast("Error guardando config");
+    }
+  };
+
+  // ------------------------
+  // 🔥 GUARDAR LOCAL
+  // ------------------------
+  const saveLocal = async () => {
+    try {
+      await api.put("/local", local);
+      setToast("Perfil del local actualizado 💈");
+    } catch {
+      setToast("Error guardando local");
     }
   };
 
@@ -77,36 +111,138 @@ function AdminConfig() {
   return (
     <div className="section">
 
-      <div className="section-title">⚙️ Configuración del local</div>
+      {/* ========================= */}
+      {/* 🏪 PERFIL DEL LOCAL */}
+      {/* ========================= */}
+
+      <div className="section-title">🏪 Perfil del local</div>
+
+      <div className="card">
+
+        {/* IMAGEN */}
+        <label>Imagen del local (URL)</label><br />
+        <br />
+        <input
+          className="input"
+          type="text"
+          placeholder="https://..."
+          value={local.image}
+          onChange={(e) =>
+            setLocal({ ...local, image: e.target.value })
+          }
+        />
+
+        {/* PREVIEW IMG */}
+        {local.image && (
+          <img
+            src={local.image}
+            alt="preview"
+            style={{
+              width: "100%",
+              height: "120px",
+              objectFit: "cover",
+              borderRadius: "10px",
+              marginTop: "10px"
+            }}
+          />
+        )}
+
+        <br />
+
+        {/* NAME */}
+        <label>Nombre del local</label><br />
+        <br />
+        <input
+          className="input"
+          value={local.name}
+          onChange={(e) =>
+            setLocal({ ...local, name: e.target.value })
+          }
+        />
+
+        {/* ADDRESS */}
+        <label>Dirección</label><br />
+        <br />
+        <input
+          className="input"
+          value={local.address}
+          onChange={(e) =>
+            setLocal({ ...local, address: e.target.value })
+          }
+        />
+
+        {/* PHONE */}
+        <label>Teléfono</label><br />
+        <br />
+        <input
+          className="input"
+          value={local.phone}
+          onChange={(e) =>
+            setLocal({ ...local, phone: e.target.value })
+          }
+        />
+
+        {/* DESCRIPTION */}
+        <label>Descripción</label><br />
+        <br />
+        <textarea
+          className="input"
+          value={local.description}
+          onChange={(e) =>
+            setLocal({ ...local, description: e.target.value })
+          }
+        />
+
+        <button
+          className="button primary full"
+          onClick={saveLocal}
+        >
+          Guardar perfil
+        </button>
+      </div>
+
+      <br />
+
+      {/* ========================= */}
+      {/* ⚙️ CONFIG HORARIOS */}
+      {/* ========================= */}
+
+      <div className="section-title">⚙️ Configuración de horarios</div>
 
       <div className="card">
 
         {/* OPEN */}
         <label>Horario apertura</label><br />
-        <br /><input
-        className="input"
+        <br />
+        <input
+          className="input"
           type="time"
           value={config.open}
           onChange={(e) =>
             setConfig({ ...config, open: e.target.value })
           }
         />
+
         <br />
+
         {/* CLOSE */}
         <label>Horario cierre</label><br />
-        <br /><input
-        className="input"
-
+        <br />
+        <input
+          className="input"
           type="time"
           value={config.close}
           onChange={(e) =>
             setConfig({ ...config, close: e.target.value })
           }
         />
+
         <br />
+
         {/* INTERVAL */}
         <label>Intervalo de turnos</label><br />
-        <br /><select
+        <br />
+        <select
           className="input"
           value={config.interval}
           onChange={(e) =>
@@ -120,8 +256,9 @@ function AdminConfig() {
 
         {/* BREAK */}
         <label>¿Break?</label><br />
-            <br /><select
-            className="input"
+        <br />
+        <select
+          className="input"
           value={config.hasBreak ? "yes" : "no"}
           onChange={(e) =>
             setConfig({
@@ -137,7 +274,8 @@ function AdminConfig() {
         {config.hasBreak && (
           <>
             <label>Inicio break</label>
-            <br /><input
+            <br />
+            <input
               className="input"
               type="time"
               value={config.breakStart}
@@ -147,9 +285,9 @@ function AdminConfig() {
             />
 
             <label>Fin break</label>
-            <br /><input
-            className="input"
-
+            <br />
+            <input
+              className="input"
               type="time"
               value={config.breakEnd}
               onChange={(e) =>
@@ -159,17 +297,24 @@ function AdminConfig() {
           </>
         )}
 
-        <button                 className="button primary full"
-onClick={save}>
+        <button
+          className="button primary full"
+          onClick={saveConfig}
+        >
           Guardar configuración
         </button>
 
         {toast && <p>{toast}</p>}
       </div>
-        <br />
-        {/* PREVIEW SIMPLE */}
+
+      <br />
+
+      {/* PREVIEW */}
       <div className="card">
         <h3>Preview</h3>
+
+        <p>🏪 {local.name || "Sin nombre"}</p>
+        <p>📍 {local.address || "Sin dirección"}</p>
 
         <p>🟢 Abre: {config.open}</p>
         <p>🔴 Cierra: {config.close}</p>

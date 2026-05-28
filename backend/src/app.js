@@ -6,7 +6,7 @@ const connectDB = require("./config/db");
 const app = express();
 
 const couponRoutes = require("./routes/couponRoutes");
-
+const localRoutes = require("./routes/localRoutes");
 
 // ===============================
 // 🔌 DB
@@ -48,6 +48,10 @@ app.use("/api/availability", require("./routes/availabilityRoutes"));
 app.use("/api/config", require("./routes/configRoutes"));
 
 app.use("/api/coupons", couponRoutes);
+
+app.use("/api/local", localRoutes);
+
+
 // ===============================
 // 🧪 TEST
 // ===============================

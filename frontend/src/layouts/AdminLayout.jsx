@@ -7,7 +7,15 @@ export default function AdminLayout() {
 
       {/* SIDEBAR */}
       <div className="sidebar">
-        <h2 className="logo">💈 Admin</h2>
+        <NavLink
+          to="/admin"
+          end
+          className={({ isActive }) =>
+            "logo nav-item" + (isActive ? " active" : "")
+          }
+        >
+          💈 Admin
+        </NavLink>
 
         <NavLink
           to="/admin/appointments"
