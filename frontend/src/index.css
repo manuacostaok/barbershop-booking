@@ -22,7 +22,7 @@
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0;
 }
 
 /* =========================
@@ -2852,4 +2852,67 @@ html, body {
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.topbar {
+  display: none;
+  align-items: center;
+  padding: 10px;
+  background: #111;
+  color: white;
+}
+
+.menu-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* MOBILE */
+.business-info {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+}
+
+.business-info p {
+  margin: 4px 0;
+}
+.cover img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+.cover {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.business-info {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+}
+
+.business-info p {
+  margin: 4px 0;
 }

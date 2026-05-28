@@ -37,7 +37,17 @@ function Booking() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
-
+  useEffect(() => {
+    api.get("/local")
+      .then(res => setLocal(res.data))
+      .catch(() => {
+        setLocal({
+          name: "Mi Barbería",
+          description: "Reservá tu turno en segundos",
+        });
+      });
+  }, []);
+  const [local, setLocal] = useState(null);
   const formatDate = (date) => {
     const d = new Date(date);
     return (
@@ -217,7 +227,8 @@ function Booking() {
           document.documentElement.style.setProperty("--mouse-y", `${y}px`);
         }}
       >
-
+        {/* 🔥 IMAGEN DEL LOCAL */}
+        
         {/* ICONOS FLOTANTES */}
         <div className="floating-icons">
 
@@ -261,7 +272,8 @@ function Booking() {
 
         {/* CONTENIDO */}
         <div className="landing-content">
-          <h1>💈 Barber Studio</h1>
+          <h1>💈 {local?.name || "Barber Studio"}</h1>
+          <p>{local?.description || "Turnos online"}</p>
           <p>Reservá tu turno en segundos</p>
 
           <button
@@ -274,6 +286,17 @@ function Booking() {
           >
             Reservar turno 🚀
           </button>
+          <div className="business-info">
+
+            {local?.address && <p>📍 {local.address}</p>}
+
+            {(local?.open && local?.close) && (
+            <p>🕒 {config?.open} - {config?.close}</p>
+            )}
+
+            {local?.phone && <p>📞 {local.phone}</p>}
+
+          </div>
           <p className="register-cta">
             ¿Sos nuevo cliente?{" "}
             <span

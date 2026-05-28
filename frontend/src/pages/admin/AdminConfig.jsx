@@ -288,11 +288,36 @@ function AdminConfig() {
             />
           </>
         )}
+        {/* PREVIEW */}
+        <div className="card">
+          <h3>Preview</h3>
 
+          <p>🏪 {local.name || "Sin nombre"}</p>
+          <p>📍 {local.address || "Sin dirección"}</p>
+
+          <p>🟢 Abre: {config.open}</p>
+          <p>🔴 Cierra: {config.close}</p>
+          <p>⏱ Intervalo: {config.interval} min</p>
+
+          <p>
+            🍽 Break:{" "}
+            {config.hasBreak
+              ? `${config.breakStart} - ${config.breakEnd}`
+              : "No"}
+          </p>
+
+          {/* 🔥 BONUS */}
+          <p>
+            🎁 Premio:{" "}
+            {config.loyaltyEnabled
+              ? `${config.loyaltyReward} cada ${config.loyaltyCuts} cortes`
+              : "No activo"}
+          </p>
+        </div>
         {/* 🎁 SISTEMA DE PREMIOS */}
         <hr />
 
-        <label>¿Sistema de premios?</label><br /><br />
+        <label>Cupón de fidelidad</label><br /><br />
         <select
           className="input"
           value={config.loyaltyEnabled ? "yes" : "no"}
@@ -350,32 +375,7 @@ function AdminConfig() {
 
       <br />
 
-      {/* PREVIEW */}
-      <div className="card">
-        <h3>Preview</h3>
-
-        <p>🏪 {local.name || "Sin nombre"}</p>
-        <p>📍 {local.address || "Sin dirección"}</p>
-
-        <p>🟢 Abre: {config.open}</p>
-        <p>🔴 Cierra: {config.close}</p>
-        <p>⏱ Intervalo: {config.interval} min</p>
-
-        <p>
-          🍽 Break:{" "}
-          {config.hasBreak
-            ? `${config.breakStart} - ${config.breakEnd}`
-            : "No"}
-        </p>
-
-        {/* 🔥 BONUS */}
-        <p>
-          🎁 Premio:{" "}
-          {config.loyaltyEnabled
-            ? `${config.loyaltyReward} cada ${config.loyaltyCuts} cortes`
-            : "No activo"}
-        </p>
-      </div>
+      
 
     </div>
   );
