@@ -6,6 +6,7 @@ import Toast from "../components/Toast";
 import BaseModal from "../components/BaseModal";
 import { FaClock, FaUser, FaCalendarAlt, FaTimes, FaUndo, FaCheck } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function BarberDashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -23,6 +24,8 @@ function BarberDashboard() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
+
   // =========================
   // 🔥 FETCH TURNOS DEL BARBER
   // =========================
@@ -50,6 +53,24 @@ function BarberDashboard() {
     if (code) {
       setCouponCode(code);
       setValidateModal(true);
+    }
+  }, [location]);
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+
+    if (code) {
+      setCouponCode(code);
+      setValidateModal(true);
+
+      // 🔥 validar automáticamente
+      setTimeout(() => {
+        validateCoupon(code);
+      }, 300);
+
+      // 🔥 limpiar URL
+      navigate("/barber", { replace: true });
     }
   }, [location]);
 
@@ -135,17 +156,28 @@ function BarberDashboard() {
   const [couponCode, setCouponCode] = useState("");
   const [couponResult, setCouponResult] = useState(null);
 
-  const validateCoupon = async () => {
+  const validateCoupon = async (codeParam) => {
     try {
+      const codeToUse = codeParam || couponCode;
+
       const res = await api.post("/coupons/validate", {
-        code: couponCode,
+        code: codeToUse,
       });
 
       setCouponResult(res.data);
+
+      if (res.data.valid) {
+        setToast("Cupón validado correctamente 🎉");
+      } else {
+        setToast(res.data.message || "Cupón inválido");
+      }
+
     } catch {
       setCouponResult({ valid: false });
+      setToast("Error validando cupón");
     }
   };
+  
   // =========================
   // UI
   // =========================
@@ -160,7 +192,16 @@ function BarberDashboard() {
         <div style={{ marginBottom: 20 }}>
           <button
             className="button primary"
-            onClick={() => setValidateModal(true)}
+            onClick={() => {
+              setCouponCode("");
+              setCouponResult(null);
+              setValidateModal(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                validateCoupon();
+              }
+            }}
           >
             🎟️ Validar cupón
           </button>
@@ -359,6 +400,7 @@ function BarberDashboard() {
             <h3>🎟️ Validar cupón</h3>
 
             <input
+              autoFocus
               className="input"
               type="text"
               placeholder="Ingresar código"
