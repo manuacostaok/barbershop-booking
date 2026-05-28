@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
@@ -27,7 +27,16 @@ function Navbar() {
   const isAdminPanel = location.pathname.startsWith("/admin");
   const isBarberPanel = location.pathname.startsWith("/barber");
   const isClientPanel = location.pathname.startsWith("/client");
+  const [scrolled, setScrolled] = useState(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -46,12 +55,12 @@ function Navbar() {
 
   return (
     <>
-      <header className="navbar-glass">
+        <header className={`navbar-glass ${scrolled ? "scrolled" : ""}`}>
         <div className="navbar-inner">
 
           {/* LOGO */}
           <div className="logo" onClick={() => navigate("/")}>
-            💈 Barber Studio
+            Logo 
           </div>
 
           <div className="nav-right">

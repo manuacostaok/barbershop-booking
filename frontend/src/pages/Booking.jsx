@@ -37,6 +37,8 @@ function Booking() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
+  
+  const [local, setLocal] = useState(null);
   useEffect(() => {
     api.get("/local")
       .then(res => setLocal(res.data))
@@ -47,7 +49,7 @@ function Booking() {
         });
       });
   }, []);
-  const [local, setLocal] = useState(null);
+
   const formatDate = (date) => {
     const d = new Date(date);
     return (
@@ -214,6 +216,64 @@ function Booking() {
         onSuccess={() => setModal("login")}
       />
       {/* LANDING */}
+      <div className="hero">
+
+        {/* 🖼 FONDO */}
+        <img
+          className="hero-bg"
+          src={
+            local?.image ||
+            "https://picsum.photos/1600/600?random=barber"
+          }
+          alt="cover"
+        />
+
+        {/* 🌑 OVERLAY */}
+        <div className="hero-overlay">
+
+          <h1>{local?.name || "Mi Barbería"}</h1>
+
+          <p>
+            {local?.description || "Todo tipo de cortes y servicios de barbería. Reservá tu turno online en segundos."}
+          </p>
+
+          <div className="hero-info">
+
+            <span>
+              📍 {local?.address || "San Miguel, Buenos Aires"}
+            </span>
+
+            <span>
+              📞 {local?.phone || "+54 11 0000-0000"}
+            </span>
+
+            <span>
+              📸 @{local?.instagram || "barberstudio"}
+            </span>
+
+            <span>
+              🕒 {config?.open || "09:00"} - {config?.close || "22:00"}
+            </span>
+
+            <span>
+              🍽 {config?.hasBreak
+                ? `${config.breakStart} - ${config.breakEnd}`
+                : "Sin pausa"}
+            </span>
+
+          </div>
+          <p className="register-cta">
+            ¿Sos nuevo cliente?{" "}
+            <span
+              className="link-register"
+              onClick={() => setModal("register")}
+            >
+              Registrate y obtené beneficios
+            </span>
+          </p>
+
+        </div>
+      </div>
       {/* LANDING */}
       <div
         className="landing small"
@@ -272,20 +332,13 @@ function Booking() {
 
         {/* CONTENIDO */}
         <div className="landing-content">
-          <h1>💈 {local?.name || "Barber Studio"}</h1>
-          <p>{local?.description || "Turnos online"}</p>
+
+          <h1>📅 Turnos online</h1>
           <p>Reservá tu turno en segundos</p>
 
-          <button
-            className="cta"
-            onClick={() =>
-              document
-                .getElementById("booking-section")
-                .scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Reservar turno 🚀
-          </button>
+          <h2>💈{local?.name }</h2>
+          
+          <p>{local?.description }</p>
           <div className="business-info">
 
             {local?.address && <p>📍 {local.address}</p>}
@@ -297,6 +350,20 @@ function Booking() {
             {local?.phone && <p>📞 {local.phone}</p>}
 
           </div>
+          
+          
+
+          <button
+            className="cta"
+            onClick={() =>
+              document
+                .getElementById("booking-section")
+                .scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            Reservar turno 🚀
+          </button>
+          
           <p className="register-cta">
             ¿Sos nuevo cliente?{" "}
             <span

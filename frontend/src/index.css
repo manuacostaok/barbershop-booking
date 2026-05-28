@@ -356,28 +356,7 @@
   gap: 12px;
 }
 
-/* botones tipo SaaS */
-.nav-btn {
-  text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 8px;
 
-  color: #111;
-  font-weight: 500;
-
-  transition: all 0.2s ease;
-}
-
-/* hover */
-.nav-btn:hover {
-  background: #f2f2f2;
-}
-
-/* activo (página actual) */
-.nav-btn.active {
-  background: #111;
-  color: #fff;
-}
 
 /* idioma */
 .lang-btn {
@@ -397,9 +376,13 @@
 
 /* 🔥 NAVBAR GLASS */
 .navbar-glass {
-  position: sticky;
+   position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  
+
+  z-index: 999;
+  
 
   width: 100%;
 
@@ -2425,7 +2408,7 @@ body::after {
 
 .register-cta {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 17px;
   opacity: 0.8;
 }
 
@@ -2915,4 +2898,59 @@ html, body {
 
 .business-info p {
   margin: 4px 0;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  border-radius: 0 0 30px 30px;
+  overflow: hidden;
+}
+
+.hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(0,0,0,0.4),
+    rgba(0,0,0,0.8)
+  );
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+}
+
+.hero-overlay h1 {
+  font-size: 42px;
+  margin: 0;
+}
+
+.hero-overlay p {
+  margin-top: 10px;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.hero-info {
+  margin: 15px 0;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.navbar-glass.scrolled {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(18px);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
