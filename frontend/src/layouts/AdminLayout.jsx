@@ -1,10 +1,28 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { FaCalendar, FaUsers, FaChartBar, FaCog } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile
+  const [collapsed, setCollapsed] = useState(false); // desktop
 
+  useEffect(() => {
+    const handleToggle = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(prev => !prev); // mobile overlay
+      } else {
+        setCollapsed(prev => !prev); // desktop collapse
+      }
+    };
+
+    window.addEventListener("toggleSidebar", handleToggle);
+
+    return () => {
+      window.removeEventListener("toggleSidebar", handleToggle);
+    };
+  }, []);
+
+  
   return (
     <div className="admin-layout">
 
@@ -75,12 +93,10 @@ export default function AdminLayout() {
       </div>
 
       {/* 🔥 OVERLAY */}
-      {sidebarOpen && (
-        <div
-          className="overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <div
+        className={`overlay ${sidebarOpen ? "active" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
 
     </div>
   );

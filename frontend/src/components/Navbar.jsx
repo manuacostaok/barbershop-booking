@@ -37,6 +37,9 @@ function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -59,8 +62,29 @@ function Navbar() {
         <div className="navbar-inner">
 
           {/* LOGO */}
+          {/* LOGO / SIDEBAR */}
           <div className="logo" onClick={() => navigate("/")}>
-            Logo 
+            {isHome ? (
+              // 🔵 HOME → LOGO SIEMPRE
+              <img
+                src={
+                  "https://ui-avatars.com/api/?name=Barber&background=111&color=fff&rounded=true&size=128"
+                }
+                alt="logo"
+                className="nav-logo-img"
+              />
+            ) : (isAdminPanel || isBarberPanel || isClientPanel) ? (
+              // 🔥 PANELES → BOTON SIDEBAR
+              <button
+                className="sidebar-toggle"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(new Event("toggleSidebar"));
+                }}
+              >
+                ☰
+              </button>
+            ) : null}
           </div>
 
           <div className="nav-right">

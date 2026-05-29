@@ -222,7 +222,7 @@ function Booking() {
         <img
           className="hero-bg"
           src={
-            local?.image ||
+            local?.coverImage ||
             "https://picsum.photos/1600/600?random=barber"
           }
           alt="cover"
@@ -231,8 +231,19 @@ function Booking() {
         {/* 🌑 OVERLAY */}
         <div className="hero-overlay">
 
-          <h1>{local?.name || "Mi Barbería"}</h1>
+          <div className="hero-brand">
 
+            <img
+              className="hero-logo"
+            src={
+              local?.logo ||
+              "https://placehold.co/200x200/111/fff?text=BA"
+            }                          alt="logo"
+            />
+
+            <h1>{local?.name || "Mi Barbería"}</h1>
+
+          </div>
           <p>
             {local?.description || "Todo tipo de cortes y servicios de barbería. Reservá tu turno online en segundos."}
           </p>
