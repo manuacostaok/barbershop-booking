@@ -241,9 +241,10 @@ function Booking() {
             }                          alt="logo"
             />
 
-            <h1>{local?.name || "Mi Barbería"}</h1>
+            
 
           </div>
+          <h1>{local?.name || "Mi Barbería"}</h1>
           <p>
             {local?.description || "Todo tipo de cortes y servicios de barbería. Reservá tu turno online en segundos."}
           </p>
@@ -275,6 +276,7 @@ function Booking() {
           </div>
           <p className="register-cta">
             ¿Sos nuevo cliente?{" "}
+            <br />
             <span
               className="link-register"
               onClick={() => setModal("register")}

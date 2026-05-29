@@ -53,6 +53,7 @@
   border: none;
   cursor: pointer;
   font-weight: 600;
+  color: #111;
 }
 
 /* =========================
@@ -3173,4 +3174,314 @@ html, body {
   background: rgba(0,0,0,0.5);
   z-index: 999;
   backdrop-filter: blur(3px);
+}
+
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.react-calendar__tile {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 768px) {
+  .react-calendar {
+    width: 100% !important;
+    padding: 10px;
+  }
+
+  .react-calendar__tile {
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+.calendar-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================
+   🔥 GLOBAL FIX MOBILE (ANTI SCROLL + RESET)
+========================= */
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* evita desbordes raros */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0; /* 🔥 clave para flex/grid */
+}
+
+/* media elements seguros */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* root containers */
+#root,
+.app,
+.page,
+.main-content {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================
+   🔥 BUTTON FIX (MOBILE)
+========================= */
+
+button {
+  -webkit-tap-highlight-color: transparent; /* saca el celeste */
+  -webkit-appearance: none;
+  appearance: none;
+  color: #111; /* evita azul raro */
+}
+
+/* tus botones del navbar */
+.nav-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111;
+}
+
+/* =========================
+   🔥 CALENDAR FIX RESPONSIVE
+========================= */
+
+/* grid correcto (7 días) */
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* tamaño consistente */
+.react-calendar__tile {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .react-calendar {
+    width: 100% !important;
+    padding: 10px;
+  }
+
+  .react-calendar__tile {
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+/* wrapper seguro */
+.calendar-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================
+   🔥 GLOBAL FIX MOBILE (ANTI SCROLL TOTAL)
+========================= */
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* evita desbordes en TODOS los elementos */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0; /* 🔥 clave para flex/grid */
+}
+
+/* contenedores principales */
+#root,
+.app,
+.page,
+.main-content {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* media elements seguros */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* =========================
+   🔥 BUTTON FIX (MOBILE)
+========================= */
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  color: #111;
+}
+
+/* botones navbar */
+.nav-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111;
+}
+
+/* =========================
+   🔥 FLEX / GRID FIX (ANTI OVERFLOW)
+========================= */
+
+/* evita que filas rompan layout */
+.row {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* navbar responsive */
+.nav-right {
+  flex-wrap: wrap;
+}
+
+/* layout booking */
+@media (max-width: 900px) {
+  .schedule-layout {
+    grid-template-columns: 1fr !important;
+    width: 100%;
+  }
+}
+
+/* =========================
+   🔥 CALENDAR FIX RESPONSIVE
+========================= */
+
+/* grid correcto */
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* tamaño de días */
+.react-calendar__tile {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .react-calendar {
+    width: 100% !important;
+    padding: 10px;
+  }
+
+  .react-calendar__tile {
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+/* wrapper */
+.calendar-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================
+   🔥 HERO LEFT ALIGN FIX
+========================= */
+
+/* contenedor principal del hero */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* 🔥 izquierda */
+
+  padding: 40px;
+  color: white;
+}
+
+/* marca (logo + textos) */
+.hero-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 🔥 izquierda */
+  text-align: left;        /* 🔥 texto alineado */
+  gap: 14px;
+}
+
+/* títulos */
+.hero-overlay h1 {
+  font-size: 42px;
+  margin: 0;
+  text-align: left;
+}
+
+.hero-overlay p {
+  margin-top: 10px;
+  font-size: 18px;
+  opacity: 0.9;
+  text-align: left;
+}
+
+/* info debajo (dirección, horario, etc) */
+.hero-info {
+  margin: 15px 0;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  opacity: 0.85;
+  justify-content: flex-start; /* 🔥 izquierda */
+}
+
+/* =========================
+   📱 MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .hero-overlay {
+    padding: 20px;
+    justify-content: center;
+    align-items: flex-start; /* 🔥 sigue izquierda */
+  }
+
+  .hero-overlay h1 {
+    font-size: 26px;
+  }
+
+  .hero-overlay p {
+    font-size: 14px;
+  }
+
+  .hero-info {
+    flex-direction: column;
+    gap: 6px;
+  }
 }
