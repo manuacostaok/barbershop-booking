@@ -345,27 +345,19 @@ function Booking() {
 
         {/* CONTENIDO */}
         <div className="landing-content">
-
+          <br />
           <h1>📅 Turnos online</h1>
           <p>Reservá tu turno en segundos</p>
-
           <h2>💈{local?.name }</h2>
-          
           <p>{local?.description }</p>
           <div className="business-info">
 
             {local?.address && <p>📍 {local.address}</p>}
-
             {(local?.open && local?.close) && (
             <p>🕒 {config?.open} - {config?.close}</p>
             )}
-
             {local?.phone && <p>📞 {local.phone}</p>}
-
           </div>
-          
-          
-
           <button
             className="cta"
             onClick={() =>
@@ -376,7 +368,6 @@ function Booking() {
           >
             Reservar turno 🚀
           </button>
-          
           <p className="register-cta">
             ¿Sos nuevo cliente?{" "}
             <span

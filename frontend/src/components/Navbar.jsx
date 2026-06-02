@@ -13,6 +13,8 @@ import {
 
 function Navbar() {
   const [modal, setModal] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // 🔥
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,8 +29,8 @@ function Navbar() {
   const isAdminPanel = location.pathname.startsWith("/admin");
   const isBarberPanel = location.pathname.startsWith("/barber");
   const isClientPanel = location.pathname.startsWith("/client");
-  const [scrolled, setScrolled] = useState(false);
 
+  // 🔥 SCROLL
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -38,7 +40,15 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 🔥 DETECTAR MOBILE
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -58,23 +68,19 @@ function Navbar() {
 
   return (
     <>
-        <header className={`navbar-glass ${scrolled ? "scrolled" : ""}`}>
+      <header className={`navbar-glass ${scrolled ? "scrolled" : ""}`}>
         <div className="navbar-inner">
 
-          {/* LOGO */}
           {/* LOGO / SIDEBAR */}
           <div className="logo" onClick={() => navigate("/")}>
             {isHome ? (
-              // 🔵 HOME → LOGO SIEMPRE
               <img
-                src={
-                  "https://ui-avatars.com/api/?name=Barber&background=111&color=fff&rounded=true&size=128"
-                }
+                src="https://ui-avatars.com/api/?name=Barber&background=111&color=fff&rounded=true&size=128"
                 alt="logo"
                 className="nav-logo-img"
               />
-            ) : (isAdminPanel || isBarberPanel || isClientPanel) ? (
-              // 🔥 PANELES → BOTON SIDEBAR
+            ) : (isAdminPanel || isBarberPanel || isClientPanel) && isMobile ? (
+              // 🔥 SOLO MOBILE
               <button
                 className="sidebar-toggle"
                 onClick={(e) => {
@@ -89,7 +95,6 @@ function Navbar() {
 
           <div className="nav-right">
 
-            {/* HOME */}
             {!isHome && (
               <button
                 className={btnClass(false)}
@@ -99,7 +104,6 @@ function Navbar() {
               </button>
             )}
 
-            {/* USER LOGGED */}
             {user ? (
               <>
                 {isAdmin && !isAdminPanel && (
@@ -143,7 +147,6 @@ function Navbar() {
         </div>
       </header>
 
-      {/* MODALS */}
       <LoginModal
         open={modal === "login"}
         onClose={() => setModal(null)}
