@@ -21,7 +21,7 @@ export default function ClientLayout() {
   const [loading, setLoading] = useState(true);
 
   const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-
+  const now = new Date();
   // 🔥 TOGGLE SIDEBAR (IGUAL QUE ADMIN)
   useEffect(() => {
     const handleToggle = () => {

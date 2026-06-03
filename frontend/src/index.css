@@ -60,7 +60,9 @@
    LANDING
 ========================= */
 .landing {
-  height: 40vh;
+  min-height: 40vh;
+  height: auto;
+  padding: 80px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3555,4 +3557,16 @@ img, video {
     width: 90%;
     margin: 0 10px;
   }
+}
+
+@media (min-width: 1024px) {
+  .landing {
+    min-height: 60vh;
+    padding: 100px 40px;
+  }
+}
+
+.hero-overlay,
+.landing-content {
+  padding: 40px 0;
 }
