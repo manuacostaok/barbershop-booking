@@ -43,7 +43,7 @@ function BarberAppointments() {
         validateCoupon(code);
       }, 300);
 
-      navigate("/barber", { replace: true }); // 🔥 FIX
+      navigate("/barber", { replace: true });
     }
   }, [location, navigate]);
 
@@ -60,6 +60,16 @@ function BarberAppointments() {
       "-" +
       String(date.getDate()).padStart(2, "0")
     );
+  };
+
+  const confirmAppointment = async (id) => {
+    try {
+      await api.patch(`/appointments/${id}/confirm`);
+      setToast("Turno confirmado ✅");
+      fetchAppointments();
+    } catch {
+      setToast("Error confirmando turno");
+    }
   };
 
   const filteredAppointments = useMemo(() => {
@@ -134,124 +144,195 @@ function BarberAppointments() {
   };
 
   return (
-    <div className="container">
-      <motion.div className="card" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div className="page">
 
-        <div className="section-title">
-          💈 Panel de {user?.name}
-        </div>
+      <div className="section-title">
+        💈 Panel de {user?.name}
+      </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <button className="button primary" onClick={() => {
+      {/* BOTÓN CUPÓN */}
+      <div style={{ marginBottom: 20 }}>
+        <button
+          className="button primary"
+          onClick={() => {
             setCouponCode("");
             setCouponResult(null);
             setValidateModal(true);
-          }}>
-            🎟️ Validar cupón
-          </button>
+          }}
+        >
+          🎟️ Validar cupón
+        </button>
+      </div>
+
+      {/* STATS */}
+      <div className="grid">
+        <div className="card">
+          <h3>Total turnos</h3>
+          <p>{total}</p>
         </div>
 
-        <div className="grid">
-          <div className="card">
-            <h3>Total turnos</h3>
-            <p>{total}</p>
-          </div>
-
-          <div className="card">
-            <h3>Hoy</h3>
-            <p>{today}</p>
-          </div>
+        <div className="card">
+          <h3>Hoy</h3>
+          <p>{today}</p>
         </div>
+      </div>
 
-        <div><br /></div>
+      <br />
 
-        <div className="section">
-          <div className="filter-label">📅 Filtrar por fecha</div>
-          <br />
+      {/* FILTROS */}
+      <div className="section">
 
-          <button className="button primary full" onClick={() => setShowCalendar(!showCalendar)}>
-            {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
-          </button>
+        <button
+          className="button secondary"
+          onClick={() => setShowCalendar(!showCalendar)}
+        >
+          📅 {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
+        </button>
 
-          <AnimatePresence>
-            {showCalendar && (
-              <motion.div className="calendar-dropdown">
-                <Calendar
-                  onChange={(date) => setFilterDate(date)}
-                  value={filterDate}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="filter-block">
-            <div className="filter-label">📌 Estado</div>
-
-            <div className="barber-filter-row">
-              {["", "pending", "confirmed", "completed", "cancelled"].map((s) => (
-                <button
-                  key={s}
-                  className={`barber-pill ${filterStatus === s ? "active" : ""}`}
-                  onClick={() => setFilterStatus(s)}
-                >
-                  {s || "Todos"}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="section">
-          {loading ? (
-            <p>Cargando...</p>
-          ) : filteredAppointments.length === 0 ? (
-            <p>No tenés turnos</p>
-          ) : (
-            <div className="admin-list">
-              <AnimatePresence>
-                {filteredAppointments.map((appt) => (
-                  <motion.div key={appt._id} className="row">
-
-                    <div>{appt.clientName}</div>
-                    <div>{appt.service}</div>
-                    <div>{appt.date}</div>
-                    <div>{appt.time}</div>
-
-                    <div className={`status ${appt.status}`}>
-                      {appt.status}
-                    </div>
-
-                    <div className="actions">
-
-                      {appt.status !== "completed" && appt.status !== "cancelled" && (
-                        <button className="complete-btn" onClick={() => completeAppointment(appt._id)}>
-                          <FaCheck /> Completar
-                        </button>
-                      )}
-
-                      {appt.status !== "completed" && appt.status !== "cancelled" && (
-                        <button className="cancel-btn" onClick={() => openModal(appt._id, "cancel")}>
-                          <FaTimes /> Cancelar
-                        </button>
-                      )}
-
-                      {appt.status === "cancelled" && (
-                        <button className="reactivate-btn" onClick={() => openModal(appt._id, "reactivate")}>
-                          <FaUndo /> Reactivar
-                        </button>
-                      )}
-
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+        <AnimatePresence>
+          {showCalendar && (
+            <motion.div
+              className="calendar-wrapper"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <Calendar
+                onChange={(date) => setFilterDate(date)}
+                value={filterDate}
+              />
+            </motion.div>
           )}
+        </AnimatePresence>
+
+        <div className="barber-filter-row">
+          {["", "pending", "confirmed", "completed", "cancelled"].map((s) => (
+            <button
+              key={s}
+              className={`barber-pill ${filterStatus === s ? "active" : ""}`}
+              onClick={() => setFilterStatus(s)}
+            >
+              {s || "Todos"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* LISTA */}
+      <div className="section">
+
+        {loading ? (
+          <p>Cargando...</p>
+        ) : filteredAppointments.length === 0 ? (
+          <p>No tenés turnos</p>
+        ) : (
+          <div className="admin-list">
+
+            {/* HEADER IGUAL ADMIN */}
+            <div className="row header-row">
+              <div>Cliente</div>
+              <div>Servicio</div>
+              <div>Fecha</div>
+              <div>Hora</div>
+              <div>Estado</div>
+              <div>Acciones</div>
+            </div>
+
+            <AnimatePresence>
+              {filteredAppointments.map((appt) => (
+                <motion.div
+                  key={appt._id}
+                  className="row"
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                >
+                  <div>{appt.clientName}</div>
+                  <div>{appt.service}</div>
+                  <div>{appt.date}</div>
+                  <div>{appt.time}</div>
+
+                  <div className={`status ${appt.status}`}>
+                    {appt.status}
+                  </div>
+
+                  <div className="actions">
+
+                    {appt.status === "pending" && (
+                      <button
+                        className="reactivate-btn"
+                        onClick={() => confirmAppointment(appt._id)}
+                      >
+                        <FaCheck /> Confirmar
+                      </button>
+                    )}
+
+                    {appt.status === "confirmed" && (
+                      <button
+                        className="complete-btn"
+                        onClick={() => completeAppointment(appt._id)}
+                      >
+                        <FaCheck /> Completar
+                      </button>
+                    )}
+
+                    {appt.status !== "completed" && appt.status !== "cancelled" && (
+                      <button
+                        className="cancel-btn"
+                        onClick={() => openModal(appt._id, "cancel")}
+                      >
+                        <FaTimes /> Cancelar
+                      </button>
+                    )}
+
+                    {appt.status === "cancelled" && (
+                      <button
+                        className="reactivate-btn"
+                        onClick={() => openModal(appt._id, "reactivate")}
+                      >
+                        <FaUndo /> Reactivar
+                      </button>
+                    )}
+
+                    {appt.status === "completed" && (
+                      <span style={{ color: "#4caf50", fontWeight: "bold" }}>
+                        ✔ Finalizado
+                      </span>
+                    )}
+
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+          </div>
+        )}
+      </div>
+
+      {/* MODAL */}
+      <BaseModal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <div className="modal-content">
+          <p>
+            {actionType === "cancel"
+              ? "¿Seguro que querés cancelar el turno?"
+              : "¿Seguro que querés reactivar el turno?"}
+          </p>
         </div>
 
-        <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
+        <div className="modal-actions">
+          <button onClick={() => setModalOpen(false)}>
+            Volver
+          </button>
 
-      </motion.div>
+          <button className="cancel-btn" onClick={handleConfirm}>
+            Confirmar
+          </button>
+        </div>
+      </BaseModal>
+
+      <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
+
     </div>
   );
 }

@@ -75,8 +75,20 @@ export default function ClientLayout() {
     });
 
   const nextAppointment = appointments
-    .filter((a) => a.status !== "cancelled")
-    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+  .filter((a) => {
+    // ❌ ignorar cancelados y completados
+    if (a.status === "cancelled" || a.status === "completed") return false;
+
+    // 🔥 comparar fecha + hora
+    const apptDateTime = new Date(`${a.date}T${a.time}`);
+
+    return apptDateTime >= now;
+  })
+  .sort((a, b) => {
+    const dateA = new Date(`${a.date}T${a.time}`);
+    const dateB = new Date(`${b.date}T${b.time}`);
+    return dateA - dateB;
+  })[0];
 
   const items = [
     { label: "Perfil", path: "/client", icon: <FaUser /> },

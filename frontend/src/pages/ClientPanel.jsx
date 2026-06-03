@@ -82,8 +82,13 @@ function ClientPanel() {
   });
 
   const nextAppointment = appointments
-    .filter((a) => a.status !== "cancelled")
-    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+  .filter(a => a.status !== "cancelled")
+  .map(a => ({
+    ...a,
+    fullDate: new Date(`${a.date}T${a.time}`)
+  }))
+  .filter(a => a.fullDate >= now)
+  .sort((a, b) => a.fullDate - b.fullDate)[0];
 
   return (
     <div className="page client-panel">

@@ -95,12 +95,18 @@ function BarberDashboard() {
   // =========================
   // 🔥 FILTRO
   // =========================
-  const filteredAppointments = appointments.filter((appt) => {
+  const filteredAppointments = appointments
+  .filter((appt) => {
     return (
       (!filterDate || appt.date === formatDate(filterDate)) &&
       (!filterStatus || appt.status === filterStatus)
     );
-  });
+  })
+  .map(a => ({
+    ...a,
+    fullDate: new Date(`${a.date}T${a.time}`)
+  }))
+  .sort((a, b) => a.fullDate - b.fullDate);
 
   // =========================
   // 🔥 ACTIONS
@@ -150,7 +156,12 @@ function BarberDashboard() {
       a.date === formatDate(new Date()) &&
       a.status !== "cancelled"
   ).length;
-
+  const todayAppointments = appointments
+  .filter(a => a.date === formatDate(new Date()))
+  .sort((a, b) =>
+    new Date(`${a.date}T${a.time}`) -
+    new Date(`${b.date}T${b.time}`)
+  );
 
   const [validateModal, setValidateModal] = useState(false);
   const [couponCode, setCouponCode] = useState("");

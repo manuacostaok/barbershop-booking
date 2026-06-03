@@ -38,6 +38,9 @@ function Booking() {
   today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
   
+  
+
+  
   const [local, setLocal] = useState(null);
   useEffect(() => {
     api.get("/local")
@@ -70,14 +73,45 @@ function Booking() {
         `/appointments/availability?date=${formatDate(date)}&barber=${selectedBarber?._id}`
       );
 
-      setSlots(res.data.available);
+      let availableSlots = res.data.available;
 
-      // si el horario seleccionado ya no existe → lo borramos
-      if (!res.data.available.includes(selectedTime)) {
-        setSelectedTime("");
+      const now = new Date();
+      const selectedDate = new Date(date);
+
+      const isToday =
+        now.getFullYear() === selectedDate.getFullYear() &&
+        now.getMonth() === selectedDate.getMonth() &&
+        now.getDate() === selectedDate.getDate();
+
+      // 🔥 FILTRO 1: horario actual
+      if (isToday) {
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        availableSlots = availableSlots.filter((slot) => {
+          const [h, m] = slot.split(":").map(Number);
+          return h * 60 + m > currentTime;
+        });
       }
 
-    } catch (err) {
+      // 🔥 FILTRO 2: horario del local
+      if (config) {
+        const [openH, openM] = config.open.split(":").map(Number);
+        const [closeH, closeM] = config.close.split(":").map(Number);
+
+        const openTime = openH * 60 + openM;
+        const closeTime = closeH * 60 + closeM;
+
+        availableSlots = availableSlots.filter((slot) => {
+          const [h, m] = slot.split(":").map(Number);
+          const slotTime = h * 60 + m;
+
+          return slotTime >= openTime && slotTime <= closeTime;
+        });
+      }
+
+      setSlots(availableSlots);
+
+    } catch {
       setToast("Error cargando horarios");
     }
 

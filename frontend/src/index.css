@@ -3485,3 +3485,74 @@ button {
     gap: 6px;
   }
 }
+
+/* =========================
+   🔥 FIX GLOBAL MOBILE
+========================= */
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* evitar que cualquier cosa rompa el ancho */
+* {
+  max-width: 100%;
+}
+
+/* =========================
+   ROW FIX (ADMIN)
+========================= */
+@media (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr 1fr; /* 🔥 antes 7 columnas */
+    font-size: 12px;
+  }
+}
+
+/* =========================
+   SLOTS FIX
+========================= */
+@media (max-width: 768px) {
+  .slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* =========================
+   BOOKING FIX
+========================= */
+@media (max-width: 768px) {
+  .booking-split {
+    gap: 20px;
+  }
+}
+
+/* =========================
+   FILTER FIX
+========================= */
+@media (max-width: 768px) {
+  .filter-date-pill {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+/* =========================
+   SERVICES FIX
+========================= */
+.services-row {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    margin: 0 10px;
+  }
+}
