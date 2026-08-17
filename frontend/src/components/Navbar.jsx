@@ -104,6 +104,15 @@ function Navbar() {
               </button>
             )}
 
+            {location.pathname !== "/planes" && (
+              <button
+                className={btnClass(false)}
+                onClick={() => navigate("/planes")}
+              >
+                💈 Planes
+              </button>
+            )}
+
             {user ? (
               <>
                 {isAdmin && !isAdminPanel && (

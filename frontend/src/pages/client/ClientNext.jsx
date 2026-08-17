@@ -1,24 +1,30 @@
 import { useOutletContext } from "react-router-dom";
+import { FaCut, FaUserTie, FaCalendarAlt, FaClock, FaCalendarTimes } from "react-icons/fa";
 
 export default function ClientNext() {
   const { nextAppointment } = useOutletContext();
 
   return (
     <div className="page client-panel">
-      <h1>📅 Próximo turno</h1>
+      <div className="page-header">
+        <h1>Próximo turno</h1>
+      </div>
 
       {nextAppointment ? (
-        <div className="card highlight">
-          <p>✂️ {nextAppointment.service}</p>
-          <p>🧔 {nextAppointment.barber?.name}</p>
-          <p>📅 {nextAppointment.date}</p>
-          <p>⏱️ {nextAppointment.time}</p>
-          <span className={`status ${nextAppointment.status}`}>
+        <div className="card highlight next-appointment-card">
+          <div className={`status ${nextAppointment.status}`} style={{ marginBottom: 14 }}>
             {nextAppointment.status}
-          </span>
+          </div>
+          <p><FaCut /> {nextAppointment.service}</p>
+          <p><FaUserTie /> {nextAppointment.barber?.name}</p>
+          <p><FaCalendarAlt /> {nextAppointment.date}</p>
+          <p><FaClock /> {nextAppointment.time}</p>
         </div>
       ) : (
-        <p>No tenés turnos</p>
+        <div className="empty-state">
+          <FaCalendarTimes className="empty-icon" />
+          <p>No tenés turnos reservados todavía</p>
+        </div>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import api from "../../api";
 import BaseModal from "../../components/BaseModal";
+import { FaGift, FaLock, FaCheckCircle } from "react-icons/fa";
 
 export default function ClientBenefits() {
   const {
@@ -26,12 +27,20 @@ export default function ClientBenefits() {
 
   return (
     <div className="page client-panel">
-      <h1>🎁 Beneficios</h1>
+      <div className="page-header">
+        <h1>Beneficios</h1>
+      </div>
 
       {!config?.loyaltyEnabled ? (
-        <p>El sistema de premios no está activo</p>
+        <div className="empty-state">
+          <FaLock className="empty-icon" />
+          <p>El sistema de premios no está activo por ahora</p>
+        </div>
       ) : Object.keys(serviceCount).length === 0 ? (
-        <p>No tenés historial todavía</p>
+        <div className="empty-state">
+          <FaGift className="empty-icon" />
+          <p>Todavía no tenés historial para sumar beneficios</p>
+        </div>
       ) : (
         <div className="grid">
           {Object.entries(serviceCount).map(([service, count]) => {
@@ -39,12 +48,12 @@ export default function ClientBenefits() {
             const cutsNeeded = config?.loyaltyCuts || 5;
             const progress = count % cutsNeeded;
             const remaining = cutsNeeded - progress;
+            const reward = progress === 0 && count > 0;
 
             return (
-              <div key={service} className="card">
+              <div key={service} className={`card benefit-card ${reward ? "reward-ready" : ""}`}>
                 <h3>{service}</h3>
-
-                <p>Cortes: {count}</p>
+                <p className="benefit-count">{count} cortes realizados</p>
 
                 <div className="progress-bar">
                   <div
@@ -55,14 +64,14 @@ export default function ClientBenefits() {
                   />
                 </div>
 
-                {progress === 0 && count > 0 ? (
+                {reward ? (
                   <>
-                    <p style={{ color: "#00ff88" }}>
-                      🎉 {config?.loyaltyReward || "Premio disponible"}
+                    <p className="benefit-reward">
+                      <FaCheckCircle /> {config?.loyaltyReward || "Premio disponible"}
                     </p>
 
                     <button
-                      className="button"
+                      className="button primary full"
                       onClick={() => {
                         setSelectedService(service);
                         setRedeemModal(true);
@@ -72,7 +81,7 @@ export default function ClientBenefits() {
                     </button>
                   </>
                 ) : (
-                  <p>Te faltan {remaining} para tu premio</p>
+                  <p className="benefit-remaining">Te faltan {remaining} para tu premio</p>
                 )}
               </div>
             );
@@ -82,7 +91,7 @@ export default function ClientBenefits() {
 
       <BaseModal open={redeemModal} onClose={() => setRedeemModal(false)}>
         <div className="confirm-modal">
-          <h3>🎟️ Confirmar premio</h3>
+          <h3>Confirmar premio</h3>
 
           <p>
             Vas a usar tu beneficio en:

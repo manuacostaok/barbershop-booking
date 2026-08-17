@@ -270,6 +270,15 @@ const cancelAppointment = async (req, res) => {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
 
+    // 🔒 Solo el dueño del turno, el barbero asignado o un admin pueden cancelar
+    const isOwner = appt.clientId && String(appt.clientId) === String(req.user.id);
+    const isBarberOwner = String(appt.barber) === String(req.user.id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isBarberOwner && !isAdmin) {
+      return res.status(403).json({ message: "No podés cancelar este turno" });
+    }
+
     if (appt.status === "completed") {
       return res.status(400).json({ message: "No podés cancelar un turno ya completado" });
     }

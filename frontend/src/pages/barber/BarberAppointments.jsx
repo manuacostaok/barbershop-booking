@@ -146,12 +146,8 @@ function BarberAppointments() {
   return (
     <div className="page">
 
-      <div className="section-title">
-        💈 Panel de {user?.name}
-      </div>
-
-      {/* BOTÓN CUPÓN */}
-      <div style={{ marginBottom: 20 }}>
+      <div className="page-header">
+        <h2>Panel de {user?.name}</h2>
         <button
           className="button primary"
           onClick={() => {
@@ -160,24 +156,26 @@ function BarberAppointments() {
             setValidateModal(true);
           }}
         >
-          🎟️ Validar cupón
+          Validar cupón
         </button>
       </div>
 
       {/* STATS */}
-      <div className="grid">
-        <div className="card">
-          <h3>Total turnos</h3>
-          <p>{total}</p>
+      <div className="stat-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)", marginBottom: 24 }}>
+        <div className="stat-card tone-neutral">
+          <div>
+            <div className="stat-value">{total}</div>
+            <div className="stat-label">Total turnos</div>
+          </div>
         </div>
 
-        <div className="card">
-          <h3>Hoy</h3>
-          <p>{today}</p>
+        <div className="stat-card tone-primary">
+          <div>
+            <div className="stat-value">{today}</div>
+            <div className="stat-label">Hoy</div>
+          </div>
         </div>
       </div>
-
-      <br />
 
       {/* FILTROS */}
       <div className="section">
@@ -224,7 +222,9 @@ function BarberAppointments() {
         {loading ? (
           <p>Cargando...</p>
         ) : filteredAppointments.length === 0 ? (
-          <p>No tenés turnos</p>
+          <div className="empty-state">
+            <p>No tenés turnos con estos filtros</p>
+          </div>
         ) : (
           <div className="admin-list">
 

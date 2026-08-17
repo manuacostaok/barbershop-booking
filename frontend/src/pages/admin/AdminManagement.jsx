@@ -139,7 +139,9 @@ function AdminManagement() {
   return (
     <div className="section">
 
-      <div className="section-title">⚙️ Gestión</div>
+      <div className="page-header">
+        <h2>Gestión</h2>
+      </div>
 
       {/* BOTONES */}
       <div className="section-actions">
@@ -159,36 +161,44 @@ function AdminManagement() {
       </div>
 
       {/* BARBEROS */}
-      <h3>🧔 Barberos</h3>
+      <h3 className="section-title" style={{ marginTop: 28 }}>Barberos</h3>
 
-      <div className="grid">
-        {barbers.map((b) => (
-          <div key={b._id} className="card">
-            <div className="barber-edit" onClick={() => openEditBarber(b)}>
-                <FaEdit />
-              </div>
+      {barbers.length === 0 ? (
+        <div className="empty-state"><p>Todavía no cargaste barberos</p></div>
+      ) : (
+        <div className="grid">
+          {barbers.map((b) => (
+            <div key={b._id} className="card">
+              <div className="barber-edit" onClick={() => openEditBarber(b)}>
+                  <FaEdit />
+                </div>
 
-            <img src={b.avatar || "https://i.pravatar.cc/100"} />
-            <p>{b.name}</p>
-          </div>
-        ))}
-      </div>
+              <img src={b.avatar || "https://i.pravatar.cc/100"} />
+              <p>{b.name}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* SERVICIOS */}
-      <h3>✂️ Servicios</h3>
+      <h3 className="section-title" style={{ marginTop: 28 }}>Servicios</h3>
 
-      <div className="grid">
-        {services.map((s) => (
-          <div key={s._id} className="card">
-            <p>{s.name}</p>
-            <p>${s.price}</p>
+      {services.length === 0 ? (
+        <div className="empty-state"><p>Todavía no cargaste servicios</p></div>
+      ) : (
+        <div className="grid">
+          {services.map((s) => (
+            <div key={s._id} className="card">
+              <p>{s.name}</p>
+              <p>${s.price}</p>
 
-            <button className="delete-service-btn" onClick={() => deleteService(s._id)}>
-              <FaTrash />
-            </button>
-          </div>
-        ))}
-      </div>
+              <button className="delete-service-btn" onClick={() => deleteService(s._id)}>
+                <FaTrash />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* CREATE MODAL */}
       <CreateBarberModal
@@ -231,20 +241,23 @@ function AdminManagement() {
           onChange={(e) => setEditEmail(e.target.value)}
           placeholder="Email"
         />
-        <button className="button primary full" onClick={() => setConfirmDelete(true)}>
-          Eliminar
+        <button className="button danger full" style={{ marginTop: 16 }} onClick={() => setConfirmDelete(true)}>
+          Eliminar barbero
         </button>
-        <button className="button primary full" onClick={updateBarber}>
-          Guardar
+        <button className="button primary full" style={{ marginTop: 10 }} onClick={updateBarber}>
+          Guardar cambios
         </button>
       </BaseModal>
 
       {/* CONFIRM DELETE */}
       <BaseModal open={confirmDelete} onClose={() => setConfirmDelete(false)}>
-        <p>¿Seguro que querés eliminar?</p>
+        <h3>Confirmar eliminación</h3>
+        <p>¿Seguro que querés eliminar a {editBarber?.name}? Esta acción no se puede deshacer.</p>
 
-        <button onClick={() => setConfirmDelete(false)}>Cancelar</button>
-        <button onClick={deleteBarber}>Sí, eliminar</button>
+        <div className="modal-actions">
+          <button onClick={() => setConfirmDelete(false)}>Cancelar</button>
+          <button className="danger" onClick={deleteBarber}>Sí, eliminar</button>
+        </div>
       </BaseModal>
 
       {toast && <div className="toast">{toast}</div>}

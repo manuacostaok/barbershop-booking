@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const rateLimit = require("express-rate-limit");
 
 const {
   createAppointment,
@@ -34,13 +35,26 @@ const isInBreak = (time, config) => {
   return t >= bStart && t < bEnd;
 };
 
-// COMPLETE
-router.patch("/:id/complete", protect, completeAppointment);
+// 🔒 Rate limit para evitar spam de reservas (bots llenando la agenda)
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { message: "Demasiados intentos de reserva. Probá de nuevo en unos minutos." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// COMPLETE — solo el barbero dueño del turno o admin
+router.patch("/:id/complete", protect, requireRole(["barber", "admin"]), completeAppointment);
 
 // CREATE
-  router.post("/", protectOptional, async (req, res) => {
+router.post("/", bookingLimiter, protectOptional, async (req, res) => {
   try {
     const { time, barber, date } = req.body;
+
+    if (!time || !barber || !date) {
+      return res.status(400).json({ message: "Faltan datos del turno" });
+    }
 
     const config = await Config.findOne();
 
@@ -70,11 +84,11 @@ router.patch("/:id/complete", protect, completeAppointment);
 // ADMIN
 router.get("/all", protect, requireRole("admin"), getAllAppointments);
 
-router.patch("/:id/cancel", cancelAppointment);
-router.patch("/:id/reactivate", reactivateAppointment);
-router.delete("/:id", deleteAppointment);
-
-router.patch("/:id/confirm", confirmAppointment);
+// 🔒 Estas 4 acciones antes no requerían estar logueado. Ahora sí.
+router.patch("/:id/cancel", protect, cancelAppointment); // ownership check adentro del controller
+router.patch("/:id/reactivate", protect, requireRole(["barber", "admin"]), reactivateAppointment);
+router.delete("/:id", protect, requireRole("admin"), deleteAppointment);
+router.patch("/:id/confirm", protect, requireRole(["barber", "admin"]), confirmAppointment);
 
 
 // AVAILABILITY
@@ -109,7 +123,7 @@ router.get("/my", protect, async (req, res) => {
     res.json(appointments);
 
   } catch (err) {
-    console.log("ERROR /my:", err);
+    console.error("ERROR /my:", err);
     res.status(500).json({ message: "Error cargando turnos" });
   }
 });

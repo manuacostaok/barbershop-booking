@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token provided" });
   }
 
@@ -13,7 +13,7 @@ const protect = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // 🔥 { id, role }
+    req.user = decoded; // 🔥 { id, role, email }
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });
@@ -24,7 +24,7 @@ const protect = (req, res, next) => {
 const protectOptional = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     req.user = null;
     return next();
   }
@@ -39,17 +39,21 @@ const protectOptional = (req, res, next) => {
   next();
 };
 
-// 🛡️ ROLE CHECK
-const requireRole = (role) => (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "No autorizado" });
-  }
+// 🛡️ ROLE CHECK — acepta un rol ("admin") o una lista (["admin","barber"])
+const requireRole = (roles) => {
+  const allowed = Array.isArray(roles) ? roles : [roles];
 
-  if (req.user.role !== role) {
-    return res.status(403).json({ message: "No permitido" });
-  }
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "No autorizado" });
+    }
 
-  next();
+    if (!allowed.includes(req.user.role)) {
+      return res.status(403).json({ message: "No permitido" });
+    }
+
+    next();
+  };
 };
 
 module.exports = {

@@ -126,7 +126,9 @@ function AdminAppointments() {
   return (
     <div className="page">
 
-      <div className="section-title">📅 Turnos</div>
+      <div className="page-header">
+        <h2>Turnos</h2>
+      </div>
 
       {/* ================= FILTERS ================= */}
       <div className="filter-section">
@@ -195,7 +197,9 @@ function AdminAppointments() {
         {loading ? (
           <p>Cargando...</p>
         ) : filteredAppointments.length === 0 ? (
-          <p>No hay turnos</p>
+          <div className="empty-state">
+            <p>No hay turnos con estos filtros</p>
+          </div>
         ) : (
           <div className="admin-list">
 

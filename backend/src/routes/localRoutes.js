@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Local = require("../models/Local");
+const { protect, requireRole } = require("../middlewares/authMiddleware");
 
 
 // 📌 GET LOCAL (si no existe, lo crea)
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
 
 
 // 📌 UPDATE LOCAL
-router.put("/", async (req, res) => {
+router.put("/", protect, requireRole("admin"), async (req, res) => {
   try {
     let local = await Local.findOne();
 

@@ -3,6 +3,7 @@ import Layout from "./layouts/Layout";
 import { LanguageProvider } from "./components/LanguageContext";
 
 import Booking from "./pages/Booking";
+import PricingLanding from "./pages/PricingLanding";
 import BarberDashboard from "./pages/BarberDashboard";
 import ClientPanel from "./pages/ClientPanel";
 
@@ -40,6 +41,7 @@ function App() {
 
           {/* PUBLIC */}
           <Route path="/" element={<Booking />} />
+          <Route path="/planes" element={<PricingLanding />} />
 
           {/* ADMIN */}
           <Route

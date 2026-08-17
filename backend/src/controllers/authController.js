@@ -21,14 +21,20 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Completá email y contraseña" });
+    }
+
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+
+    // 🔒 Mensaje genérico: no revelamos si el usuario existe o no
     if (!user) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ message: "Email o contraseña incorrectos" });
     }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return res.status(400).json({ message: "Contraseña incorrecta" });
+      return res.status(400).json({ message: "Email o contraseña incorrectos" });
     }
 
     const token = generateToken(user);
@@ -53,6 +59,8 @@ const login = async (req, res) => {
 // ===============================
 // 🧾 REGISTER (CLIENTE)
 // ===============================
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const register = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
@@ -63,18 +71,30 @@ const register = async (req, res) => {
       });
     }
 
-    const exists = await User.findOne({ email });
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Email inválido" });
+    }
+
+    if (String(password).length < 8) {
+      return res.status(400).json({
+        message: "La contraseña debe tener al menos 8 caracteres",
+      });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+
+    const exists = await User.findOne({ email: normalizedEmail });
     if (exists) {
       return res.status(400).json({
         message: "El usuario ya existe",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = new User({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       phone,
       role: "client", // 🔥 SIEMPRE CLIENTE

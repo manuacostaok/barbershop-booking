@@ -102,7 +102,7 @@ function AdminConfig() {
 
     try {
       await api.put("/config", config);
-      setToast("Configuración guardada 🔥");
+      setToast("Configuración guardada");
     } catch {
       setToast("Error guardando config");
     }
@@ -114,7 +114,7 @@ function AdminConfig() {
   const saveLocal = async () => {
     try {
       await api.put("/local", local);
-      setToast("Perfil del local actualizado 💈");
+      setToast("Perfil del local actualizado");
     } catch {
       setToast("Error guardando local");
     }
@@ -127,72 +127,76 @@ function AdminConfig() {
       {/* 🏪 PERFIL DEL LOCAL */}
       {/* ========================= */}
 
-      <div className="section-title">🏪 Perfil del local</div>
+      <div className="page-header">
+        <h2>Perfil del local</h2>
+      </div>
 
-      <div className="card">
+      <div className="card config-card">
 
-        <label>Imagen del local (URL)</label><br /><br />
-        <input
-          className="input"
-          type="text"
-          placeholder="https://..."
-          value={local.image}
-          onChange={(e) =>
-            setLocal({ ...local, image: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Imagen del local (URL)</label>
+          <input
+            className="input"
+            type="text"
+            placeholder="https://..."
+            value={local.image}
+            onChange={(e) =>
+              setLocal({ ...local, image: e.target.value })
+            }
+          />
+        </div>
 
         {local.image && (
           <img
             src={local.image}
             alt="preview"
-            style={{
-              width: "100%",
-              height: "120px",
-              objectFit: "cover",
-              borderRadius: "10px",
-              marginTop: "10px"
-            }}
+            className="local-image-preview"
           />
         )}
 
-        <br />
+        <div className="form-group">
+          <label>Nombre del local</label>
+          <input
+            className="input"
+            value={local.name}
+            onChange={(e) =>
+              setLocal({ ...local, name: e.target.value })
+            }
+          />
+        </div>
 
-        <label>Nombre del local</label><br /><br />
-        <input
-          className="input"
-          value={local.name}
-          onChange={(e) =>
-            setLocal({ ...local, name: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Dirección</label>
+          <input
+            className="input"
+            value={local.address}
+            onChange={(e) =>
+              setLocal({ ...local, address: e.target.value })
+            }
+          />
+        </div>
 
-        <label>Dirección</label><br /><br />
-        <input
-          className="input"
-          value={local.address}
-          onChange={(e) =>
-            setLocal({ ...local, address: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Teléfono</label>
+          <input
+            className="input"
+            value={local.phone}
+            onChange={(e) =>
+              setLocal({ ...local, phone: e.target.value })
+            }
+          />
+        </div>
 
-        <label>Teléfono</label><br /><br />
-        <input
-          className="input"
-          value={local.phone}
-          onChange={(e) =>
-            setLocal({ ...local, phone: e.target.value })
-          }
-        />
-
-        <label>Descripción</label><br /><br />
-        <textarea
-          className="input"
-          value={local.description}
-          onChange={(e) =>
-            setLocal({ ...local, description: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Descripción</label>
+          <textarea
+            className="input"
+            value={local.description}
+            onChange={(e) =>
+              setLocal({ ...local, description: e.target.value })
+            }
+          />
+        </div>
 
         <button
           className="button primary full"
@@ -202,180 +206,190 @@ function AdminConfig() {
         </button>
       </div>
 
-      <br />
-
       {/* ========================= */}
       {/* ⚙️ CONFIG HORARIOS + PREMIOS */}
       {/* ========================= */}
 
-      <div className="section-title">⚙️ Configuración del sistema</div>
+      <div className="page-header" style={{ marginTop: 32 }}>
+        <h2>Configuración del sistema</h2>
+      </div>
 
-      <div className="card">
+      <div className="card config-card">
 
         {/* HORARIOS */}
-        <label>Horario apertura</label><br /><br />
-        <input
-          className="input"
-          type="time"
-          value={config.open}
-          onChange={(e) =>
-            setConfig({ ...config, open: e.target.value })
-          }
-        />
+        <div className="form-row">
+          <div className="form-group">
+            <label>Horario apertura</label>
+            <input
+              className="input"
+              type="time"
+              value={config.open}
+              onChange={(e) =>
+                setConfig({ ...config, open: e.target.value })
+              }
+            />
+          </div>
 
-        <br />
+          <div className="form-group">
+            <label>Horario cierre</label>
+            <input
+              className="input"
+              type="time"
+              value={config.close}
+              onChange={(e) =>
+                setConfig({ ...config, close: e.target.value })
+              }
+            />
+          </div>
+        </div>
 
-        <label>Horario cierre</label><br /><br />
-        <input
-          className="input"
-          type="time"
-          value={config.close}
-          onChange={(e) =>
-            setConfig({ ...config, close: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Intervalo de turnos</label>
+          <select
+            className="input"
+            value={config.interval}
+            onChange={(e) =>
+              setConfig({ ...config, interval: Number(e.target.value) })
+            }
+          >
+            <option value={30}>30 min</option>
+            <option value={45}>45 min</option>
+            <option value={60}>60 min</option>
+          </select>
+        </div>
 
-        <br />
-
-        <label>Intervalo de turnos</label><br /><br />
-        <select
-          className="input"
-          value={config.interval}
-          onChange={(e) =>
-            setConfig({ ...config, interval: Number(e.target.value) })
-          }
-        >
-          <option value={30}>30 min</option>
-          <option value={45}>45 min</option>
-          <option value={60}>60 min</option>
-        </select>
-
-        <label>¿Break?</label><br /><br />
-        <select
-          className="input"
-          value={config.hasBreak ? "yes" : "no"}
-          onChange={(e) =>
-            setConfig({
-              ...config,
-              hasBreak: e.target.value === "yes",
-            })
-          }
-        >
-          <option value="no">No</option>
-          <option value="yes">Sí</option>
-        </select>
+        <div className="form-group">
+          <label>¿Break?</label>
+          <select
+            className="input"
+            value={config.hasBreak ? "yes" : "no"}
+            onChange={(e) =>
+              setConfig({
+                ...config,
+                hasBreak: e.target.value === "yes",
+              })
+            }
+          >
+            <option value="no">No</option>
+            <option value="yes">Sí</option>
+          </select>
+        </div>
 
         {config.hasBreak && (
-          <>
-            <label>Inicio break</label><br />
-            <input
-              className="input"
-              type="time"
-              value={config.breakStart}
-              onChange={(e) =>
-                setConfig({ ...config, breakStart: e.target.value })
-              }
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Inicio break</label>
+              <input
+                className="input"
+                type="time"
+                value={config.breakStart}
+                onChange={(e) =>
+                  setConfig({ ...config, breakStart: e.target.value })
+                }
+              />
+            </div>
 
-            <label>Fin break</label><br />
-            <input
-              className="input"
-              type="time"
-              value={config.breakEnd}
-              onChange={(e) =>
-                setConfig({ ...config, breakEnd: e.target.value })
-              }
-            />
-          </>
+            <div className="form-group">
+              <label>Fin break</label>
+              <input
+                className="input"
+                type="time"
+                value={config.breakEnd}
+                onChange={(e) =>
+                  setConfig({ ...config, breakEnd: e.target.value })
+                }
+              />
+            </div>
+          </div>
         )}
+
         {/* PREVIEW */}
-        <div className="card">
-          <h3>Preview</h3>
+        <div className="config-preview">
+          <h3>Vista previa</h3>
 
-          <p>🏪 {local.name || "Sin nombre"}</p>
-          <p>📍 {local.address || "Sin dirección"}</p>
-
-          <p>🟢 Abre: {config.open}</p>
-          <p>🔴 Cierra: {config.close}</p>
-          <p>⏱ Intervalo: {config.interval} min</p>
+          <p>{local.name || "Sin nombre"}</p>
+          <p>{local.address || "Sin dirección"}</p>
+          <p>Abre {config.open} · Cierra {config.close}</p>
+          <p>Intervalo: {config.interval} min</p>
 
           <p>
-            🍽 Break:{" "}
+            Break:{" "}
             {config.hasBreak
               ? `${config.breakStart} - ${config.breakEnd}`
               : "No"}
           </p>
 
-          {/* 🔥 BONUS */}
           <p>
-            🎁 Premio:{" "}
+            Premio:{" "}
             {config.loyaltyEnabled
               ? `${config.loyaltyReward} cada ${config.loyaltyCuts} cortes`
               : "No activo"}
           </p>
         </div>
-        {/* 🎁 SISTEMA DE PREMIOS */}
-        <hr />
 
-        <label>Cupón de fidelidad</label><br /><br />
-        <select
-          className="input"
-          value={config.loyaltyEnabled ? "yes" : "no"}
-          onChange={(e) =>
-            setConfig({
-              ...config,
-              loyaltyEnabled: e.target.value === "yes",
-            })
-          }
-        >
-          <option value="no">No</option>
-          <option value="yes">Sí</option>
-        </select>
+        {/* 🎁 SISTEMA DE PREMIOS */}
+        <div className="form-group" style={{ marginTop: 20 }}>
+          <label>Cupón de fidelidad</label>
+          <select
+            className="input"
+            value={config.loyaltyEnabled ? "yes" : "no"}
+            onChange={(e) =>
+              setConfig({
+                ...config,
+                loyaltyEnabled: e.target.value === "yes",
+              })
+            }
+          >
+            <option value="no">No</option>
+            <option value="yes">Sí</option>
+          </select>
+        </div>
 
         {config.loyaltyEnabled && (
-          <>
-            <label>Cada cuántos cortes</label><br />
-            <input
-              className="input"
-              type="number"
-              min={1}
-              value={config.loyaltyCuts}
-              onChange={(e) =>
-                setConfig({
-                  ...config,
-                  loyaltyCuts: Number(e.target.value),
-                })
-              }
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Cada cuántos cortes</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                value={config.loyaltyCuts}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    loyaltyCuts: Number(e.target.value),
+                  })
+                }
+              />
+            </div>
 
-            <label>Premio</label><br />
-            <input
-              className="input"
-              type="text"
-              value={config.loyaltyReward}
-              onChange={(e) =>
-                setConfig({
-                  ...config,
-                  loyaltyReward: e.target.value,
-                })
-              }
-            />
-          </>
+            <div className="form-group">
+              <label>Premio</label>
+              <input
+                className="input"
+                type="text"
+                value={config.loyaltyReward}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    loyaltyReward: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
         )}
 
         <button
           className="button primary full"
           onClick={saveConfig}
+          style={{ marginTop: 12 }}
         >
           Guardar configuración
         </button>
 
-        {toast && <p>{toast}</p>}
+        {toast && <p className="config-toast">{toast}</p>}
       </div>
-
-      <br />
-
-      
 
     </div>
   );

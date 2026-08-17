@@ -98,14 +98,16 @@ function AdminStats() {
   return (
     <div className="section">
 
-      <div className="section-title">📊 Estadísticas</div>
+      <div className="page-header">
+        <h2>Estadísticas</h2>
+      </div>
 
       {/* FECHA */}
       <div className="card">
         <h3>Seleccionar fecha</h3>
 
         <button className="button primary full" onClick={() => setShowCalendar(!showCalendar)}>
-          📅 {selectedDate}
+          {selectedDate}
         </button>
         <br />
         <AnimatePresence>
@@ -127,55 +129,72 @@ function AdminStats() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div><br />
+      </div>
+
       {/* RESUMEN */}
-      <div className="grid">
+      <div className="stat-grid" style={{ marginTop: 20 }}>
 
-        <div className="card">
-          <h3>Turnos</h3>
-          <p>{totalSelected}</p>
-        </div>
-
-        <div className="card">
-          <h3>Ganancia</h3>
-          <p>${selectedRevenue}</p>
-        </div>
-
-        <div className="card">
-          <h3>Cancelados</h3>
-          <p>{cancelledSelected}</p>
-        </div>
-
-        <div className="card">
-          <h3>Mes</h3>
-          <p>${monthRevenue}</p>
-        </div>
-
-      </div>
-    <br />
-      {/* BARBEROS */}
-      <div className="section-title">🏆 Por barbero</div>
-
-      <div className="grid">
-        {Object.entries(revenueByBarber).map(([name, total]) => (
-          <div className="card" key={name}>
-            <h3>{name}</h3>
-            <p>${total}</p>
+        <div className="stat-card tone-primary">
+          <div>
+            <div className="stat-value">{totalSelected}</div>
+            <div className="stat-label">Turnos</div>
           </div>
-        ))}
+        </div>
+
+        <div className="stat-card tone-success">
+          <div>
+            <div className="stat-value">${selectedRevenue.toLocaleString("es-AR")}</div>
+            <div className="stat-label">Ganancia del día</div>
+          </div>
+        </div>
+
+        <div className="stat-card tone-danger">
+          <div>
+            <div className="stat-value">{cancelledSelected}</div>
+            <div className="stat-label">Cancelados</div>
+          </div>
+        </div>
+
+        <div className="stat-card tone-neutral">
+          <div>
+            <div className="stat-value">${monthRevenue.toLocaleString("es-AR")}</div>
+            <div className="stat-label">Ganancia del mes</div>
+          </div>
+        </div>
+
       </div>
+
+      {/* BARBEROS */}
+      <div className="section-title" style={{ marginTop: 32 }}>Por barbero</div>
+
+      {Object.keys(revenueByBarber).length === 0 ? (
+        <div className="empty-state"><p>Sin turnos ese día</p></div>
+      ) : (
+        <div className="grid">
+          {Object.entries(revenueByBarber).map(([name, total]) => (
+            <div className="card" key={name}>
+              <h3>{name}</h3>
+              <p>${total.toLocaleString("es-AR")}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* SERVICIOS */}
-      <div className="section-title">💈 Por servicio</div>
+      <div className="section-title" style={{ marginTop: 32 }}>Por servicio</div>
 
-      <div className="grid">
-        {Object.entries(revenueByService).map(([name, total]) => (
-          <div className="card" key={name}>
-            <h3>{name}</h3>
-            <p>${total}</p>
-          </div>
-        ))}
-      </div>
+      {Object.keys(revenueByService).length === 0 ? (
+        <div className="empty-state"><p>Sin turnos ese día</p></div>
+      ) : (
+        <div className="grid">
+          {Object.entries(revenueByService).map(([name, total]) => (
+            <div className="card" key={name}>
+              <h3>{name}</h3>
+              <p>${total.toLocaleString("es-AR")}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
     </div>
   );

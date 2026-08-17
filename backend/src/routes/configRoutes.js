@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Config = require("../models/Config");
+const { protect, requireRole } = require("../middlewares/authMiddleware");
 
 router.get("/", async (req, res) => {
   let config = await Config.findOne();
@@ -19,7 +20,7 @@ router.get("/", async (req, res) => {
   res.json(config);
 });
 
-router.put("/", async (req, res) => {
+router.put("/", protect, requireRole("admin"), async (req, res) => {
   try {
     const { open, close, interval, hasBreak, breakStart, breakEnd } = req.body;
 
