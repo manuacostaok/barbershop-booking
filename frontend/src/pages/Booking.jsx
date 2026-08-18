@@ -315,7 +315,7 @@ function Booking() {
           <div className="hero-brand">
             <img
               className="hero-logo"
-              src={local?.logo || "https://placehold.co/200x200/7c5cfc/fff?text=T"}
+              src={local?.logo || "https://placehold.co/200x200/21e6b0/08080d?text=T"}
               alt="logo"
             />
           </div>

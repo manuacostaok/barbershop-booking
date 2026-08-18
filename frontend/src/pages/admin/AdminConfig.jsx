@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../../api";
+import { compressImage } from "../../utils/imageUpload";
+import { FaCamera, FaSpinner } from "react-icons/fa";
 
 function AdminConfig() {
   const [config, setConfig] = useState({
@@ -21,11 +23,15 @@ function AdminConfig() {
     name: "",
     address: "",
     phone: "",
-    image: "",
+    logo: "",
+    coverImage: "",
     description: "",
   });
 
   const [toast, setToast] = useState("");
+  const [uploading, setUploading] = useState(null); // "logo" | "coverImage" | null
+  const logoInputRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   // ------------------------
   // FETCH CONFIG + LOCAL
@@ -55,7 +61,8 @@ function AdminConfig() {
           name: res.data.name || "",
           address: res.data.address || "",
           phone: res.data.phone || "",
-          image: res.data.image || "",
+          logo: res.data.logo || "",
+          coverImage: res.data.coverImage || "",
           description: res.data.description || "",
         });
       })
@@ -91,6 +98,35 @@ function AdminConfig() {
     }
 
     return null;
+  };
+
+  // ------------------------
+  // SUBIR LOGO / PORTADA
+  // ------------------------
+  const handleImageUpload = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(field);
+
+    try {
+      const dataUrl = await compressImage(file, {
+        maxWidth: field === "coverImage" ? 1600 : 400,
+        maxHeight: field === "coverImage" ? 600 : 400,
+        quality: 0.82,
+      });
+
+      const updated = { ...local, [field]: dataUrl };
+      setLocal(updated);
+
+      await api.put("/local", updated);
+      setToast(field === "logo" ? "Logo actualizado" : "Portada actualizada");
+    } catch (err) {
+      setToast(err.response?.data?.message || err.message || "Error subiendo la imagen");
+    } finally {
+      setUploading(null);
+      e.target.value = "";
+    }
   };
 
   // ------------------------
@@ -133,26 +169,56 @@ function AdminConfig() {
 
       <div className="card config-card">
 
+        {/* PORTADA (hero de la página de reservas) */}
         <div className="form-group">
-          <label>Imagen del local (URL)</label>
-          <input
-            className="input"
-            type="text"
-            placeholder="https://..."
-            value={local.image}
-            onChange={(e) =>
-              setLocal({ ...local, image: e.target.value })
-            }
-          />
+          <label>Portada (foto grande del hero)</label>
+
+          <div
+            className="local-cover-uploader"
+            style={local.coverImage ? { backgroundImage: `url(${local.coverImage})` } : undefined}
+            onClick={() => coverInputRef.current?.click()}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              ref={coverInputRef}
+              hidden
+              onChange={(e) => handleImageUpload(e, "coverImage")}
+            />
+
+            <div className="local-cover-uploader-overlay">
+              {uploading === "coverImage" ? <FaSpinner className="spin" /> : <FaCamera />}
+              <span>{local.coverImage ? "Cambiar portada" : "Subir portada"}</span>
+            </div>
+          </div>
         </div>
 
-        {local.image && (
-          <img
-            src={local.image}
-            alt="preview"
-            className="local-image-preview"
-          />
-        )}
+        {/* LOGO */}
+        <div className="form-group">
+          <label>Logo del negocio</label>
+
+          <div className="local-logo-row">
+            <div
+              className="local-logo-uploader"
+              style={local.logo ? { backgroundImage: `url(${local.logo})` } : undefined}
+              onClick={() => logoInputRef.current?.click()}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                ref={logoInputRef}
+                hidden
+                onChange={(e) => handleImageUpload(e, "logo")}
+              />
+
+              {!local.logo && (uploading === "logo" ? <FaSpinner className="spin" /> : <FaCamera />)}
+            </div>
+
+            <span className="local-logo-hint">
+              Se muestra en el encabezado de tu página de reservas.
+            </span>
+          </div>
+        </div>
 
         <div className="form-group">
           <label>Nombre del local</label>

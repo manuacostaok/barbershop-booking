@@ -4,7 +4,7 @@ const LanguageContext = createContext();
 
 const translations = {
   es: {
-    title: "IAturnos",
+    title: "TurnosIA",
     subtitle: "Reservá tu turno en segundos",
     book: "Reservar turno",
     services: "Servicios",
@@ -29,7 +29,7 @@ const translations = {
     price: "Precio",
   },
   en: {
-    title: "IAturnos",
+    title: "TurnosIA",
     subtitle: "Book your appointment in seconds",
     book: "Book now",
     services: "Services",

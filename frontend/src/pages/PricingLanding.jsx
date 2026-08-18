@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import {
   FaCut,
@@ -9,6 +10,7 @@ import {
   FaCheck,
   FaShieldAlt,
   FaGift,
+  FaEye,
 } from "react-icons/fa";
 import { SiMercadopago } from "react-icons/si";
 
@@ -58,6 +60,7 @@ const money = (n) =>
   n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 
 function PricingLanding() {
+  const navigate = useNavigate();
   const [modalPlan, setModalPlan] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", businessName: "" });
   const [loading, setLoading] = useState(false);
@@ -98,7 +101,7 @@ function PricingLanding() {
       <section className="saas-hero">
         <div className="saas-hero-inner">
           <span className="saas-badge">
-            <FaCut /> IAturnos · Automatización para tu negocio
+            <FaCut /> TurnosIA · Automatización para tu negocio
           </span>
           <h1>
             Dejá que la <span className="highlight">IA</span> se encargue de tus turnos
@@ -106,16 +109,20 @@ function PricingLanding() {
           <p>
             Reservas online, recordatorios automáticos, fidelización de clientes y estadísticas de tu negocio —
             todo se automatiza solo. Barberías, peluquerías, manicura, spas y más.
-            Vos atendé, IAturnos se encarga del resto.
+            Vos atendé, TurnosIA se encarga del resto.
           </p>
           <div className="saas-hero-cta">
             <a href="#planes" className="button primary">
               Ver planes
             </a>
-            <span className="saas-hero-note">
-              <SiMercadopago /> Pagás con Mercado Pago · Cancelás cuando quieras
-            </span>
+            <button className="button saas-demo-btn" onClick={() => navigate("/")}>
+              <FaEye /> Ver cómo se vería tu página
+            </button>
           </div>
+
+          <span className="saas-hero-note">
+            <SiMercadopago /> Pagás con Mercado Pago · Cancelás cuando quieras
+          </span>
 
           <div className="saas-niches">
             {["Barberías", "Peluquerías", "Manicura", "Spas", "Estética"].map((n) => (

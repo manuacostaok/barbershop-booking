@@ -134,7 +134,7 @@ function Navbar() {
             ) : (
               <>
                 <span className="brand-mark">IA</span>
-                <span className="brand-name">IAturnos</span>
+                <span className="brand-name">TurnosIA</span>
               </>
             )}
           </div>
