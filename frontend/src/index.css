@@ -4716,3 +4716,455 @@ button.nav-btn.primary:hover:not(:disabled) {
   font-size: 0.8rem;
   font-weight: 500;
 }
+
+/* =========================================================
+   🗓️ BOOKING WIZARD 2.0 — flujo de reserva rediseñado
+========================================================= */
+.booking-wizard {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 32px;
+}
+
+/* STEPPER */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 0;
+}
+
+.stepper-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 160px;
+}
+
+.stepper-item:last-child {
+  flex: 0;
+  max-width: none;
+}
+
+.stepper-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-border);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  position: relative;
+  z-index: 2;
+}
+
+.stepper-circle.active {
+  border-color: var(--color-primary);
+  background: var(--gradient-brand);
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+.stepper-circle.done {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.stepper-label {
+  display: none;
+}
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 -2px;
+  transition: background var(--transition);
+}
+
+.stepper-line.done {
+  background: var(--color-primary);
+}
+
+@media (min-width: 640px) {
+  .stepper-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: 6px;
+    position: absolute;
+    transform: translateX(-32%);
+  }
+
+  .stepper-item {
+    position: relative;
+  }
+}
+
+/* SERVICE CARDS */
+.service-grid-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-card-v2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.service-card-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
+}
+
+.service-card-v2.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.service-icon-v2 {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.service-info-v2 {
+  flex: 1;
+}
+
+.service-info-v2 h3 {
+  margin: 0 0 2px;
+  font-size: 1rem;
+}
+
+.service-duration {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.service-price-v2 {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-primary-dark);
+}
+
+/* PROFESSIONAL CARDS */
+.pro-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.pro-card-v2 {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 18px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.pro-card-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.pro-card-v2.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.pro-card-v2 img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 10px;
+  border: 2px solid #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.pro-card-v2 p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.pro-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+}
+
+/* DATE STRIP */
+.date-strip-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.date-strip-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: all var(--transition);
+}
+
+.date-strip-arrow:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 2px;
+  scrollbar-width: none;
+}
+
+.date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.date-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 58px;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.date-pill:hover {
+  border-color: var(--color-primary);
+}
+
+.date-pill.active {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+.date-pill-day {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.date-pill-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.date-pill-month {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+/* SLOTS POR FRANJA */
+.slots-loading {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+.slot-period-group {
+  margin-bottom: 20px;
+}
+
+.slot-period-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.slots-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 8px;
+}
+
+.slot-chip {
+  padding: 10px 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.slot-chip:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.slot-chip.active {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+/* STEP 4 — DATOS + RESUMEN */
+.step4-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .step4-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.booking-summary-card {
+  background: var(--color-surface-2);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+}
+
+.booking-summary-card h3 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.summary-row svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.summary-total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* SUCCESS SCREEN 2.0 */
+.success-card-v2 {
+  max-width: 400px;
+  text-align: center;
+  padding: 40px 32px;
+}
+
+.success-check {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: var(--shadow-glow);
+}
+
+.success-sub {
+  color: var(--color-text-muted);
+  margin: -8px 0 20px;
+}
+
+.success-details-v2 {
+  background: #fafafa;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.success-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+.success-detail-row svg {
+  color: var(--color-primary);
+}
+
+/* HERO INFO ICONS */
+.hero-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

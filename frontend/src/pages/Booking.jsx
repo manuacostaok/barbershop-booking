@@ -1,17 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import api from "../api";
 import { motion, AnimatePresence } from "framer-motion";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import {
   FaCut,
   FaUser,
   FaCalendarAlt,
-  FaClock
+  FaClock,
+  FaCheck,
+  FaChevronLeft,
+  FaChevronRight,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaInstagram,
+  FaSun,
+  FaCloudSun,
+  FaMoon,
 } from "react-icons/fa";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
+
+const STEPS = [
+  { id: 1, label: "Servicio", icon: <FaCut /> },
+  { id: 2, label: "Profesional", icon: <FaUser /> },
+  { id: 3, label: "Fecha y hora", icon: <FaCalendarAlt /> },
+  { id: 4, label: "Tus datos", icon: <FaCheck /> },
+];
+
+const DAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const MONTH_LABELS = [
+  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+];
+
 function Booking() {
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
@@ -32,16 +53,14 @@ function Booking() {
   const [confirmedAppointment, setConfirmedAppointment] = useState(null);
   const [config, setConfig] = useState(null);
 
-  const [modal, setModal] = useState(null); 
-  // "login" | "register" | null
+  const [modal, setModal] = useState(null);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
-  
-  
-
-  
   const [local, setLocal] = useState(null);
+
+  const stripRef = useRef(null);
+
   useEffect(() => {
     api.get("/local")
       .then(res => setLocal(res.data))
@@ -64,7 +83,6 @@ function Booking() {
     );
   };
 
-
   const getAvailability = async () => {
     setLoading(true);
 
@@ -83,34 +101,28 @@ function Booking() {
         now.getMonth() === selectedDate.getMonth() &&
         now.getDate() === selectedDate.getDate();
 
-      // 🔥 FILTRO 1: horario actual
       if (isToday) {
         const currentTime = now.getHours() * 60 + now.getMinutes();
-
         availableSlots = availableSlots.filter((slot) => {
           const [h, m] = slot.split(":").map(Number);
           return h * 60 + m > currentTime;
         });
       }
 
-      // 🔥 FILTRO 2: horario del local
       if (config) {
         const [openH, openM] = config.open.split(":").map(Number);
         const [closeH, closeM] = config.close.split(":").map(Number);
-
         const openTime = openH * 60 + openM;
         const closeTime = closeH * 60 + closeM;
 
         availableSlots = availableSlots.filter((slot) => {
           const [h, m] = slot.split(":").map(Number);
           const slotTime = h * 60 + m;
-
           return slotTime >= openTime && slotTime <= closeTime;
         });
       }
 
       setSlots(availableSlots);
-
     } catch {
       setToast("Error cargando horarios");
     }
@@ -123,17 +135,11 @@ function Booking() {
     api.get("/services").then(res => setServices(res.data));
   }, []);
 
-  
   useEffect(() => {
     api.get("/config")
       .then(res => setConfig(res.data))
       .catch(() => {
-        setConfig({
-          open: "09:00",
-          close: "23:00",
-          interval: 30,
-          hasBreak: false,
-        });
+        setConfig({ open: "09:00", close: "23:00", interval: 30, hasBreak: false });
       });
   }, []);
 
@@ -150,10 +156,45 @@ function Booking() {
 
   useEffect(() => {
     if (!selectedBarber || !config) return;
-
     getAvailability();
   }, [date, selectedBarber, config]);
- 
+
+  // -------- FECHAS (próximos 21 días, tira horizontal) --------
+  const nextDays = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 21; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }, []);
+
+  const isSameDay = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+
+  const scrollStrip = (dir) => {
+    if (!stripRef.current) return;
+    stripRef.current.scrollBy({ left: dir * 220, behavior: "smooth" });
+  };
+
+  // -------- HORARIOS AGRUPADOS POR FRANJA --------
+  const groupedSlots = useMemo(() => {
+    const groups = { Mañana: [], Tarde: [], Noche: [] };
+
+    slots.forEach((slot) => {
+      const [h] = slot.split(":").map(Number);
+      if (h < 13) groups["Mañana"].push(slot);
+      else if (h < 19) groups["Tarde"].push(slot);
+      else groups["Noche"].push(slot);
+    });
+
+    return groups;
+  }, [slots]);
+
+  const periodIcon = { Mañana: <FaSun />, Tarde: <FaCloudSun />, Noche: <FaMoon /> };
 
   const createAppointment = async () => {
     if (!selectedService) return setToast("Seleccioná un servicio");
@@ -161,7 +202,7 @@ function Booking() {
     if (!selectedTime) return setToast("Elegí un horario");
     if (!name) return setToast("Ingresá tu nombre");
     if (!phone) return setToast("Ingresá tu teléfono");
-    
+
     try {
       const appointmentData = {
         service: selectedService,
@@ -184,7 +225,6 @@ function Booking() {
       setConfirmedAppointment(appointmentData);
       setSuccess(true);
 
-      // RESET LIMPIO
       setStep(1);
       setDate(new Date());
       setSelectedTime("");
@@ -196,26 +236,41 @@ function Booking() {
         setPhone("");
         setMail("");
       }
-
     } catch (err) {
-      console.log("ERROR BACK:", err.response?.data); // 🔥 clave también
       setToast(err.response?.data?.message || "Error");
-      }
+    }
   };
 
+  // ===================== SUCCESS SCREEN =====================
   if (success) {
     return (
       <div className="page center">
-        <div className="card success">
+        <motion.div
+          className="card success-card-v2"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="success-check">
+            <FaCheck />
+          </div>
 
-          <h2>✅ Turno confirmado</h2>
+          <h2>¡Turno confirmado!</h2>
+          <p className="success-sub">Te esperamos en la fecha y hora reservada.</p>
 
           {confirmedAppointment && (
-            <div className="success-details">
-              <p>✂️ {confirmedAppointment.service.name}</p>
-              <p>🧔 {confirmedAppointment.barber.name}</p>
-              <p>📅 {confirmedAppointment.date}</p>
-              <p>⏱️ {confirmedAppointment.time}</p>
+            <div className="success-details-v2">
+              <div className="success-detail-row">
+                <FaCut /> <span>{confirmedAppointment.service.name}</span>
+              </div>
+              <div className="success-detail-row">
+                <FaUser /> <span>{confirmedAppointment.barber.name}</span>
+              </div>
+              <div className="success-detail-row">
+                <FaCalendarAlt /> <span>{confirmedAppointment.date}</span>
+              </div>
+              <div className="success-detail-row">
+                <FaClock /> <span>{confirmedAppointment.time} hs</span>
+              </div>
             </div>
           )}
 
@@ -227,18 +282,16 @@ function Booking() {
               setStep(1);
             }}
           >
-            Reservar otro
+            Reservar otro turno
           </button>
-
-        </div>
+        </motion.div>
       </div>
     );
   }
 
-  
+  // ===================== MAIN =====================
   return (
     <div className="page">
-
       <LoginModal
         open={modal === "login"}
         onClose={() => setModal(null)}
@@ -249,226 +302,125 @@ function Booking() {
         onClose={() => setModal(null)}
         onSuccess={() => setModal("login")}
       />
-      {/* LANDING */}
-      <div className="hero">
 
-        {/* 🖼 FONDO */}
+      {/* HERO ÚNICO */}
+      <div className="hero">
         <img
           className="hero-bg"
-          src={
-            local?.coverImage ||
-            "https://picsum.photos/1600/600?random=studio"
-          }
+          src={local?.coverImage || "https://picsum.photos/1600/600?random=studio"}
           alt="cover"
         />
 
-        {/* 🌑 OVERLAY */}
         <div className="hero-overlay">
-
           <div className="hero-brand">
-
             <img
               className="hero-logo"
-            src={
-              local?.logo ||
-              "https://placehold.co/200x200/111/fff?text=BA"
-            }                          alt="logo"
+              src={local?.logo || "https://placehold.co/200x200/7c5cfc/fff?text=T"}
+              alt="logo"
             />
-
-            
-
           </div>
+
           <h1>{local?.name || "Mi Negocio"}</h1>
-          <p>
-            {local?.description || "Reservá tu turno online en segundos, sin llamadas ni esperas."}
-          </p>
+          <p>{local?.description || "Reservá tu turno online en segundos, sin llamadas ni esperas."}</p>
 
           <div className="hero-info">
-
-            <span>
-              📍 {local?.address || "San Miguel, Buenos Aires"}
-            </span>
-
-            <span>
-              📞 {local?.phone || "+54 11 0000-0000"}
-            </span>
-
-            <span>
-              📸 @{local?.instagram || "tu_negocio"}
-            </span>
-
-            <span>
-              🕒 {config?.open || "09:00"} - {config?.close || "22:00"}
-            </span>
-
-            <span>
-              🍽 {config?.hasBreak
-                ? `${config.breakStart} - ${config.breakEnd}`
-                : "Sin pausa"}
-            </span>
-
+            <span><FaMapMarkerAlt /> {local?.address || "San Miguel, Buenos Aires"}</span>
+            <span><FaPhone /> {local?.phone || "+54 11 0000-0000"}</span>
+            <span><FaInstagram /> @{local?.instagram || "tu_negocio"}</span>
+            <span><FaClock /> {config?.open || "09:00"} - {config?.close || "22:00"}</span>
           </div>
-          <p className="register-cta">
-            ¿Sos nuevo cliente?{" "}
-            <br />
-            <span
-              className="link-register"
-              onClick={() => setModal("register")}
-            >
-              Registrate y obtené beneficios
-            </span>
-          </p>
 
-        </div>
-      </div>
-      {/* LANDING */}
-      <div
-        className="landing small"
-        onMouseMove={(e) => {
-          const { innerWidth, innerHeight } = window;
-
-          const x = (e.clientX / innerWidth - 0.5) * 30;
-          const y = (e.clientY / innerHeight - 0.5) * 30;
-
-          document.documentElement.style.setProperty("--mouse-x", `${x}px`);
-          document.documentElement.style.setProperty("--mouse-y", `${y}px`);
-        }}
-      >
-        {/* 🔥 IMAGEN DEL LOCAL */}
-        
-        {/* ICONOS FLOTANTES */}
-        <div className="floating-icons">
-
-          <motion.div
-            className="icon i1"
-            animate={{ y: [0, -20, 0], rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 8, repeat: Infinity }}
-            style={{ transform: "translate(var(--mouse-x), var(--mouse-y))" }}
-          >
-            <FaCut />
-          </motion.div>
-
-          <motion.div
-            className="icon i2"
-            animate={{ y: [0, 25, 0], scale: [1, 1.2, 1] }}
-            transition={{ duration: 6, repeat: Infinity }}
-            style={{ transform: "translate(calc(var(--mouse-x) * -1), calc(var(--mouse-y) * -1))" }}
-          >
-            <FaUser />
-          </motion.div>
-
-          <motion.div
-            className="icon i3"
-            animate={{ y: [0, -15, 0], rotate: [0, -5, 5, 0] }}
-            transition={{ duration: 7, repeat: Infinity }}
-            style={{ transform: "translate(calc(var(--mouse-x) * 0.5), calc(var(--mouse-y) * 0.5))" }}
-          >
-            <FaCalendarAlt />
-          </motion.div>
-
-          <motion.div
-            className="icon i4"
-            animate={{ y: [0, 20, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 9, repeat: Infinity }}
-            style={{ transform: "translate(calc(var(--mouse-x) * -0.5), calc(var(--mouse-y) * -0.5))" }}
-          >
-            <FaClock />
-          </motion.div>
-
-        </div>
-
-        {/* CONTENIDO */}
-        <div className="landing-content">
-          <br />
-          <h1>📅 Turnos online</h1>
-          <p>Reservá tu turno en segundos</p>
-          <h2>{local?.name}</h2>
-          <p>{local?.description }</p>
-          <div className="business-info">
-
-            {local?.address && <p>📍 {local.address}</p>}
-            {(local?.open && local?.close) && (
-            <p>🕒 {config?.open} - {config?.close}</p>
-            )}
-            {local?.phone && <p>📞 {local.phone}</p>}
-          </div>
           <button
             className="cta"
             onClick={() =>
-              document
-                .getElementById("booking-section")
-                .scrollIntoView({ behavior: "smooth" })
+              document.getElementById("booking-section").scrollIntoView({ behavior: "smooth" })
             }
           >
-            Reservar turno 🚀
+            Reservar turno
           </button>
-          <p className="register-cta">
-            ¿Sos nuevo cliente?{" "}
-            <span
-              className="link-register"
-              onClick={() => setModal("register")}
-            >
-              Registrate y obtené beneficios
-            </span>
-          </p>
+
+          {!user && (
+            <p className="register-cta">
+              ¿Sos nuevo cliente?{" "}
+              <span className="link-register" onClick={() => setModal("register")}>
+                Registrate y obtené beneficios
+              </span>
+            </p>
+          )}
         </div>
       </div>
 
-      {/* BOOKING */}
-      <div id="booking-section" className="main-content">
+      {/* BOOKING WIZARD */}
+      <div id="booking-section" className="main-content booking-wizard">
 
-        {/* PROGRESS */}
-        <div className="progress">
-          <div style={{ width: `${step * 20}%` }} />
+        {/* STEPPER */}
+        <div className="stepper">
+          {STEPS.map((s, i) => (
+            <div key={s.id} className="stepper-item">
+              <div
+                className={`stepper-circle ${step === s.id ? "active" : ""} ${step > s.id ? "done" : ""}`}
+                onClick={() => step > s.id && setStep(s.id)}
+              >
+                {step > s.id ? <FaCheck /> : s.icon}
+              </div>
+              <span className="stepper-label">{s.label}</span>
+              {i < STEPS.length - 1 && <div className={`stepper-line ${step > s.id ? "done" : ""}`} />}
+            </div>
+          ))}
         </div>
 
         {step > 1 && (
           <button className="back" onClick={() => setStep(step - 1)}>
-            ← Volver
+            <FaChevronLeft /> Volver
           </button>
         )}
 
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.2 }}
           >
 
-            {/* STEP 1 */}
+            {/* STEP 1 — SERVICIOS */}
             {step === 1 && (
               <section className="section">
-                <h2 className="section-title"><FaCut /> Servicios</h2>
+                <h2 className="section-title">Elegí un servicio</h2>
 
-                <div className="grid">
+                <div className="service-grid-v2">
                   {services.map((s) => (
                     <div
                       key={s._id}
-                      className="card"
+                      className={`service-card-v2 ${selectedService?._id === s._id ? "selected" : ""}`}
                       onClick={() => {
                         setSelectedService(s);
                         setStep(2);
                       }}
                     >
-                      <h3>{s.name}</h3>
-                      <p>${s.price}</p>
+                      <div className="service-icon-v2"><FaCut /></div>
+                      <div className="service-info-v2">
+                        <h3>{s.name}</h3>
+                        {s.duration && <span className="service-duration">{s.duration} min</span>}
+                      </div>
+                      <div className="service-price-v2">${s.price}</div>
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* STEP 2 */}
+            {/* STEP 2 — PROFESIONALES */}
             {step === 2 && (
               <section className="section">
-                <h2 className="section-title"><FaUser /> Profesionales</h2>
+                <h2 className="section-title">Elegí un profesional</h2>
 
-                <div className="grid">
+                <div className="pro-grid-v2">
                   {barbers.map((b) => (
                     <div
                       key={b._id}
-                      className="card"
+                      className={`pro-card-v2 ${selectedBarber?._id === b._id ? "selected" : ""}`}
                       onClick={() => {
                         setSelectedBarber(b);
                         setStep(3);
@@ -476,95 +428,143 @@ function Booking() {
                     >
                       <img src={b.avatar || "https://i.pravatar.cc/100"} />
                       <p>{b.name}</p>
+                      {selectedBarber?._id === b._id && (
+                        <span className="pro-check"><FaCheck /></span>
+                      )}
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* STEP 3 */}
+            {/* STEP 3 — FECHA + HORA */}
             {step === 3 && (
-              <section className="section booking-split">
+              <section className="section">
+                <h2 className="section-title">Elegí fecha y horario</h2>
 
-                <div>
-                  <h2 className="section-title">
-                    <FaCalendarAlt /> Fecha
-                  </h2>
+                <div className="date-strip-wrapper">
+                  <button className="date-strip-arrow" onClick={() => scrollStrip(-1)}>
+                    <FaChevronLeft />
+                  </button>
 
-                  <Calendar
-                    value={date}
-                    onChange={(d) => setDate(d)}
-                  minDate={today}
-                  />
-                </div>
-
-                <div>
-                  <h2 className="section-title">
-                    <FaClock /> Horarios
-                  </h2>
-
-                  {loading ? (
-                    <p>Cargando...</p>
-                  ) : slots.length === 0 ? (
-                    <p>No hay horarios disponibles</p>
-                  ) : (
-                    <div className="slots-grid">
-                      {slots.map((slot) => (
-                        <div
-                          key={slot}
-                          className={`slot ${selectedTime === slot ? "active" : ""}`}
-                          onClick={() => {
-                            setSelectedTime(slot);
-                            setStep(4);
-                          }}
+                  <div className="date-strip" ref={stripRef}>
+                    {nextDays.map((d) => {
+                      const active = isSameDay(d, date);
+                      return (
+                        <button
+                          key={d.toISOString()}
+                          className={`date-pill ${active ? "active" : ""}`}
+                          onClick={() => setDate(d)}
                         >
-                          {slot}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                          <span className="date-pill-day">{DAY_LABELS[d.getDay()]}</span>
+                          <span className="date-pill-num">{d.getDate()}</span>
+                          <span className="date-pill-month">{MONTH_LABELS[d.getMonth()]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button className="date-strip-arrow" onClick={() => scrollStrip(1)}>
+                    <FaChevronRight />
+                  </button>
                 </div>
 
+                {loading ? (
+                  <p className="slots-loading">Cargando horarios...</p>
+                ) : slots.length === 0 ? (
+                  <div className="empty-state">
+                    <FaClock className="empty-icon" />
+                    <p>No hay horarios disponibles para este día</p>
+                  </div>
+                ) : (
+                  <div className="slots-by-period">
+                    {Object.entries(groupedSlots).map(([period, times]) =>
+                      times.length === 0 ? null : (
+                        <div key={period} className="slot-period-group">
+                          <div className="slot-period-title">
+                            {periodIcon[period]} {period}
+                          </div>
+                          <div className="slots-grid-v2">
+                            {times.map((slot) => (
+                              <button
+                                key={slot}
+                                className={`slot-chip ${selectedTime === slot ? "active" : ""}`}
+                                onClick={() => {
+                                  setSelectedTime(slot);
+                                  setStep(4);
+                                }}
+                              >
+                                {slot}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
               </section>
             )}
-            {/* STEP 4 */}
+
+            {/* STEP 4 — DATOS + RESUMEN */}
             {step === 4 && (
-            <section className="section">
-              <h2 className="section-title">Datos</h2>
+              <section className="section step4-grid">
+                <div>
+                  <h2 className="section-title">Tus datos</h2>
 
-              <input
-                className="input"
-                placeholder="Nombre"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={!!user} // 🔥 si está logueado no se edita
-              />
+                  <div className="form-group">
+                    <label>Nombre</label>
+                    <input
+                      className="input"
+                      placeholder="Nombre completo"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={!!user}
+                    />
+                  </div>
 
-              <input
-                className="input"
-                placeholder="Teléfono"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                disabled={!!user}
-              />
+                  <div className="form-group">
+                    <label>Teléfono</label>
+                    <input
+                      className="input"
+                      placeholder="Teléfono"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      disabled={!!user}
+                    />
+                  </div>
 
-              <input
-                className="input"
-                placeholder="Mail"
-                value={mail}
-                onChange={(e) => setMail(e.target.value)}
-                disabled={!!user}
-              />
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      className="input"
+                      placeholder="Email"
+                      value={mail}
+                      onChange={(e) => setMail(e.target.value)}
+                      disabled={!!user}
+                    />
+                  </div>
 
-              <button className="button primary full" onClick={createAppointment}>
-                Confirmar turno 🚀
-              </button>
-            </section>
+                  <button className="button primary full" onClick={createAppointment}>
+                    Confirmar turno
+                  </button>
+                </div>
+
+                <div className="booking-summary-card">
+                  <h3>Resumen</h3>
+                  <div className="summary-row"><FaCut /> <span>{selectedService?.name}</span></div>
+                  <div className="summary-row"><FaUser /> <span>{selectedBarber?.name}</span></div>
+                  <div className="summary-row"><FaCalendarAlt /> <span>{formatDate(date)}</span></div>
+                  <div className="summary-row"><FaClock /> <span>{selectedTime} hs</span></div>
+                  {selectedService?.price && (
+                    <div className="summary-total">Total: ${selectedService.price}</div>
+                  )}
+                </div>
+              </section>
             )}
 
           </motion.div>
         </AnimatePresence>
-
       </div>
 
       <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
