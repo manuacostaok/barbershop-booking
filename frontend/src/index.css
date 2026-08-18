@@ -1,31 +1,34 @@
 /* =========================
    DESIGN TOKENS
-   (mantenemos los mismos colores que ya usaba
-   la app -- #111 / #fff / #00ff88 -- pero
-   centralizados como variables para poder
-   ajustar el look de toda la app desde acá)
+   (paleta violeta + coral, cálida y moderna,
+   pensada para cualquier negocio de turnos:
+   barberías, peluquerías, manicura, spas, etc.)
 ========================= */
 :root {
-  --color-bg: #0b0b0c;
-  --color-surface: #141416;
-  --color-surface-2: #1c1c1f;
-  --color-text: #111;
+  --color-bg: #0f0e17;
+  --color-surface: #17151f;
+  --color-surface-2: #1f1c2b;
+  --color-text: #1a1725;
   --color-text-inverse: #fff;
-  --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
+  --color-text-muted: #6b6478;
+  --color-border: #ece8f2;
 
-  --color-primary: #00ff88;
-  --color-primary-dark: #00c36a;
-  --color-accent: #00c3ff;
-  --color-danger: #ff4d4d;
+  --color-primary: #7c5cfc;
+  --color-primary-dark: #6344e0;
+  --color-primary-light: #ede8ff;
+  --color-accent: #ff8b7b;
+  --color-danger: #ff5c6c;
+  --color-success: #37b787;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
+  --gradient-brand: linear-gradient(135deg, #7c5cfc 0%, #ff8b7b 100%);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 24px rgba(0, 255, 136, 0.25);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-sm: 0 2px 10px rgba(35, 20, 70, 0.06);
+  --shadow-md: 0 12px 30px rgba(35, 20, 70, 0.12);
+  --shadow-glow: 0 0 28px rgba(124, 92, 252, 0.28);
 
   --transition: 180ms ease;
 
@@ -184,7 +187,7 @@ textarea:focus-visible {
   padding: 14px 22px;
   border-radius: 10px;
   border: none;
-  background: #111;
+  background: var(--color-text);
   color: #fff;
   cursor: pointer;
   transition: 0.2s;
@@ -225,7 +228,7 @@ textarea:focus-visible {
 }
 
 .card.active {
-  border: 2px solid #111;
+  border: 2px solid var(--color-primary);
 }
 
 .card img {
@@ -273,12 +276,12 @@ textarea:focus-visible {
 }
 
 .slot:hover {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
 .slot.active {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -297,7 +300,7 @@ textarea:focus-visible {
 
 .input:focus {
   outline: none;
-  border-color: #111;
+  border-color: var(--color-text);
 }
 
 
@@ -314,7 +317,7 @@ textarea:focus-visible {
 
 .progress div {
   height: 100%;
-  background: #111;
+  background: var(--color-text);
   border-radius: 10px;
   transition: 0.3s;
 }
@@ -351,7 +354,7 @@ textarea:focus-visible {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: #111;
+  background: var(--color-text);
   color: #fff;
   padding: 14px 20px;
   border-radius: 10px;
@@ -421,12 +424,12 @@ textarea:focus-visible {
 }
 
 .slot:hover {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
 .slot.active {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -541,7 +544,7 @@ textarea:focus-visible {
 
 /* activo */
 .nav-link.active {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -602,7 +605,7 @@ textarea:focus-visible {
 }
 
 .nav-btn:hover {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -652,7 +655,7 @@ textarea:focus-visible {
 }
 
 .delete-btn {
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
@@ -729,7 +732,7 @@ textarea:focus-visible {
   border: none;
 
   background: var(--color-primary);
-  color: #06231a;
+  color: #ffffff;
 
   font-weight: 700;
   font-size: 15px;
@@ -737,12 +740,12 @@ textarea:focus-visible {
   cursor: pointer;
 
   transition: transform var(--transition), box-shadow var(--transition);
-  box-shadow: 0 4px 14px rgba(0, 255, 136, 0.3);
+  box-shadow: 0 4px 14px rgba(124, 92, 252, 0.3);
 }
 
 .login-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+  box-shadow: 0 6px 20px rgba(124, 92, 252, 0.4);
 }
 
 .login-field {
@@ -784,7 +787,7 @@ textarea:focus-visible {
 /* focus pro */
 .login-field input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
 }
 
 .page, .main-content {
@@ -855,7 +858,7 @@ textarea:focus-visible {
 .btn-primary {
   padding: 10px 14px;
   border-radius: 10px;
-  background: #111;
+  background: var(--color-text);
   color: white;
   border: none;
   cursor: pointer;
@@ -888,7 +891,7 @@ textarea:focus-visible {
 
 /* PRIMARY */
 .btn-primary {
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
@@ -1085,9 +1088,9 @@ textarea:focus-visible {
 }
 
 .barber-pill.active-all {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
-  border: 1px solid #111;
+  border: 1px solid var(--color-text);
 }
 
 .barber-pill.active-all:hover {
@@ -1316,7 +1319,7 @@ textarea:focus-visible {
 }
 
 .button.primary {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
   padding: 10px 14px;
   border-radius: 10px;
@@ -1367,7 +1370,7 @@ textarea:focus-visible {
 }
 
 .filter-date-pill {
-  background: #111;
+  background: var(--color-text);
   color: white;
 
   padding: 10px 14px;
@@ -1411,12 +1414,12 @@ textarea:focus-visible {
 }
 
 .barber-pill:hover {
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
 .barber-pill.active {
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
@@ -1431,7 +1434,7 @@ textarea:focus-visible {
   flex: 0 0 auto;
   min-width: 180px;
 
-  background: #111;
+  background: var(--color-text);
   color: white;
 
   border-radius: 12px;
@@ -1550,7 +1553,7 @@ textarea:focus-visible {
   padding: 12px;
   border-radius: 12px;
 
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
@@ -1596,7 +1599,7 @@ textarea:focus-visible {
 }
 
 .card-edit-btn:hover {
-  background: #111;
+  background: var(--color-text);
   transform: scale(1.05);
 }
 
@@ -1780,7 +1783,7 @@ textarea:focus-visible {
   border-radius: 8px;
   border: none;
 
-  background: #111;
+  background: var(--color-text);
   color: white;
 
   display: flex;
@@ -2049,7 +2052,7 @@ body::after {
 }
 
 .schedule-card {
-  background: #111;
+  background: var(--color-text);
   padding: 20px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
@@ -2137,7 +2140,7 @@ body::after {
 }
 
 .day-pill.active {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
   font-weight: 600;
 }
@@ -2186,7 +2189,7 @@ body::after {
 }
 
 .select-trigger:hover {
-  border-color: #111;
+  border-color: var(--color-text);
 }
 
 /* DROPDOWN */
@@ -2227,7 +2230,7 @@ body::after {
 }
 
 .select-option:hover {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -2287,7 +2290,7 @@ body::after {
 
 /* hover pro */
 .select-trigger:hover {
-  border-color: #111;
+  border-color: var(--color-text);
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
@@ -2327,7 +2330,7 @@ body::after {
 
 /* hover elegante */
 .select-option:hover {
-  background: #111;
+  background: var(--color-text);
   color: #fff;
 }
 
@@ -2417,7 +2420,7 @@ body::after {
 
 /* seleccionado */
 .react-calendar__tile--active {
-  background: #111 !important;
+  background: var(--color-text) !important;
   color: #fff;
 }
 
@@ -2555,12 +2558,12 @@ body::after {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00ff88, #00c3ff);
+  background: var(--gradient-brand);
   transition: 0.3s;
 }
 
 .free {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
@@ -2574,7 +2577,7 @@ body::after {
   display: flex;
   justify-content: space-between;
   padding: 15px;
-  background: #111;
+  background: var(--color-text);
   border-radius: 10px;
 }
 
@@ -2588,18 +2591,18 @@ body::after {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00ff88, #00c3ff);
+  background: var(--gradient-brand);
 }
 
 
 
 .highlight {
-  border: 1px solid rgba(0,255,136,0.3);
-  background: rgba(0,255,136,0.05);
+  border: 1px solid rgba(124, 92, 252, 0.3);
+  background: rgba(124, 92, 252, 0.05);
 }
 
 .status.confirmed {
-  color: #00ff88;
+  color: var(--color-primary);
 }
 
 .status.cancelled {
@@ -2655,12 +2658,12 @@ body::after {
 
 .client-panel .progress-fill {
   height: 100%;
-  background: #00ff88;
+  background: var(--color-primary);
 }
 
 /* highlight */
 .client-panel .highlight {
-  border-left: 4px solid #00ff88;
+  border-left: 4px solid var(--color-primary);
 }
 
 /* =========================
@@ -2834,11 +2837,11 @@ html, body {
   background: black;
   padding: 10px;
   border-radius: 8px;
-  color: #00ff88;
+  color: var(--color-primary);
 }
 
 .coupon-status {
-  color: #00ff88;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
@@ -2933,7 +2936,7 @@ html, body {
 
 /* ACTIVE */
 .nav-item.active {
-  background: #111;
+  background: var(--color-text);
   color: var(--color-primary);
   font-weight: 700;
 }
@@ -2973,7 +2976,7 @@ html, body {
   display: none;
   align-items: center;
   padding: 10px;
-  background: #111;
+  background: var(--color-text);
   color: white;
 }
 
@@ -3038,6 +3041,17 @@ html, body {
   height: 70vh;
   border-radius: 0 0 30px 30px;
   overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-brand);
+  z-index: 2;
 }
 
 .hero-bg {
@@ -3718,13 +3732,13 @@ img, video {
 .button.primary,
 button.nav-btn.primary {
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 14px rgba(0, 255, 136, 0.25);
+  box-shadow: 0 4px 14px rgba(124, 92, 252, 0.25);
 }
 
 .button.primary:hover:not(:disabled),
 button.nav-btn.primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.35);
+  box-shadow: 0 6px 20px rgba(124, 92, 252, 0.35);
 }
 
 .button:active, button:active {
@@ -3794,7 +3808,7 @@ button.nav-btn.primary:hover:not(:disabled) {
 
 .input:focus, input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
 }
 
 /* Mobile: hero más compacto para no empujar el contenido fuera de pantalla */
@@ -3821,7 +3835,9 @@ button.nav-btn.primary:hover:not(:disabled) {
 }
 
 .saas-hero {
-  background: radial-gradient(circle at 20% 20%, #1a1a1d 0%, #0b0b0c 60%);
+  background: radial-gradient(circle at 15% 15%, rgba(124, 92, 252, 0.35) 0%, transparent 45%),
+              radial-gradient(circle at 85% 25%, rgba(255, 139, 123, 0.25) 0%, transparent 50%),
+              linear-gradient(180deg, #1a1725 0%, #100e19 100%);
   color: #fff;
   padding: 90px 20px 70px;
   text-align: center;
@@ -3836,7 +3852,7 @@ button.nav-btn.primary:hover:not(:disabled) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0, 255, 136, 0.12);
+  background: rgba(124, 92, 252, 0.12);
   color: var(--color-primary);
   padding: 6px 14px;
   border-radius: 999px;
@@ -4004,7 +4020,7 @@ button.nav-btn.primary:hover:not(:disabled) {
   top: -12px;
   right: 20px;
   background: var(--color-primary);
-  color: #06231a;
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 12px;
@@ -4174,11 +4190,11 @@ button.nav-btn.primary:hover:not(:disabled) {
   flex-shrink: 0;
 }
 
-.stat-card.tone-primary .stat-icon { background: rgba(0,255,136,0.15); color: #00a35d; }
+.stat-card.tone-primary .stat-icon { background: var(--color-primary-light); color: var(--color-primary-dark); }
 .stat-card.tone-warning .stat-icon { background: rgba(255,180,0,0.15); color: #b57c00; }
-.stat-card.tone-success .stat-icon { background: rgba(0,195,110,0.15); color: #00874a; }
-.stat-card.tone-danger .stat-icon  { background: rgba(255,77,77,0.15); color: #c62828; }
-.stat-card.tone-neutral .stat-icon { background: rgba(0,0,0,0.06); color: #333; }
+.stat-card.tone-success .stat-icon { background: rgba(55,183,135,0.15); color: #1f8f68; }
+.stat-card.tone-danger .stat-icon  { background: rgba(255,92,108,0.15); color: #c62b3d; }
+.stat-card.tone-neutral .stat-icon { background: rgba(26,23,37,0.06); color: #333; }
 
 .stat-value {
   font-size: 1.5rem;
@@ -4328,7 +4344,7 @@ button.nav-btn.primary:hover:not(:disabled) {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #111;
+  background: var(--color-text);
   color: var(--color-primary);
   display: flex;
   align-items: center;
@@ -4504,4 +4520,199 @@ button.nav-btn.primary:hover:not(:disabled) {
   margin-top: 12px;
   font-size: 0.88rem;
   color: var(--color-text-muted);
+}
+
+/* =========================================================
+   🧭 NAVBAR 2.0 — rediseño completo, moderno, con
+   menú mobile real. Va al final del archivo a propósito
+   para tener prioridad sobre los parches viejos dispersos.
+========================================================= */
+.navbar-glass {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(26, 23, 37, 0.06) !important;
+
+  transition: box-shadow var(--transition), background var(--transition);
+}
+
+.navbar-glass.scrolled {
+  box-shadow: 0 4px 24px rgba(35, 20, 70, 0.08) !important;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 68px;
+  padding: 0 20px;
+
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* BRAND */
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+/* DESKTOP NAV LINKS */
+.nav-right.desktop-only {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text) !important;
+  cursor: pointer;
+
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+
+.nav-btn:hover {
+  background: var(--color-primary-light) !important;
+  color: var(--color-primary-dark) !important;
+}
+
+.nav-btn.primary {
+  background: var(--gradient-brand) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(124, 92, 252, 0.3);
+}
+
+.nav-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(124, 92, 252, 0.4);
+}
+
+.nav-btn.danger {
+  color: var(--color-danger) !important;
+}
+
+.nav-btn.danger:hover {
+  background: rgba(255, 92, 108, 0.1) !important;
+  color: var(--color-danger) !important;
+}
+
+/* SIDEBAR TOGGLE (dentro de paneles, mobile) */
+.sidebar-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* MOBILE HAMBURGUER */
+.mobile-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 20px 18px;
+  border-top: 1px solid rgba(26, 23, 37, 0.06);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.mobile-menu .nav-btn {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 767px) {
+  .nav-right.desktop-only {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  .navbar-inner {
+    height: 62px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+}
+
+.saas-niches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 26px;
+}
+
+.saas-niche-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
 }

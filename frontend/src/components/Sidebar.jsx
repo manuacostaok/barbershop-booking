@@ -12,7 +12,7 @@ export default function Sidebar({ items, title, basePath, onClose, open }) {
           "logo nav-item" + (isActive ? " active" : "")
         }
       >
-        💈 {title}
+        {title}
       </NavLink>
 
       {items.map((item, i) => (

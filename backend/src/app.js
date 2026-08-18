@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const sanitize = require("./middlewares/sanitize");
 const connectDB = require("./config/db");
 
 const app = express();
@@ -40,6 +41,9 @@ app.use(
 // 🧩 MIDDLEWARES
 // ===============================
 app.use(express.json({ limit: "1mb" }));
+
+// 🔒 Anti NoSQL injection: elimina claves con $ o . del body/params/query
+app.use(sanitize);
 
 // 🔒 Rate limit general de la API (anti fuerza bruta / DoS básico)
 const apiLimiter = rateLimit({

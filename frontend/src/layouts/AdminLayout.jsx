@@ -39,7 +39,7 @@ export default function AdminLayout() {
             "logo nav-item" + (isActive ? " active" : "")
           }
         >
-          💈 Admin
+          Admin
         </NavLink>
 
         <NavLink

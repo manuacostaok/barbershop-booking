@@ -47,7 +47,7 @@ function Booking() {
       .then(res => setLocal(res.data))
       .catch(() => {
         setLocal({
-          name: "Mi Barbería",
+          name: "Mi Negocio",
           description: "Reservá tu turno en segundos",
         });
       });
@@ -157,7 +157,7 @@ function Booking() {
 
   const createAppointment = async () => {
     if (!selectedService) return setToast("Seleccioná un servicio");
-    if (!selectedBarber) return setToast("Seleccioná un barbero");
+    if (!selectedBarber) return setToast("Seleccioná un profesional");
     if (!selectedTime) return setToast("Elegí un horario");
     if (!name) return setToast("Ingresá tu nombre");
     if (!phone) return setToast("Ingresá tu teléfono");
@@ -257,7 +257,7 @@ function Booking() {
           className="hero-bg"
           src={
             local?.coverImage ||
-            "https://picsum.photos/1600/600?random=barber"
+            "https://picsum.photos/1600/600?random=studio"
           }
           alt="cover"
         />
@@ -278,9 +278,9 @@ function Booking() {
             
 
           </div>
-          <h1>{local?.name || "Mi Barbería"}</h1>
+          <h1>{local?.name || "Mi Negocio"}</h1>
           <p>
-            {local?.description || "Todo tipo de cortes y servicios de barbería. Reservá tu turno online en segundos."}
+            {local?.description || "Reservá tu turno online en segundos, sin llamadas ni esperas."}
           </p>
 
           <div className="hero-info">
@@ -294,7 +294,7 @@ function Booking() {
             </span>
 
             <span>
-              📸 @{local?.instagram || "barberstudio"}
+              📸 @{local?.instagram || "tu_negocio"}
             </span>
 
             <span>
@@ -382,7 +382,7 @@ function Booking() {
           <br />
           <h1>📅 Turnos online</h1>
           <p>Reservá tu turno en segundos</p>
-          <h2>💈{local?.name }</h2>
+          <h2>{local?.name}</h2>
           <p>{local?.description }</p>
           <div className="business-info">
 
@@ -462,7 +462,7 @@ function Booking() {
             {/* STEP 2 */}
             {step === 2 && (
               <section className="section">
-                <h2 className="section-title"><FaUser /> Barberos</h2>
+                <h2 className="section-title"><FaUser /> Profesionales</h2>
 
                 <div className="grid">
                   {barbers.map((b) => (

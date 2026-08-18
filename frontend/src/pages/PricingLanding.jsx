@@ -16,10 +16,10 @@ const PLANS = [
     id: "basico",
     label: "Básico",
     price: 14999,
-    tagline: "Para una barbería con un solo local",
+    tagline: "Para un negocio con un solo local",
     features: [
       "Reservas online ilimitadas",
-      "1 barbero",
+      "1 profesional",
       "Recordatorios por email",
       "Panel de turnos",
     ],
@@ -29,10 +29,10 @@ const PLANS = [
     label: "Pro",
     price: 24999,
     highlighted: true,
-    tagline: "El más elegido por barberías con equipo",
+    tagline: "El más elegido por negocios con equipo",
     features: [
       "Todo lo del plan Básico",
-      "Hasta 5 barberos",
+      "Hasta 5 profesionales",
       "Recordatorios por WhatsApp",
       "Estadísticas de facturación",
       "Cupones y beneficios para clientes",
@@ -45,7 +45,7 @@ const PLANS = [
     tagline: "Para cadenas y locales de alto volumen",
     features: [
       "Todo lo del plan Pro",
-      "Barberos ilimitados",
+      "Profesionales ilimitados",
       "Múltiples locales",
       "Soporte prioritario",
       "Personalización de marca",
@@ -97,14 +97,14 @@ function PricingLanding() {
       <section className="saas-hero">
         <div className="saas-hero-inner">
           <span className="saas-badge">
-            <FaCut /> Software para barberías
+            <FaCut /> Software de turnos para tu negocio
           </span>
           <h1>
-            El sistema de turnos que tu barbería <span className="highlight">necesita</span>
+            El sistema de turnos que tu negocio <span className="highlight">necesita</span>
           </h1>
           <p>
             Reservas online, recordatorios automáticos y estadísticas de tu negocio.
-            Todo en un panel simple, pensado para barberos, no para programadores.
+            Barberías, peluquerías, manicura, spas y más. Todo en un panel simple, pensado para vos, no para programadores.
           </p>
           <div className="saas-hero-cta">
             <a href="#planes" className="button primary">
@@ -113,6 +113,12 @@ function PricingLanding() {
             <span className="saas-hero-note">
               <SiMercadopago /> Pagás con Mercado Pago · Cancelás cuando quieras
             </span>
+          </div>
+
+          <div className="saas-niches">
+            {["Barberías", "Peluquerías", "Manicura", "Spas", "Estética"].map((n) => (
+              <span key={n} className="saas-niche-pill">{n}</span>
+            ))}
           </div>
         </div>
       </section>
@@ -134,7 +140,7 @@ function PricingLanding() {
           <div className="saas-feature-card">
             <FaChartLine className="saas-feature-icon" />
             <h3>Estadísticas claras</h3>
-            <p>Vas a saber cuánto facturaste, qué corte se pide más y quién es tu barbero top.</p>
+            <p>Vas a saber cuánto facturaste, qué servicio se pide más y quién es tu profesional top.</p>
           </div>
           <div className="saas-feature-card">
             <FaMobileAlt className="saas-feature-icon" />
@@ -221,7 +227,7 @@ function PricingLanding() {
                   />
                   <input
                     className="input"
-                    placeholder="Nombre de tu barbería"
+                    placeholder="Nombre de tu negocio"
                     value={form.businessName}
                     onChange={(e) => setForm({ ...form, businessName: e.target.value })}
                   />
