@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
     default: "",
   },
 
+  banner: {
+    type: String,
+    default: "",
+  },
+
   // 💰 SISTEMA DE PUNTOS
   points: {
     type: Number,

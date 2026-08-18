@@ -8,6 +8,7 @@ import {
   FaWhatsapp,
   FaCheck,
   FaShieldAlt,
+  FaGift,
 } from "react-icons/fa";
 import { SiMercadopago } from "react-icons/si";
 
@@ -97,14 +98,15 @@ function PricingLanding() {
       <section className="saas-hero">
         <div className="saas-hero-inner">
           <span className="saas-badge">
-            <FaCut /> Software de turnos para tu negocio
+            <FaCut /> IAturnos · Automatización para tu negocio
           </span>
           <h1>
-            El sistema de turnos que tu negocio <span className="highlight">necesita</span>
+            Dejá que la <span className="highlight">IA</span> se encargue de tus turnos
           </h1>
           <p>
-            Reservas online, recordatorios automáticos y estadísticas de tu negocio.
-            Barberías, peluquerías, manicura, spas y más. Todo en un panel simple, pensado para vos, no para programadores.
+            Reservas online, recordatorios automáticos, fidelización de clientes y estadísticas de tu negocio —
+            todo se automatiza solo. Barberías, peluquerías, manicura, spas y más.
+            Vos atendé, IAturnos se encarga del resto.
           </p>
           <div className="saas-hero-cta">
             <a href="#planes" className="button primary">
@@ -125,7 +127,7 @@ function PricingLanding() {
 
       {/* FEATURES */}
       <section className="saas-features">
-        <h2 className="section-title">Todo lo que necesitás para dejar de anotar turnos en un cuaderno</h2>
+        <h2 className="section-title">Automatizamos todo lo que se pueda automatizar</h2>
         <div className="saas-features-grid">
           <div className="saas-feature-card">
             <FaCalendarCheck className="saas-feature-icon" />
@@ -136,6 +138,11 @@ function PricingLanding() {
             <FaWhatsapp className="saas-feature-icon" />
             <h3>Menos ausentes</h3>
             <p>Recordatorios automáticos que bajan el ausentismo a tus turnos.</p>
+          </div>
+          <div className="saas-feature-card">
+            <FaGift className="saas-feature-icon" />
+            <h3>Fidelización automática</h3>
+            <p>El sistema cuenta los cortes de cada cliente solo y genera el premio cuando corresponde. Vos solo lo validás.</p>
           </div>
           <div className="saas-feature-card">
             <FaChartLine className="saas-feature-icon" />

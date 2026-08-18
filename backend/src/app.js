@@ -40,7 +40,7 @@ app.use(
 // ===============================
 // 🧩 MIDDLEWARES
 // ===============================
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "4mb" }));
 
 // 🔒 Anti NoSQL injection: elimina claves con $ o . del body/params/query
 app.use(sanitize);

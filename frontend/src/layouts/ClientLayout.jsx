@@ -66,9 +66,12 @@ export default function ClientLayout() {
   }, []);
 
   // 🔥 DERIVADOS
+  // Solo contamos turnos COMPLETADOS (ya realizados) para la fidelización.
+  // Antes contaba "confirmed" (agendado, todavía no atendido), lo que
+  // permitía "ganar" el premio sin haberse hecho el servicio nunca.
   const serviceCount = {};
   appointments
-    .filter((a) => a.status === "confirmed")
+    .filter((a) => a.status === "completed")
     .forEach((appt) => {
       serviceCount[appt.service] =
         (serviceCount[appt.service] || 0) + 1;

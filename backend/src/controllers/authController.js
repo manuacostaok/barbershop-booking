@@ -164,13 +164,50 @@ const updateAvatar = async (req, res) => {
 };
 
 // ===============================
+// 🖼️ UPDATE BANNER
+// ===============================
+const updateBanner = async (req, res) => {
+  try {
+    const { banner } = req.body;
+
+    if (!banner) {
+      return res.status(400).json({
+        message: "Banner requerido",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { banner },
+      { new: true }
+    ).select("-password");
+
+    res.json(user);
+
+  } catch (err) {
+    res.status(500).json({ message: "Error actualizando banner" });
+  }
+};
+
+// ===============================
 // 🎁 CANJEAR CORTE GRATIS
 // ===============================
 
 const redeemFreeCut = async (req, res) => {
   try {
-    const user = req.user;
     const { service } = req.body;
+
+    if (!service) {
+      return res.status(400).json({ message: "Falta el servicio" });
+    }
+
+    // 🔥 req.user viene del JWT decodificado -> { id, role, email }
+    // (no tiene _id ni name, por eso buscamos el usuario real)
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
 
     // 🔥 GENERAR CÓDIGO ÚNICO
     const code =
@@ -224,6 +261,7 @@ module.exports = {
   register,
   getMe,
   updateAvatar,
+  updateBanner,
   redeemFreeCut, 
   addHistory,
 };

@@ -133,8 +133,8 @@ function Navbar() {
               </button>
             ) : (
               <>
-                <span className="brand-mark">T</span>
-                <span className="brand-name">Turnia</span>
+                <span className="brand-mark">IA</span>
+                <span className="brand-name">IAturnos</span>
               </>
             )}
           </div>
