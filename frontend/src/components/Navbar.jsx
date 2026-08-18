@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
 
@@ -119,7 +120,12 @@ function Navbar() {
         <div className="navbar-inner">
 
           {/* LOGO */}
-          <div className="brand-logo" onClick={() => navigate("/")}>
+          <motion.div
+            className="brand-logo"
+            onClick={() => navigate("/")}
+            whileHover={!isInsidePanel || !isMobile ? { scale: 1.03 } : undefined}
+            whileTap={{ scale: 0.97 }}
+          >
             {isInsidePanel && isMobile ? (
               <button
                 className="sidebar-toggle"
@@ -133,11 +139,17 @@ function Navbar() {
               </button>
             ) : (
               <>
-                <span className="brand-mark">IA</span>
+                <motion.span
+                  className="brand-mark"
+                  whileHover={{ rotate: -8 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  IA
+                </motion.span>
                 <span className="brand-name">TurnosIA</span>
               </>
             )}
-          </div>
+          </motion.div>
 
           {/* DESKTOP NAV */}
           <div className="nav-right desktop-only">
@@ -151,17 +163,37 @@ function Navbar() {
               onClick={() => setMobileMenuOpen((v) => !v)}
               aria-label="Abrir menú"
             >
-              {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={mobileMenuOpen ? "close" : "open"}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  style={{ display: "flex" }}
+                >
+                  {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+                </motion.span>
+              </AnimatePresence>
             </button>
           )}
         </div>
 
         {/* MOBILE DROPDOWN */}
-        {!isInsidePanel && mobileMenuOpen && (
-          <div className="mobile-menu">
-            {navLinks}
-          </div>
-        )}
+        <AnimatePresence>
+          {!isInsidePanel && mobileMenuOpen && (
+            <motion.div
+              className="mobile-menu"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: "easeInOut" }}
+              style={{ overflow: "hidden" }}
+            >
+              {navLinks}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <LoginModal
