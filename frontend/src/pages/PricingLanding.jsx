@@ -109,7 +109,7 @@ function PricingLanding() {
             <FaCut /> Turnos Ahora · Automatización para tu negocio
           </span>
           <h1>
-            Dejá que la <span className="highlight">IA</span> se encargue de tus turnos
+            El sistema de turnos que <span className="highlight">trabaja solo</span>
           </h1>
           <p>
             Reservas online, recordatorios automáticos, fidelización de clientes y estadísticas de tu negocio —

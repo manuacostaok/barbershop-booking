@@ -118,8 +118,9 @@ function CreateBarberModal({
           className="button primary"
           data-confirm="true"
           onClick={onCreate}
+          disabled={uploading}
         >
-          {t.create}
+          {uploading ? <FaSpinner className="spin" /> : t.create}
         </button>
       </div>
     </BaseModal>
