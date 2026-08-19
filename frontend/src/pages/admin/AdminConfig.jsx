@@ -1,33 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../../api";
 import { compressImage } from "../../utils/imageUpload";
-import { FaCamera, FaSpinner } from "react-icons/fa";
+import { FaCamera, FaSpinner, FaSun, FaMoon } from "react-icons/fa";
 
-const THEMES = [
-  {
-    id: "esmeralda",
-    label: "Esmeralda",
-    desc: "Oscuro y llamativo — barberías, negocios urbanos",
-    gradient: "linear-gradient(135deg, #21e6b0, #ffb020)",
-  },
-  {
-    id: "rosa",
-    label: "Rosa",
-    desc: "Claro y suave — manicura, estética, spas",
-    gradient: "linear-gradient(135deg, #e85d8a, #f4a4c0)",
-  },
-  {
-    id: "claro",
-    label: "Claro",
-    desc: "Neutro y luminoso — cualquier rubro",
-    gradient: "linear-gradient(135deg, #0d9488, #f59e0b)",
-  },
-  {
-    id: "nocturno",
-    label: "Nocturno",
-    desc: "Oscuro, azul en vez de verde",
-    gradient: "linear-gradient(135deg, #5b8def, #22d3ee)",
-  },
+// Paleta y modo son dos ejes independientes — cualquier paleta
+// funciona con cualquier modo (ej: rosa+oscuro, esmeralda+claro).
+const PALETTES = [
+  { id: "esmeralda", label: "Esmeralda", gradient: "linear-gradient(135deg, #21e6b0, #ffb020)" },
+  { id: "rosa", label: "Rosa", gradient: "linear-gradient(135deg, #e85d8a, #f4a4c0)" },
+  { id: "azul", label: "Azul", gradient: "linear-gradient(135deg, #5b8def, #22d3ee)" },
+  { id: "neutro", label: "Neutro", gradient: "linear-gradient(135deg, #0d9488, #f59e0b)" },
+];
+
+const MODES = [
+  { id: "oscuro", label: "Oscuro", icon: <FaMoon /> },
+  { id: "claro", label: "Claro", icon: <FaSun /> },
 ];
 
 function AdminConfig() {
@@ -53,7 +40,8 @@ function AdminConfig() {
     logo: "",
     coverImage: "",
     description: "",
-    theme: "esmeralda",
+    themePalette: "esmeralda",
+    themeMode: "oscuro",
   });
 
   const [toast, setToast] = useState("");
@@ -92,7 +80,8 @@ function AdminConfig() {
           logo: res.data.logo || "",
           coverImage: res.data.coverImage || "",
           description: res.data.description || "",
-          theme: res.data.theme || "esmeralda",
+          themePalette: res.data.themePalette || "esmeralda",
+          themeMode: res.data.themeMode || "oscuro",
         });
       })
       .catch(() => setToast("Error cargando local"));
@@ -198,14 +187,27 @@ function AdminConfig() {
     }
   };
 
-  const selectTheme = async (themeId) => {
-    const updated = { ...local, theme: themeId };
+  const selectPalette = async (paletteId) => {
+    const updated = { ...local, themePalette: paletteId };
     setLocal(updated);
-    document.documentElement.setAttribute("data-theme", themeId); // preview instantáneo
+    document.documentElement.setAttribute("data-palette", paletteId); // preview instantáneo
 
     try {
       await api.put("/local", updated);
-      setToast("Apariencia actualizada");
+      setToast("Paleta actualizada");
+    } catch {
+      setToast("Error guardando la apariencia");
+    }
+  };
+
+  const selectMode = async (modeId) => {
+    const updated = { ...local, themeMode: modeId };
+    setLocal(updated);
+    document.documentElement.setAttribute("data-mode", modeId); // preview instantáneo
+
+    try {
+      await api.put("/local", updated);
+      setToast(modeId === "claro" ? "Modo claro activado" : "Modo oscuro activado");
     } catch {
       setToast("Error guardando la apariencia");
     }
@@ -337,20 +339,34 @@ function AdminConfig() {
 
       <div className="card config-card">
         <p className="stats-hint" style={{ marginTop: -4 }}>
-          Elegí la paleta que mejor le quede a tu negocio. Se aplica a tu página
-          pública de reservas al instante.
+          Elegí un color de marca y si preferís modo claro u oscuro. Se aplica
+          a tu página pública y a todos los paneles al instante.
         </p>
 
+        <p className="config-subsection-label">Color</p>
         <div className="theme-picker">
-          {THEMES.map((t) => (
+          {PALETTES.map((p) => (
             <button
-              key={t.id}
-              className={`theme-option ${local.theme === t.id ? "active" : ""}`}
-              onClick={() => selectTheme(t.id)}
+              key={p.id}
+              className={`theme-option ${local.themePalette === p.id ? "active" : ""}`}
+              onClick={() => selectPalette(p.id)}
             >
-              <span className="theme-swatch" style={{ background: t.gradient }} />
-              <span className="theme-option-name">{t.label}</span>
-              <span className="theme-option-desc">{t.desc}</span>
+              <span className="theme-swatch" style={{ background: p.gradient }} />
+              <span className="theme-option-name">{p.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <p className="config-subsection-label" style={{ marginTop: 18 }}>Modo</p>
+        <div className="mode-picker">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              className={`mode-option ${local.themeMode === m.id ? "active" : ""}`}
+              onClick={() => selectMode(m.id)}
+            >
+              {m.icon}
+              <span>{m.label}</span>
             </button>
           ))}
         </div>

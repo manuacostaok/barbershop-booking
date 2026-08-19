@@ -4,37 +4,55 @@ import InstallPrompt from "../components/InstallPrompt";
 import Aurora from "../components/Aurora";
 import api from "../api";
 
-// Colores + intensidad del fondo animado, uno por tema — pedido
-// explícito: el Aurora tiene que estar en TODA la app (paneles
-// incluidos) y ser consistente con el tema elegido. En los temas
-// claros bajamos mucho la opacidad y usamos colores más pastel,
-// porque un glow pensado en aditivo para fondo oscuro se ve
-// "lavado" si lo dejamos igual de fuerte sobre fondo claro.
-const AURORA_BY_THEME = {
-  esmeralda: { colors: ["#21e6b0", "#08080d", "#ffb020"], opacity: 0.4 },
-  nocturno: { colors: ["#5b8def", "#0a0e17", "#22d3ee"], opacity: 0.4 },
-  rosa: { colors: ["#e85d8a", "#fdf2f5", "#f4a4c0"], opacity: 0.22 },
-  claro: { colors: ["#0d9488", "#f7f7f9", "#f59e0b"], opacity: 0.18 },
+// Colores del Aurora por PALETA — el color intermedio (fondo) y
+// la opacidad dependen del MODO. Pedido explícito: el Aurora
+// tiene que ser consistente con la combinación paleta+modo
+// elegida en Admin > Config > Apariencia, en toda la app.
+const PALETTE_HUES = {
+  esmeralda: { from: "#21e6b0", to: "#ffb020" },
+  rosa: { from: "#e85d8a", to: "#f4a4c0" },
+  azul: { from: "#5b8def", to: "#22d3ee" },
+  neutro: { from: "#0d9488", to: "#f59e0b" },
 };
 
-function Layout({ children }) {
-  const [theme, setTheme] = useState("esmeralda");
+const MODE_SETTINGS = {
+  oscuro: { mid: "#0a0a11", opacity: 0.4 },
+  claro: { mid: "#f7f7f9", opacity: 0.2 },
+};
 
-  // El tema lo define el admin del negocio (Configuración >
-  // Apariencia). Lo aplicamos acá, a nivel global, para que se
-  // vea igual tanto en la página pública como dentro de los
-  // paneles — no solo en Booking.jsx.
+function getAurora(palette, mode) {
+  const hues = PALETTE_HUES[palette] || PALETTE_HUES.esmeralda;
+  const modeCfg = MODE_SETTINGS[mode] || MODE_SETTINGS.oscuro;
+
+  return {
+    colors: [hues.from, modeCfg.mid, hues.to],
+    opacity: modeCfg.opacity,
+  };
+}
+
+function Layout({ children }) {
+  const [palette, setPalette] = useState("esmeralda");
+  const [mode, setMode] = useState("oscuro");
+
+  // La apariencia la define el admin del negocio (Configuración >
+  // Apariencia). Se aplica acá, a nivel global, para que se vea
+  // igual en la página pública y dentro de todos los paneles.
   useEffect(() => {
     api.get("/local")
       .then((res) => {
-        const chosen = res.data?.theme || "esmeralda";
-        setTheme(chosen);
-        document.documentElement.setAttribute("data-theme", chosen);
+        const p = res.data?.themePalette || "esmeralda";
+        const m = res.data?.themeMode || "oscuro";
+
+        setPalette(p);
+        setMode(m);
+
+        document.documentElement.setAttribute("data-palette", p);
+        document.documentElement.setAttribute("data-mode", m);
       })
       .catch(() => {});
   }, []);
 
-  const aurora = AURORA_BY_THEME[theme] || AURORA_BY_THEME.esmeralda;
+  const aurora = getAurora(palette, mode);
 
   return (
     <div className="app">
