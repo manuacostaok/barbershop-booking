@@ -1,5 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { FaCalendar, FaUsers, FaChartBar, FaCog } from "react-icons/fa";
+import { NavLink, Outlet, Link } from "react-router-dom";
+import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 export default function AdminLayout() {
@@ -85,6 +85,11 @@ export default function AdminLayout() {
           <FaCog />
           <span>Configuración</span>
         </NavLink>
+
+        <Link to="/" onClick={() => setSidebarOpen(false)} className="nav-item sidebar-home-link">
+          <FaEye />
+          <span>Ver mi página</span>
+        </Link>
       </div>
 
       {/* CONTENIDO */}

@@ -3308,10 +3308,12 @@ img, video {
   color: var(--color-text);
 }
 
-/* DESKTOP NAV LINKS */
-.nav-right.desktop-only {
+/* NAV LINKS — visibles siempre (sin hamburguesa), envuelven en mobile */
+.nav-right {
   display: flex !important;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -3374,52 +3376,27 @@ img, video {
   cursor: pointer;
 }
 
-/* MOBILE HAMBURGUER */
-.mobile-menu-btn {
-  display: none;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
-.mobile-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 20px 18px;
-  border-top: 1px solid var(--color-border);
-  background: rgba(10, 10, 17, 0.97);
-}
-
-.mobile-menu .nav-btn {
-  width: 100%;
-  justify-content: flex-start;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-}
-
 @media (max-width: 767px) {
-  .nav-right.desktop-only {
-    display: none !important;
-  }
-
-  .mobile-menu-btn {
-    display: flex !important;
-  }
-
   .navbar-inner {
-    height: 62px;
+    height: auto;
+    min-height: 62px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 8px;
   }
 
   .brand-name {
     font-size: 1.05rem;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 }
 
@@ -4153,4 +4130,27 @@ img, video {
     padding: 12px 14px;
     font-size: 0.88rem;
   }
+}
+
+/* En mobile el contenido de la navbar puede envolver en 2 líneas
+   (logo + botones abajo) — no forzamos la altura reducida ahí,
+   se rompería el wrap. */
+@media (max-width: 767px) {
+  .navbar-glass.scrolled .navbar-inner {
+    height: auto;
+    min-height: 62px;
+  }
+}
+
+/* Link "Ver mi página" al final del sidebar — separado
+   visualmente del resto de la navegación interna */
+.sidebar-home-link {
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px !important;
+  color: var(--color-text-muted) !important;
+}
+
+.sidebar-home-link:hover {
+  color: var(--color-primary) !important;
 }

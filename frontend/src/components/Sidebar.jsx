@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import { FaEye } from "react-icons/fa";
 
 export default function Sidebar({ items, title, basePath, onClose, open }) {
   return (
@@ -28,6 +29,11 @@ export default function Sidebar({ items, title, basePath, onClose, open }) {
           <span>{item.label}</span>
         </NavLink>
       ))}
+
+      <Link to="/" onClick={onClose} className="nav-item sidebar-home-link">
+        <FaEye />
+        <span>Ver mi página</span>
+      </Link>
     </div>
   );
 }

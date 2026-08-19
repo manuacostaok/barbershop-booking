@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
 
@@ -11,7 +11,6 @@ import {
   FaUserShield,
   FaUser,
   FaBars,
-  FaTimes,
   FaEye,
 } from "react-icons/fa";
 
@@ -19,7 +18,6 @@ function Navbar() {
   const [modal, setModal] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,11 +46,6 @@ function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // cerrar el menú mobile al cambiar de página
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -71,7 +64,9 @@ function Navbar() {
   // Dentro de un panel (admin/barbero/cliente) el Sidebar ya
   // resuelve toda la navegación interna — acá solo hace falta
   // una forma rápida de ver la página pública (para chequear
-  // cambios de perfil del local) y salir.
+  // cambios de perfil del local) y salir. Son pocos links
+  // (2-3 como mucho), así que se muestran directo, sin
+  // esconderlos detrás de un menú hamburguesa.
   const navLinks = isInsidePanel ? (
     <>
       <button className={btnClass(false)} onClick={() => navigate("/")}>
@@ -159,49 +154,11 @@ function Navbar() {
             )}
           </motion.div>
 
-          {/* DESKTOP NAV */}
-          <div className="nav-right desktop-only">
+          {/* NAV — visible siempre, sin hamburguesa; envuelve en mobile */}
+          <div className="nav-right">
             {navLinks}
           </div>
-
-          {/* MOBILE HAMBURGUER (solo fuera de paneles, ahí ya hay sidebar toggle) */}
-          {!isInsidePanel && (
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label="Abrir menú"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={mobileMenuOpen ? "close" : "open"}
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  style={{ display: "flex" }}
-                >
-                  {mobileMenuOpen ? <FaTimes /> : <FaBars />}
-                </motion.span>
-              </AnimatePresence>
-            </button>
-          )}
         </div>
-
-        {/* MOBILE DROPDOWN */}
-        <AnimatePresence>
-          {!isInsidePanel && mobileMenuOpen && (
-            <motion.div
-              className="mobile-menu"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.22, ease: "easeInOut" }}
-              style={{ overflow: "hidden" }}
-            >
-              {navLinks}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       <LoginModal
