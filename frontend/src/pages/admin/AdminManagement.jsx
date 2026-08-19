@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
-import { FaEdit, FaTrash, FaClock } from "react-icons/fa";
+import { FaEdit, FaTrash, FaClock, FaCamera, FaSpinner } from "react-icons/fa";
 import BaseModal from "../../components/BaseModal";
 import CreateBarberModal from "../../components/CreateBarberModal";
+import { compressImage } from "../../utils/imageUpload";
 
 const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
@@ -18,6 +19,7 @@ function AdminManagement() {
   const [barbers, setBarbers] = useState([]);
   const [services, setServices] = useState([]);
   const [toast, setToast] = useState("");
+  const [uploadingServiceId, setUploadingServiceId] = useState(null);
 
   // CREATE
   const [showCreate, setShowCreate] = useState(false);
@@ -161,6 +163,25 @@ function AdminManagement() {
     }
   };
 
+  const uploadServiceImage = async (serviceId, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingServiceId(serviceId);
+
+    try {
+      const dataUrl = await compressImage(file, { maxWidth: 400, maxHeight: 400, quality: 0.8 });
+      await api.put(`/services/${serviceId}/image`, { image: dataUrl });
+      setToast("Imagen del servicio actualizada");
+      fetchData();
+    } catch (err) {
+      setToast(err.response?.data?.message || err.message || "Error subiendo la imagen");
+    } finally {
+      setUploadingServiceId(null);
+      e.target.value = "";
+    }
+  };
+
   // -----------------------
   // UI
   // -----------------------
@@ -217,6 +238,22 @@ function AdminManagement() {
         <div className="grid">
           {services.map((s) => (
             <div key={s._id} className="card service-manage-card">
+              <label className="service-manage-thumb">
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => uploadServiceImage(s._id, e)}
+                />
+                {s.image ? (
+                  <img src={s.image} alt={s.name} />
+                ) : (
+                  <span className="service-manage-thumb-empty">
+                    {uploadingServiceId === s._id ? <FaSpinner className="spin" /> : <FaCamera />}
+                  </span>
+                )}
+              </label>
+
               <div className="service-manage-info">
                 <p className="service-manage-name">{s.name}</p>
                 <p className="service-manage-price">${s.price}</p>

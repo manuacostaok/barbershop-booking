@@ -17,6 +17,7 @@ import {
   FaCloudSun,
   FaMoon,
   FaGift,
+  FaBullhorn,
   FaStar,
 } from "react-icons/fa";
 import Toast from "../components/Toast";
@@ -387,6 +388,13 @@ function Booking() {
               </>
             )}
           </div>
+
+          {local?.announcementEnabled && local?.announcementText && (
+            <div className="announcement-banner">
+              <FaBullhorn className="announcement-banner-icon" />
+              <p>{local.announcementText}</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -439,7 +447,11 @@ function Booking() {
                         setStep(2);
                       }}
                     >
-                      <div className="service-icon-v2"><FaCut /></div>
+                      {s.image ? (
+                        <img className="service-icon-v2 service-thumb-img" src={s.image} alt={s.name} />
+                      ) : (
+                        <div className="service-icon-v2"><FaCut /></div>
+                      )}
                       <div className="service-info-v2">
                         <h3>{s.name}</h3>
                         {s.duration && <span className="service-duration">{s.duration} min</span>}

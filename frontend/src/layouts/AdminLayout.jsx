@@ -1,5 +1,5 @@
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
-import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots, FaBars, FaSignOutAlt } from "react-icons/fa";
+import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots, FaBars, FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useState } from "react";
 
 export default function AdminLayout() {
@@ -34,6 +34,18 @@ export default function AdminLayout() {
           }
         >
           Admin
+        </NavLink>
+
+        <NavLink
+          to="/admin"
+          end
+          onClick={() => setSidebarOpen(false)}
+          className={({ isActive }) =>
+            "nav-item" + (isActive ? " active" : "")
+          }
+        >
+          <FaHome />
+          <span>Inicio</span>
         </NavLink>
 
         <NavLink

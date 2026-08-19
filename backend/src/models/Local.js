@@ -69,6 +69,19 @@ const localSchema = new mongoose.Schema(
       enum: ["oscuro", "claro"],
       default: "oscuro",
     },
+
+    // 📣 Anuncio/promo editable — lo carga el admin y se muestra
+    // en el hero de la página pública, como el banner de registro
+    // pero para lo que el admin quiera avisar (promos, feriados, etc).
+    announcementEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    announcementText: {
+      type: String,
+      default: "",
+      maxlength: 200,
+    },
   },
   { timestamps: true }
 );

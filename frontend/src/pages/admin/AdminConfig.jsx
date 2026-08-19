@@ -56,6 +56,8 @@ function AdminConfig() {
     description: "",
     themePalette: "esmeralda",
     themeMode: "oscuro",
+    announcementEnabled: false,
+    announcementText: "",
   });
 
   const [toast, setToast] = useState("");
@@ -96,6 +98,8 @@ function AdminConfig() {
           description: res.data.description || "",
           themePalette: res.data.themePalette || "esmeralda",
           themeMode: res.data.themeMode || "oscuro",
+          announcementEnabled: res.data.announcementEnabled || false,
+          announcementText: res.data.announcementText || "",
         });
       })
       .catch(() => setToast("Error cargando local"));
@@ -162,7 +166,7 @@ function AdminConfig() {
   };
 
   // ------------------------
-  // GUARDAR CONFIG
+  // GUARDAR CONFIG (horarios + premios)
   // ------------------------
   const saveConfig = async () => {
     const error = validate(config);
@@ -177,27 +181,41 @@ function AdminConfig() {
   };
 
   // ------------------------
-  // GUARDAR LOCAL (+ config de abajo, en la misma acción)
+  // GUARDAR PERFIL — cada sección tiene su propio botón y
+  // guarda solo lo suyo, para que quede claro qué se guardó.
   // ------------------------
   const saveLocal = async () => {
     try {
       await api.put("/local", local);
-
-      // 🔥 "Guardar perfil" ahora también guarda la configuración
-      // de horarios/premios de más abajo, con un solo toast que
-      // confirma las dos cosas — antes quedaba sin guardar si el
-      // usuario solo tocaba el botón de arriba.
-      const error = validate(config);
-
-      if (error) {
-        setToast(`Perfil guardado. Revisá la configuración: ${error}`);
-        return;
-      }
-
-      await api.put("/config", config);
-      setToast("Perfil y configuración guardados");
+      setToast("Perfil guardado");
     } catch {
-      setToast("Error guardando los cambios");
+      setToast("Error guardando el perfil");
+    }
+  };
+
+  // ------------------------
+  // GUARDAR APARIENCIA — la paleta/modo ya se guardan solos al
+  // tocarlos (preview instantáneo), este botón es para confirmar
+  // explícitamente el estado actual, igual que las otras secciones.
+  // ------------------------
+  const saveAppearance = async () => {
+    try {
+      await api.put("/local", local);
+      setToast("Apariencia guardada");
+    } catch {
+      setToast("Error guardando la apariencia");
+    }
+  };
+
+  // ------------------------
+  // GUARDAR ANUNCIO
+  // ------------------------
+  const saveAnnouncement = async () => {
+    try {
+      await api.put("/local", local);
+      setToast("Anuncio guardado");
+    } catch {
+      setToast("Error guardando el anuncio");
     }
   };
 
@@ -212,13 +230,6 @@ function AdminConfig() {
     // Aurora no se enteraba de este cambio hasta recargar la
     // página. Este evento lo avisa en el momento.
     window.dispatchEvent(new CustomEvent("themechange", { detail: { palette: paletteId } }));
-
-    try {
-      await api.put("/local", updated);
-      setToast("Paleta actualizada");
-    } catch {
-      setToast("Error guardando la apariencia");
-    }
   };
 
   const selectMode = async (modeId) => {
@@ -226,13 +237,6 @@ function AdminConfig() {
     setLocal(updated);
     document.documentElement.setAttribute("data-mode", modeId); // preview instantáneo
     window.dispatchEvent(new CustomEvent("themechange", { detail: { mode: modeId } }));
-
-    try {
-      await api.put("/local", updated);
-      setToast(modeId === "claro" ? "Modo claro activado" : "Modo oscuro activado");
-    } catch {
-      setToast("Error guardando la apariencia");
-    }
   };
 
   return (
@@ -353,7 +357,7 @@ function AdminConfig() {
           className="button primary full"
           onClick={saveLocal}
         >
-          Guardar todo
+          Guardar perfil
         </button>
       </div>
       </div>
@@ -405,9 +409,66 @@ function AdminConfig() {
             </button>
           ))}
         </div>
+
+        <button
+          className="button primary full"
+          onClick={saveAppearance}
+          style={{ marginTop: 18 }}
+        >
+          Guardar apariencia
+        </button>
       </div>
       </div>
 
+      </div>
+
+      {/* ========================= */}
+      {/* 📣 ANUNCIO / PROMO */}
+      {/* ========================= */}
+
+      <div className="page-header" style={{ marginTop: 32 }}>
+        <h2>Anuncio</h2>
+      </div>
+
+      <div className="card config-card">
+        <p className="stats-hint" style={{ marginTop: -4 }}>
+          Un mensaje corto que se muestra al final del hero de tu página pública
+          — promociones, feriados, lo que quieras avisar. Se puede activar y
+          desactivar cuando quieras, sin borrar el texto.
+        </p>
+
+        <div className="form-group">
+          <label>Texto del anuncio (máx. 200 caracteres)</label>
+          <textarea
+            className="input"
+            rows={2}
+            maxLength={200}
+            placeholder="Ej: 20% OFF en cortes los martes de agosto"
+            value={local.announcementText}
+            onChange={(e) => setLocal({ ...local, announcementText: e.target.value })}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Mostrar en la página pública</label>
+          <select
+            className="input"
+            value={local.announcementEnabled ? "yes" : "no"}
+            onChange={(e) =>
+              setLocal({ ...local, announcementEnabled: e.target.value === "yes" })
+            }
+          >
+            <option value="no">No</option>
+            <option value="yes">Sí</option>
+          </select>
+        </div>
+
+        <button
+          className="button primary full"
+          onClick={saveAnnouncement}
+        >
+          Guardar anuncio
+        </button>
       </div>
 
       {/* ========================= */}

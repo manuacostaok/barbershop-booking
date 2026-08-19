@@ -2545,13 +2545,16 @@ img, video {
 }
 
 .saas-hero {
+  /* sin fondo sólido — deja ver el Aurora/red neuronal de fondo
+     (montados en Layout.jsx) por detrás, como en el resto de la app */
   background:
     radial-gradient(circle at 15% 15%, var(--color-primary-light) 0%, transparent 45%),
-    radial-gradient(circle at 85% 25%, var(--color-primary-light) 0%, transparent 50%),
-    var(--color-bg);
+    radial-gradient(circle at 85% 25%, var(--color-primary-light) 0%, transparent 50%);
   color: var(--color-text);
   padding: 90px 20px 70px;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .saas-hero-inner {
@@ -3344,6 +3347,12 @@ img, video {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--navbar-border) !important;
+
+  /* 🔥 en la app instalada (standalone/PWA) el fondo se extiende
+     debajo de la barra de estado / Isla Dinámica, pero el
+     CONTENIDO tocable tiene que quedar por debajo de esa zona,
+     o los botones quedan ahí pero no se pueden tocar. */
+  padding-top: env(safe-area-inset-top);
 
   transition: box-shadow var(--transition), background var(--transition);
 }
@@ -4289,7 +4298,7 @@ img, video {
 .mobile-sidebar-toggle {
   display: none;
   position: fixed;
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top));
   left: 14px;
   z-index: 150;
 
@@ -4313,7 +4322,7 @@ img, video {
 
   /* deja lugar para que el botón flotante no tape el contenido */
   .admin-content {
-    padding-top: 70px !important;
+    padding-top: calc(70px + env(safe-area-inset-top)) !important;
   }
 }
 
@@ -4343,9 +4352,38 @@ img, video {
 .service-manage-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 16px 18px;
+  padding: 14px 16px;
+}
+
+.service-manage-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  border: 1px dashed var(--color-border);
+  flex-shrink: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-manage-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-manage-thumb-empty {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.service-manage-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .service-manage-name {
@@ -4758,4 +4796,183 @@ img, video {
   color: var(--color-text-muted);
   margin: 0 0 8px;
   opacity: 0.8;
+}
+
+.service-thumb-img {
+  object-fit: cover;
+  background: none !important;
+}
+
+/* =========================================================
+   📅 TODAY PANEL — resumen del día, lo primero que se ve
+   al entrar al panel de Turnos
+========================================================= */
+.today-panel {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.today-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-brand);
+}
+
+.today-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.today-panel-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.today-panel-date {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.today-panel-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: 8px 18px;
+  flex-shrink: 0;
+}
+
+.today-panel-count-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1;
+}
+
+.today-panel-count-label {
+  font-size: 0.7rem;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.today-panel-substats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.today-panel-substats strong {
+  color: var(--color-text);
+}
+
+.today-panel-empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.today-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.today-appt-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.today-appt-row:hover {
+  background: var(--color-surface-2);
+}
+
+.today-appt-time {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.today-appt-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.today-appt-client {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.today-appt-sub {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 700px) {
+  .today-panel-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 20px;
+    max-height: none;
+  }
+}
+
+/* =========================================================
+   📣 ANUNCIO — banner editable por el admin, al final del hero
+========================================================= */
+.announcement-banner {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 560px;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed var(--color-accent);
+}
+
+.announcement-banner-icon {
+  font-size: 1.2rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.announcement-banner p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
 }

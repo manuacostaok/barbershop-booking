@@ -140,6 +140,21 @@ function AdminAppointments() {
   };
 
   // =========================
+  // RESUMEN DE HOY — independiente de los filtros de abajo,
+  // siempre muestra el día de hoy para que sea lo primero que
+  // se ve al entrar al panel.
+  // =========================
+  const todayStr = formatDate(new Date());
+
+  const todayAppointments = appointments
+    .filter((a) => a.date === todayStr && a.status !== "cancelled")
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const todayPending = todayAppointments.filter((a) => a.status === "pending").length;
+  const todayConfirmed = todayAppointments.filter((a) => a.status === "confirmed").length;
+  const todayCompleted = todayAppointments.filter((a) => a.status === "completed").length;
+
+  // =========================
   // UI
   // =========================
   return (
@@ -154,7 +169,52 @@ function AdminAppointments() {
         )}
       </div>
 
+      {/* ================= RESUMEN DE HOY ================= */}
+      <div className="today-panel">
+        <div className="today-panel-header">
+          <div>
+            <h3>Hoy</h3>
+            <span className="today-panel-date">
+              {new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
+            </span>
+          </div>
+          <div className="today-panel-count">
+            <span className="today-panel-count-num">{todayAppointments.length}</span>
+            <span className="today-panel-count-label">turno{todayAppointments.length !== 1 ? "s" : ""}</span>
+          </div>
+        </div>
+
+        {todayAppointments.length > 0 && (
+          <div className="today-panel-substats">
+            <span><strong>{todayPending}</strong> pendientes</span>
+            <span><strong>{todayConfirmed}</strong> confirmados</span>
+            <span><strong>{todayCompleted}</strong> completados</span>
+          </div>
+        )}
+
+        {todayAppointments.length === 0 ? (
+          <p className="today-panel-empty">No hay turnos agendados para hoy.</p>
+        ) : (
+          <div className="today-panel-list">
+            {todayAppointments.map((appt) => (
+              <div key={appt._id} className="today-appt-row">
+                <span className="today-appt-time">{appt.time}</span>
+                <div className="today-appt-main">
+                  <span className="today-appt-client">{appt.clientName}</span>
+                  <span className="today-appt-sub">{appt.service} · {appt.barber?.name || "Sin asignar"}</span>
+                </div>
+                <span className={`status ${appt.status}`}>{appt.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ================= FILTERS ================= */}
+      <div className="page-header" style={{ marginTop: 32 }}>
+        <h2>Todos los turnos</h2>
+      </div>
+
       <div className="filter-card">
 
         <div className="filter-group">
