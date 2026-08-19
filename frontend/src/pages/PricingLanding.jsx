@@ -11,6 +11,8 @@ import {
   FaShieldAlt,
   FaGift,
   FaEye,
+  FaUsers,
+  FaCog,
 } from "react-icons/fa";
 import { SiMercadopago } from "react-icons/si";
 
@@ -165,6 +167,93 @@ function PricingLanding() {
             <p>Vos y tus clientes lo usan cómodo desde el celular, sin instalar nada.</p>
           </div>
         </div>
+      </section>
+
+      {/* DEMO — maqueta del panel real, para vender mostrando el producto */}
+      <section className="saas-demo-section">
+        <h2 className="section-title">Así se ve tu panel</h2>
+        <p className="saas-pricing-sub">
+          Turnos de hoy de un vistazo y estadísticas reales para tomar decisiones — no una planilla de Excel.
+        </p>
+
+        <div className="demo-browser-frame">
+          <div className="demo-browser-topbar">
+            <span className="demo-browser-dot red" />
+            <span className="demo-browser-dot yellow" />
+            <span className="demo-browser-dot green" />
+            <span className="demo-browser-url">tunegocio.turnosahora.com/admin/stats</span>
+          </div>
+
+          <div className="demo-browser-body">
+            <div className="demo-mini-sidebar">
+              <span className="demo-mini-sidebar-icon"><FaCalendarCheck /></span>
+              <span className="demo-mini-sidebar-icon"><FaUsers /></span>
+              <span className="demo-mini-sidebar-icon active"><FaChartLine /></span>
+              <span className="demo-mini-sidebar-icon"><FaCog /></span>
+            </div>
+
+            <div className="demo-main">
+              <div className="demo-stats-tabs">
+                <span className="demo-stats-tab">Día</span>
+                <span className="demo-stats-tab">Semana</span>
+                <span className="demo-stats-tab active">Mes</span>
+                <span className="demo-stats-tab">Año</span>
+              </div>
+
+              <div className="stat-grid demo-stat-grid">
+                <div className="stat-card tone-primary">
+                  <div>
+                    <div className="stat-value">24</div>
+                    <div className="stat-label">Turnos</div>
+                  </div>
+                </div>
+                <div className="stat-card tone-success">
+                  <div>
+                    <div className="stat-value">$187.500</div>
+                    <div className="stat-label">Ingresos</div>
+                  </div>
+                </div>
+                <div className="stat-card tone-danger">
+                  <div>
+                    <div className="stat-value">2</div>
+                    <div className="stat-label">Cancelados</div>
+                  </div>
+                </div>
+                <div className="stat-card tone-neutral">
+                  <div>
+                    <div className="stat-value">$7.800</div>
+                    <div className="stat-label">Ticket promedio</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="payroll-table demo-payroll-table">
+                <div className="payroll-row payroll-header">
+                  <div>Profesional</div>
+                  <div>Turnos</div>
+                  <div>Ingresos</div>
+                </div>
+                <div className="payroll-row">
+                  <div>Martín Pérez</div>
+                  <div>12</div>
+                  <div>$93.000</div>
+                </div>
+                <div className="payroll-row">
+                  <div>Sofía Gómez</div>
+                  <div>8</div>
+                  <div>$62.400</div>
+                </div>
+                <div className="payroll-row">
+                  <div>Lucas Díaz</div>
+                  <div>4</div>
+                  <div>$31.200</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="saas-demo-disclaimer">*Datos de ejemplo — así se ve con la información real de tu negocio.</p>
       </section>
 
       {/* PRICING */}

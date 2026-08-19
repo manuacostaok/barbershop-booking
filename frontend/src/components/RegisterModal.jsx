@@ -2,7 +2,7 @@ import { useState } from "react";
 import BaseModal from "./BaseModal";
 import api from "../api";
 import Toast from "./Toast";
-import { FaLock, FaEnvelope, FaPhone, FaPencilAlt } from "react-icons/fa";
+import { FaLock, FaEnvelope, FaPhone, FaPencilAlt, FaTimes } from "react-icons/fa";
 
 function RegisterModal({ open, onClose, onSuccess }) {
   const [name, setName] = useState("");
@@ -41,7 +41,11 @@ const handleRegister = async () => {
 
   return (
     <BaseModal open={open} onClose={onClose}>
-      <h2>Registrarse</h2>
+      <div className="modal-close" onClick={onClose}>
+        <FaTimes />
+      </div>
+
+      <h2 className="modal-title">Registrarse</h2>
 
     <div className="login-field">
         <FaPencilAlt className="login-icon" />

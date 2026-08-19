@@ -35,6 +35,7 @@ function AdminManagement() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [newImage, setNewImage] = useState("");
 
   // EDIT INPUTS (SEPARADO 🔥)
   const [editName, setEditName] = useState("");
@@ -143,10 +144,12 @@ function AdminManagement() {
       await api.post("/services", {
         name: newName,
         price: newPrice,
+        image: newImage,
       });
 
       setToast("Servicio creado");
       setShowCreate(false);
+      setNewImage("");
       fetchData();
     } catch {
       setToast("Error servicio");
@@ -196,6 +199,10 @@ function AdminManagement() {
       <div className="section-actions">
         <button className="button primary full" onClick={() => {
           setCreateType("barber");
+          setNewName("");
+          setNewPhone("");
+          setNewEmail("");
+          setNewPassword("");
           setShowCreate(true);
         }}>
           + Barbero
@@ -203,6 +210,9 @@ function AdminManagement() {
 
         <button className="button primary full" onClick={() => {
           setCreateType("service");
+          setNewName("");
+          setNewPrice("");
+          setNewImage("");
           setShowCreate(true);
         }}>
           + Servicio
@@ -275,6 +285,7 @@ function AdminManagement() {
         type={createType}
         name={newName}
         setName={setNewName}
+        phone={newPhone}
         setPhone={setNewPhone}
         email={newEmail}
         setEmail={setNewEmail}
@@ -282,6 +293,8 @@ function AdminManagement() {
         setPassword={setNewPassword}
         price={newPrice}
         setPrice={setNewPrice}
+        image={newImage}
+        setImage={setNewImage}
       />
 
       {/* EDIT BARBER */}

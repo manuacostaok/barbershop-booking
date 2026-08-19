@@ -1,5 +1,8 @@
+import { useRef, useState } from "react";
 import BaseModal from "./BaseModal";
 import { useLanguage } from "../components/LanguageContext";
+import { compressImage } from "../utils/imageUpload";
+import { FaCamera, FaSpinner } from "react-icons/fa";
 
 function CreateBarberModal({
   open,
@@ -15,9 +18,30 @@ function CreateBarberModal({
   password,
   setPassword,
   price,
-  setPrice
+  setPrice,
+  image,
+  setImage,
 }) {
   const { t } = useLanguage();
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImagePick = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !setImage) return;
+
+    setUploading(true);
+    try {
+      const dataUrl = await compressImage(file, { maxWidth: 400, maxHeight: 400, quality: 0.8 });
+      setImage(dataUrl);
+    } catch {
+      // si falla la compresión simplemente no seteamos imagen —
+      // el servicio se puede crear igual sin foto
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
   return (
     <BaseModal open={open} onClose={onClose}>
@@ -28,6 +52,19 @@ function CreateBarberModal({
       </div>
 
       <div className="modal-form">
+        {type === "service" && (
+          <label className="service-manage-thumb service-create-thumb">
+            <input type="file" accept="image/*" ref={fileInputRef} hidden onChange={handleImagePick} />
+            {image ? (
+              <img src={image} alt="" />
+            ) : (
+              <span className="service-manage-thumb-empty">
+                {uploading ? <FaSpinner className="spin" /> : <FaCamera />}
+              </span>
+            )}
+          </label>
+        )}
+
         <input
           className="input"
           placeholder={t.name}

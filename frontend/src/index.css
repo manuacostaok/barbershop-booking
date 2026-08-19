@@ -639,33 +639,10 @@ select.input {
 ========================= */
 
 /* =========================
-   MODAL BOX (VENTANA)
+   MODAL BOX — eliminada, era el wrapper propio de LoginModal
+   (ahora usa BaseModal + .modal-content como todos los demás
+   modales de la app, para que el estilo sea 100% consistente)
 ========================= */
-.modal-box {
-  background: var(--color-surface-card);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--color-border);
-
-  border-radius: var(--radius-lg);
-  padding: 32px 28px;
-
-  width: 100%;
-  max-width: 380px;
-
-  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-
-  position: relative;
-
-  /* 🔥 antes era overflow:hidden sin max-height — en mobile,
-     con el teclado virtual ocupando media pantalla, el botón
-     de submit quedaba fuera de la vista y sin forma de
-     scrollear para alcanzarlo (el scroll del body está
-     bloqueado mientras el modal está abierto). */
-  max-height: 88vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 /* CLOSE BUTTON */
 .modal-close {
@@ -698,6 +675,7 @@ select.input {
   font-weight: 800;
   letter-spacing: -0.01em;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 
@@ -797,12 +775,14 @@ select.input {
   box-shadow: var(--shadow-md);
   max-height: 90vh;
   overflow-y: auto;
+  position: relative;
 }
 
 .modal-content h2, .modal-content h3 {
   margin-top: 0;
   font-weight: 800;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 
@@ -4900,4 +4880,158 @@ img, video {
 .upsell-card .button {
   margin-left: auto;
   flex-shrink: 0;
+}
+
+/* =========================================================
+   🖥️ DEMO DEL PANEL — maqueta realista para vender en /planes
+========================================================= */
+.saas-demo-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 70px 20px 50px;
+  text-align: center;
+}
+
+.demo-browser-frame {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  text-align: left;
+}
+
+.demo-browser-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.demo-browser-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.demo-browser-dot.red { background: #ff5f57; }
+.demo-browser-dot.yellow { background: #febc2e; }
+.demo-browser-dot.green { background: #28c840; }
+
+.demo-browser-url {
+  margin-left: 10px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface-card);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: monospace;
+}
+
+.demo-browser-body {
+  display: flex;
+  min-height: 340px;
+}
+
+.demo-mini-sidebar {
+  width: 52px;
+  flex-shrink: 0;
+  background: var(--color-surface-2);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0;
+}
+
+.demo-mini-sidebar-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.demo-mini-sidebar-icon.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+}
+
+.demo-main {
+  flex: 1;
+  min-width: 0;
+  padding: 20px;
+}
+
+.demo-stats-tabs {
+  display: inline-flex;
+  background: var(--color-surface-2);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.demo-stats-tab {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.demo-stats-tab.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+}
+
+.demo-stat-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 18px;
+}
+
+.demo-stat-grid .stat-value {
+  font-size: 1.15rem;
+}
+
+.demo-payroll-table .payroll-row {
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .demo-browser-body {
+    flex-direction: column;
+  }
+
+  .demo-mini-sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .demo-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.saas-demo-disclaimer {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.service-create-thumb {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 4px;
+  font-size: 1.3rem;
 }

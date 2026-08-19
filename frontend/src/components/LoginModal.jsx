@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import api from "../api";
-import LoginForm from "../components/LoginForm";
-import Toast from "../components/Toast";
-import { useLanguage } from "../components/LanguageContext";
+import BaseModal from "./BaseModal";
+import LoginForm from "./LoginForm";
+import Toast from "./Toast";
+import { useLanguage } from "./LanguageContext";
 
 function LoginModal({ open, onClose, onSuccess, onOpenRegister }) {
   const { t } = useLanguage();
@@ -13,30 +13,6 @@ function LoginModal({ open, onClose, onSuccess, onOpenRegister }) {
   const [password, setPassword] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // 🔥 ESC TO CLOSE
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    if (open) window.addEventListener("keydown", handleEsc);
-
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [open, onClose]);
-
-  // 🔥 BLOCK SCROLL
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [open]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -67,57 +43,31 @@ function LoginModal({ open, onClose, onSuccess, onOpenRegister }) {
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="modal-backdrop"
-          onClick={onClose} // 🔥 click afuera inteligente
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            className="modal-box"
-            onClick={(e) => e.stopPropagation()}
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            {/* CLOSE */}
-            <div className="modal-close" onClick={onClose}>
-              <FaTimes />
-            </div>
+    <BaseModal open={open} onClose={onClose}>
+      <div className="modal-close" onClick={onClose}>
+        <FaTimes />
+      </div>
 
-            {/* TITLE */}
-            <h2 className="modal-title">{t.login || "Iniciar sesión"}</h2>
+      <h2 className="modal-title">{t.login || "Iniciar sesión"}</h2>
 
-            {/* FORM */}
-            <LoginForm
-              email={email}
-              password={password}
-              setEmail={setEmail}
-              setPassword={setPassword}
-              onSubmit={handleLogin}
-              loading={loading}
-            />
-            <p className="register-cta">
-              ¿No tenés cuenta?{" "}
-              <span
-                className="link-register"
-                onClick={() => {
-                  onOpenRegister?.();
-                }}
-              >
-                Registrate
-              </span>
-            </p>
+      <LoginForm
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        onSubmit={handleLogin}
+        loading={loading}
+      />
 
-            <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <p className="register-cta">
+        ¿No tenés cuenta?{" "}
+        <span className="link-register" onClick={() => onOpenRegister?.()}>
+          Registrate
+        </span>
+      </p>
+
+      <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
+    </BaseModal>
   );
 }
 
