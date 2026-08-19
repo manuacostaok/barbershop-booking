@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import api from "../api";
 
-import { FaCalendar, FaClock, FaUser } from "react-icons/fa";
+import { FaCalendar, FaClock, FaUser, FaBars } from "react-icons/fa";
 
 export default function BarberLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -11,15 +11,6 @@ export default function BarberLayout() {
   // 🔥 ESTADO GLOBAL (CLAVE)
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const handleToggle = () => {
-      setSidebarOpen(prev => !prev);
-    };
-
-    window.addEventListener("toggleSidebar", handleToggle);
-    return () => window.removeEventListener("toggleSidebar", handleToggle);
-  }, []);
 
   // 🔥 FETCH GLOBAL
   const fetchAppointments = async () => {
@@ -50,6 +41,14 @@ export default function BarberLayout() {
 
   return (
     <div className="admin-layout">
+
+      <button
+        className="mobile-sidebar-toggle"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menú"
+      >
+        <FaBars />
+      </button>
 
       <Sidebar
         items={items}

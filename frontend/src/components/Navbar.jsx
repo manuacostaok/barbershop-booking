@@ -10,15 +10,12 @@ import {
   FaSignOutAlt,
   FaUserShield,
   FaUser,
-  FaBars,
-  FaEye,
   FaCalendarCheck,
 } from "react-icons/fa";
 
 function Navbar() {
   const [modal, setModal] = useState(null);
   const [scrolled, setScrolled] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,12 +38,6 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -62,23 +53,10 @@ function Navbar() {
 
   const btnClass = (active) => `nav-btn ${active ? "active" : ""}`;
 
-  // Dentro de un panel (admin/barbero/cliente) el Sidebar ya
-  // resuelve toda la navegación interna — acá solo hace falta
-  // una forma rápida de ver la página pública (para chequear
-  // cambios de perfil del local) y salir. Son pocos links
-  // (2-3 como mucho), así que se muestran directo, sin
-  // esconderlos detrás de un menú hamburguesa.
-  const navLinks = isInsidePanel ? (
-    <>
-      <button className={btnClass(false)} onClick={() => navigate("/")}>
-        <FaEye /> Ver mi página
-      </button>
-
-      <button className="nav-btn danger" onClick={handleLogout}>
-        <FaSignOutAlt /> Salir
-      </button>
-    </>
-  ) : (
+  // Dentro de un panel (admin/barbero/cliente) esta navbar no se
+  // renderiza (ver el `if (isInsidePanel) return null` más abajo),
+  // así que estos links son solo para las páginas públicas.
+  const navLinks = (
     <>
       {!isHome && (
         <button className={btnClass(false)} onClick={() => navigate("/")}>
@@ -124,6 +102,13 @@ function Navbar() {
     </>
   );
 
+  // 🔥 Dentro de un panel (admin/barbero/cliente) la navbar global
+  // no se renderiza más — competía por el mismo espacio con el
+  // sidebar y quedaba superpuesta. Todo lo que hacía falta (menú
+  // hamburguesa, Salir, Ver mi página) ahora vive directo en el
+  // sidebar de cada panel.
+  if (isInsidePanel) return null;
+
   return (
     <>
       <header className={`navbar-glass ${scrolled ? "scrolled" : ""}`}>
@@ -133,32 +118,17 @@ function Navbar() {
           <motion.div
             className="brand-logo"
             onClick={() => navigate("/")}
-            whileHover={!isInsidePanel || !isMobile ? { scale: 1.03 } : undefined}
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            {isInsidePanel && isMobile ? (
-              <button
-                className="sidebar-toggle"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.dispatchEvent(new Event("toggleSidebar"));
-                }}
-                aria-label="Abrir menú"
-              >
-                <FaBars />
-              </button>
-            ) : (
-              <>
-                <motion.span
-                  className="brand-mark"
-                  whileHover={{ rotate: -8 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  IA
-                </motion.span>
-                <span className="brand-name">TurnosIA</span>
-              </>
-            )}
+            <motion.span
+              className="brand-mark"
+              whileHover={{ rotate: -8 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <FaCalendarCheck />
+            </motion.span>
+            <span className="brand-name">TurnosIA</span>
           </motion.div>
 
           {/* NAV — visible siempre, sin hamburguesa; envuelve en mobile */}

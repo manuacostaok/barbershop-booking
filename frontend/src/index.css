@@ -1509,14 +1509,6 @@ body::after {
   background: rgba(33, 230, 176, 0.05);
 }
 
-.status.confirmed {
-  color: var(--color-primary);
-}
-
-.status.cancelled {
-  color: #ff4d4d;
-}
-
 
 
 
@@ -3281,6 +3273,7 @@ img, video {
   gap: 10px;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .brand-mark {
@@ -3292,9 +3285,7 @@ img, video {
   justify-content: center;
   background: var(--gradient-brand);
   color: #fff;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: -0.03em;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
@@ -3375,25 +3366,32 @@ img, video {
 
 @media (max-width: 767px) {
   .navbar-inner {
-    height: auto;
-    min-height: 62px;
-    flex-wrap: wrap;
-    padding: 10px 16px;
+    height: 60px;
+    padding: 8px 14px;
     gap: 8px;
   }
 
   .brand-name {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .nav-right {
-    width: 100%;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-right::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 
@@ -3635,14 +3633,7 @@ img, video {
   font-size: 0.6rem;
 }
 
-/* DATE STRIP */
-.date-strip-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
+/* CALENDARIO DE MES — reemplaza la tira horizontal vieja */
 .date-strip-arrow {
   width: 36px;
   height: 36px;
@@ -3658,64 +3649,90 @@ img, video {
   transition: all var(--transition);
 }
 
-.date-strip-arrow:hover {
+.date-strip-arrow:hover:not(:disabled) {
   border-color: var(--color-primary);
   color: var(--color-primary-dark);
 }
 
-.date-strip {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 4px 2px;
-  scrollbar-width: none;
+.date-strip-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
-.date-strip::-webkit-scrollbar {
-  display: none;
-}
-
-.date-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 58px;
-  padding: 10px 6px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--color-border);
+.booking-calendar {
   background: var(--color-surface-card);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all var(--transition);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+  max-width: 380px;
 }
 
-.date-pill:hover {
-  border-color: var(--color-primary);
+.booking-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
-.date-pill.active {
-  background: var(--gradient-brand);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: var(--shadow-glow);
+.booking-calendar-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: capitalize;
 }
 
-.date-pill-day {
+.booking-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+
+.booking-calendar-weekdays span {
+  text-align: center;
   font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--color-text-muted);
 }
 
-.date-pill-num {
-  font-size: 1.1rem;
-  font-weight: 800;
+.booking-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
 }
 
-.date-pill-month {
-  font-size: 0.68rem;
-  opacity: 0.7;
+.booking-calendar-day {
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.booking-calendar-day:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.booking-calendar-day:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.booking-calendar-day.today {
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+  font-weight: 700;
+}
+
+.booking-calendar-day.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  font-weight: 700;
+  box-shadow: var(--shadow-glow);
 }
 
 /* SLOTS POR FRANJA */
@@ -4152,6 +4169,55 @@ img, video {
   color: var(--color-primary) !important;
 }
 
+/* "Salir" — mismo estilo base que un nav-item pero en rojo,
+   y es un <button> (no <a>), así que reseteamos su apariencia */
+.sidebar-logout-btn {
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  color: var(--color-danger) !important;
+}
+
+.sidebar-logout-btn:hover {
+  background: rgba(255, 92, 108, 0.1);
+}
+
+/* Botón hamburguesa flotante — reemplaza al que vivía en la
+   navbar global (ya no se renderiza dentro de los paneles) */
+.mobile-sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 150;
+
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 767px) {
+  .mobile-sidebar-toggle {
+    display: flex;
+  }
+
+  /* deja lugar para que el botón flotante no tape el contenido */
+  .admin-content {
+    padding-top: 70px !important;
+  }
+}
+
 /* =========================================================
    👥 GESTIÓN — cards de profesionales y servicios
 ========================================================= */
@@ -4405,4 +4471,21 @@ img, video {
   .install-prompt-btn {
     width: 100%;
   }
+}
+
+/* =========================================================
+   🌌 AURORA — fondo animado (portado de growTrack-Frontend)
+========================================================= */
+.app-aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* El contenido real de la app va siempre por encima del fondo */
+.main-content {
+  position: relative;
+  z-index: 1;
 }

@@ -1,7 +1,14 @@
-import { NavLink, Link } from "react-router-dom";
-import { FaEye } from "react-icons/fa";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { FaEye, FaSignOutAlt } from "react-icons/fa";
 
 export default function Sidebar({ items, title, basePath, onClose, open }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
   return (
     <div className={`sidebar ${open ? "open" : ""}`}>
 
@@ -34,6 +41,11 @@ export default function Sidebar({ items, title, basePath, onClose, open }) {
         <FaEye />
         <span>Ver mi página</span>
       </Link>
+
+      <button onClick={handleLogout} className="nav-item sidebar-logout-btn">
+        <FaSignOutAlt />
+        <span>Salir</span>
+      </button>
     </div>
   );
 }

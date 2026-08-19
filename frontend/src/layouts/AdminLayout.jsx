@@ -1,32 +1,26 @@
-import { NavLink, Outlet, Link } from "react-router-dom";
-import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
+import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots, FaBars, FaSignOutAlt } from "react-icons/fa";
+import { useState } from "react";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile
-  const [collapsed, setCollapsed] = useState(false); // desktop
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleToggle = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(prev => !prev); // mobile overlay
-      } else {
-        setCollapsed(prev => !prev); // desktop collapse
-      }
-    };
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
-    window.addEventListener("toggleSidebar", handleToggle);
-
-    return () => {
-      window.removeEventListener("toggleSidebar", handleToggle);
-    };
-  }, []);
-
-  
   return (
     <div className="admin-layout">
 
-      
+      <button
+        className="mobile-sidebar-toggle"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menú"
+      >
+        <FaBars />
+      </button>
 
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
@@ -101,6 +95,11 @@ export default function AdminLayout() {
           <FaEye />
           <span>Ver mi página</span>
         </Link>
+
+        <button onClick={handleLogout} className="nav-item sidebar-logout-btn">
+          <FaSignOutAlt />
+          <span>Salir</span>
+        </button>
       </div>
 
       {/* CONTENIDO */}

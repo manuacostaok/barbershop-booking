@@ -7,12 +7,12 @@ import {
   FaUser,
   FaCalendar,
   FaGift,
-  FaHistory
+  FaHistory,
+  FaBars
 } from "react-icons/fa";
 
 export default function ClientLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile
-  const [collapsed, setCollapsed] = useState(false); // desktop
 
   // 🔥 DATA GLOBAL
   const [user, setUser] = useState(null);
@@ -22,22 +22,6 @@ export default function ClientLayout() {
 
   const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
   const now = new Date();
-  // 🔥 TOGGLE SIDEBAR (IGUAL QUE ADMIN)
-  useEffect(() => {
-    const handleToggle = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(prev => !prev); // mobile overlay
-      } else {
-        setCollapsed(prev => !prev); // desktop collapse
-      }
-    };
-
-    window.addEventListener("toggleSidebar", handleToggle);
-
-    return () => {
-      window.removeEventListener("toggleSidebar", handleToggle);
-    };
-  }, []);
 
   // 🔥 FETCH TODO
   useEffect(() => {
@@ -104,7 +88,15 @@ export default function ClientLayout() {
   if (!user) return <p className="page">No autenticado</p>;
 
   return (
-    <div className={`admin-layout ${collapsed ? "collapsed" : ""}`}>
+    <div className="admin-layout">
+
+      <button
+        className="mobile-sidebar-toggle"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menú"
+      >
+        <FaBars />
+      </button>
 
       {/* SIDEBAR */}
       <Sidebar

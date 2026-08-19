@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -71,7 +71,6 @@ function Booking() {
       .catch(() => {});
   }, []);
 
-  const stripRef = useRef(null);
 
   useEffect(() => {
     api.get("/local")
@@ -171,26 +170,39 @@ function Booking() {
     getAvailability();
   }, [date, selectedBarber, config]);
 
-  // -------- FECHAS (próximos 21 días, tira horizontal) --------
-  const nextDays = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 21; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + i);
-      days.push(d);
-    }
-    return days;
-  }, []);
+  // -------- CALENDARIO DE MES (reemplaza la tira horizontal vieja) --------
+  const [calendarMonth, setCalendarMonth] = useState(
+    new Date(today.getFullYear(), today.getMonth(), 1)
+  );
 
   const isSameDay = (a, b) =>
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
-  const scrollStrip = (dir) => {
-    if (!stripRef.current) return;
-    stripRef.current.scrollBy({ left: dir * 220, behavior: "smooth" });
+  const isSameMonth = (a, b) =>
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+
+  const shiftCalendarMonth = (dir) => {
+    setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + dir, 1));
   };
+
+  // grilla del mes: null = celda vacía de relleno antes del día 1
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // getDay() domingo=0 — nuestra semana arranca en domingo (DAY_LABELS)
+    const leadingBlanks = firstDay.getDay();
+
+    const days = Array(leadingBlanks).fill(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      days.push(new Date(year, month, d));
+    }
+    return days;
+  }, [calendarMonth]);
 
   // -------- HORARIOS AGRUPADOS POR FRANJA --------
   const groupedSlots = useMemo(() => {
@@ -470,31 +482,49 @@ function Booking() {
               <section className="section">
                 <h2 className="section-title">Elegí fecha y horario</h2>
 
-                <div className="date-strip-wrapper">
-                  <button className="date-strip-arrow" onClick={() => scrollStrip(-1)}>
-                    <FaChevronLeft />
-                  </button>
+                <div className="booking-calendar">
+                  <div className="booking-calendar-header">
+                    <button
+                      className="date-strip-arrow"
+                      disabled={isSameMonth(calendarMonth, today)}
+                      onClick={() => shiftCalendarMonth(-1)}
+                    >
+                      <FaChevronLeft />
+                    </button>
 
-                  <div className="date-strip" ref={stripRef}>
-                    {nextDays.map((d) => {
+                    <span className="booking-calendar-title">
+                      {MONTH_LABELS[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}
+                    </span>
+
+                    <button className="date-strip-arrow" onClick={() => shiftCalendarMonth(1)}>
+                      <FaChevronRight />
+                    </button>
+                  </div>
+
+                  <div className="booking-calendar-weekdays">
+                    {DAY_LABELS.map((d) => <span key={d}>{d}</span>)}
+                  </div>
+
+                  <div className="booking-calendar-grid">
+                    {calendarDays.map((d, i) => {
+                      if (!d) return <span key={`empty-${i}`} />;
+
+                      const disabled = d < today;
                       const active = isSameDay(d, date);
+                      const isToday = isSameDay(d, today);
+
                       return (
                         <button
                           key={d.toISOString()}
-                          className={`date-pill ${active ? "active" : ""}`}
+                          disabled={disabled}
+                          className={`booking-calendar-day ${active ? "active" : ""} ${isToday ? "today" : ""}`}
                           onClick={() => setDate(d)}
                         >
-                          <span className="date-pill-day">{DAY_LABELS[d.getDay()]}</span>
-                          <span className="date-pill-num">{d.getDate()}</span>
-                          <span className="date-pill-month">{MONTH_LABELS[d.getMonth()]}</span>
+                          {d.getDate()}
                         </button>
                       );
                     })}
                   </div>
-
-                  <button className="date-strip-arrow" onClick={() => scrollStrip(1)}>
-                    <FaChevronRight />
-                  </button>
                 </div>
 
                 {loading ? (
