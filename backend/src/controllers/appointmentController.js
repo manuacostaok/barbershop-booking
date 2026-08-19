@@ -1,6 +1,8 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/User");
 const Config = require("../models/Config");
+const { sendAppointmentConfirmation, sendAppointmentCancellation } = require("../services/email");
+const { sendAppointmentReminder } = require("../services/whatsapp");
 
 // helper
 const timeToMinutes = (time) => {
@@ -61,6 +63,28 @@ const createAppointment = async (req, res) => {
     });
 
     const saved = await newAppointment.save();
+
+    // 📧 Confirmación por email — no bloqueamos la respuesta al
+    // cliente si el envío tarda o falla, solo lo logueamos.
+    const barberUser = await User.findById(barber).select("name").catch(() => null);
+
+    sendAppointmentConfirmation({
+      clientEmail: saved.clientEmail,
+      clientName: saved.clientName,
+      service: saved.service,
+      date: saved.date,
+      time: saved.time,
+      barberName: barberUser?.name,
+    }).catch((err) => console.log("Error mandando confirmación:", err.message));
+
+    // 💬 Recordatorio por WhatsApp (Premium) — no-op si no está
+    // configurado, ver services/whatsapp.js
+    sendAppointmentReminder({
+      clientPhone: saved.clientPhone,
+      service: saved.service,
+      date: saved.date,
+      time: saved.time,
+    }).catch((err) => console.log("Error mandando WhatsApp:", err.message));
 
     res.status(201).json(saved);
 
@@ -285,6 +309,14 @@ const cancelAppointment = async (req, res) => {
 
     appt.status = "cancelled";
     await appt.save();
+
+    sendAppointmentCancellation({
+      clientEmail: appt.clientEmail,
+      clientName: appt.clientName,
+      service: appt.service,
+      date: appt.date,
+      time: appt.time,
+    }).catch((err) => console.log("Error mandando cancelación:", err.message));
 
     res.json({ message: "Turno cancelado" });
 

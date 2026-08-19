@@ -6,9 +6,9 @@ const Subscription = require("../models/Subscription");
 // Planes y precios ARS — única fuente de verdad en el backend
 // (el frontend no debe decidir el precio, solo mostrarlo)
 const PLANS = {
-  basico: { label: "Básico", price: 14999 },
-  pro: { label: "Pro", price: 24999 },
-  premium: { label: "Premium", price: 39999 },
+  basico: { label: "Básico", price: 19999 },
+  pro: { label: "Pro", price: 32999 },
+  premium: { label: "Premium", price: 54999 },
 };
 
 const limiter = rateLimit({

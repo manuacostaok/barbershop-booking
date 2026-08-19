@@ -18,25 +18,25 @@ const PLANS = [
   {
     id: "basico",
     label: "Básico",
-    price: 14999,
+    price: 19999,
     tagline: "Para un negocio con un solo local",
     features: [
       "Reservas online ilimitadas",
       "1 profesional",
       "Recordatorios por email",
       "Panel de turnos",
+      "Hosting y base de datos incluidos",
     ],
   },
   {
     id: "pro",
     label: "Pro",
-    price: 24999,
+    price: 32999,
     highlighted: true,
     tagline: "El más elegido por negocios con equipo",
     features: [
       "Todo lo del plan Básico",
       "Hasta 5 profesionales",
-      "Recordatorios por WhatsApp",
       "Estadísticas de facturación",
       "Cupones y beneficios para clientes",
     ],
@@ -44,12 +44,13 @@ const PLANS = [
   {
     id: "premium",
     label: "Premium",
-    price: 39999,
+    price: 54999,
     tagline: "Para cadenas y locales de alto volumen",
     features: [
       "Todo lo del plan Pro",
       "Profesionales ilimitados",
       "Múltiples locales",
+      "Recordatorios por WhatsApp*",
       "Estadísticas por día, semana, mes y año",
       "Rendimiento e ingresos por profesional (para pagar sueldos/comisiones)",
       "Soporte prioritario",
@@ -169,7 +170,10 @@ function PricingLanding() {
       {/* PRICING */}
       <section className="saas-pricing" id="planes">
         <h2 className="section-title">Planes simples, sin letra chica</h2>
-        <p className="saas-pricing-sub">Cancelás cuando quieras. Sin permanencia mínima.</p>
+        <p className="saas-pricing-sub">
+          Cancelás cuando quieras. Sin permanencia mínima. El precio incluye tu hosting,
+          base de datos y dominio propio — no pagás infraestructura aparte.
+        </p>
 
         <div className="saas-pricing-grid">
           {PLANS.map((plan) => (
@@ -204,6 +208,11 @@ function PricingLanding() {
         <div className="saas-security-note">
           <FaShieldAlt /> Pago procesado por Mercado Pago. No almacenamos datos de tarjetas.
         </div>
+
+        <p className="saas-whatsapp-note">
+          *Los mensajes de WhatsApp tienen un costo por envío cobrado por el proveedor (Twilio/Meta),
+          independiente de tu suscripción. Se factura por uso según mensajes enviados ese mes.
+        </p>
       </section>
 
       {/* FAQ */}

@@ -20,7 +20,7 @@ export default function ClientHistory() {
           {appointments.map((appt) => (
             <div key={appt._id} className="card">
               <h3>{appt.service}</h3>
-              <p>{appt.barber?.name || "Sin barbero"}</p>
+              <p>{appt.barber?.name || "Sin profesional"}</p>
               <p>{appt.date} · {appt.time}</p>
 
               <span className={`status ${appt.status}`}>
