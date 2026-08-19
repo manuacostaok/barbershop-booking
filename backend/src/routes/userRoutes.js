@@ -69,11 +69,36 @@ router.post("/barbers", protect, requireRole("admin"), async (req, res) => {
 router.put("/:id", protect, requireRole("admin"), async (req, res) => {
   try {
     // 🔥 Solo permitimos actualizar estos campos (nunca role, password ni points directo)
-    const { name, email, phone } = req.body;
+    const { name, email, phone, schedule } = req.body;
+
+    const update = { name, email, phone };
+
+    // 🗓️ validamos schedule si vino (7 entradas, días 0-6, sin duplicados)
+    if (schedule !== undefined) {
+      if (!Array.isArray(schedule)) {
+        return res.status(400).json({ message: "Formato de horario inválido" });
+      }
+
+      const seenDays = new Set();
+      for (const entry of schedule) {
+        const day = Number(entry.dayOfWeek);
+        if (isNaN(day) || day < 0 || day > 6 || seenDays.has(day)) {
+          return res.status(400).json({ message: "Días de horario inválidos" });
+        }
+        seenDays.add(day);
+      }
+
+      update.schedule = schedule.map((e) => ({
+        dayOfWeek: Number(e.dayOfWeek),
+        active: !!e.active,
+        start: e.start || "09:00",
+        end: e.end || "18:00",
+      }));
+    }
 
     const updated = await User.findByIdAndUpdate(
       req.params.id,
-      { name, email, phone },
+      update,
       { new: true, runValidators: true }
     ).select("-password");
 

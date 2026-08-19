@@ -77,11 +77,11 @@ export default function InstallPrompt() {
           </button>
 
           <div className="install-prompt-icon">
-            <img src="/icon-192.png" alt="TurnosIA" />
+            <img src="/icon-192.png" alt="Turnos Ahora" />
           </div>
 
           <div className="install-prompt-body">
-            <strong>Instalá TurnosIA</strong>
+            <strong>Instalá Turnos Ahora</strong>
 
             {mode === "android" ? (
               <p>Agregala a tu pantalla de inicio para reservar más rápido.</p>

@@ -42,6 +42,19 @@ const userSchema = new mongoose.Schema({
     default: "",
   },
 
+  // 🗓️ Disponibilidad semanal — la carga el admin al editar al
+  // barbero. Si queda vacío (barbero sin configurar todavía),
+  // el sistema sigue usando el horario general del negocio como
+  // hasta ahora — no rompe nada para los que ya existían.
+  schedule: [
+    {
+      dayOfWeek: { type: Number, min: 0, max: 6 }, // 0=domingo ... 6=sábado
+      active: { type: Boolean, default: true },
+      start: { type: String, default: "09:00" },
+      end: { type: String, default: "18:00" },
+    },
+  ],
+
   // 💰 SISTEMA DE PUNTOS
   points: {
     type: Number,

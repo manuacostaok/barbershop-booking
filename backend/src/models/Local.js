@@ -51,6 +51,16 @@ const localSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    // 🎨 Paleta de colores de la página pública — pensado para
+    // que el mismo sistema sirva a rubros distintos (barbería,
+    // manicura/estética, spa, etc.) sin que se vea "de barbero"
+    // para todos.
+    theme: {
+      type: String,
+      enum: ["esmeralda", "rosa", "claro", "nocturno"],
+      default: "esmeralda",
+    },
   },
   { timestamps: true }
 );

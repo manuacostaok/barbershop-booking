@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaClock } from "react-icons/fa";
 import BaseModal from "../../components/BaseModal";
 import CreateBarberModal from "../../components/CreateBarberModal";
+
+const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+const defaultSchedule = () =>
+  Array.from({ length: 7 }, (_, dayOfWeek) => ({
+    dayOfWeek,
+    active: dayOfWeek >= 1 && dayOfWeek <= 6, // lunes a sábado por defecto
+    start: "09:00",
+    end: "18:00",
+  }));
 
 function AdminManagement() {
   const [barbers, setBarbers] = useState([]);
@@ -28,6 +38,7 @@ function AdminManagement() {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [editSchedule, setEditSchedule] = useState(defaultSchedule());
 
   // -----------------------
   // FETCH
@@ -75,6 +86,22 @@ function AdminManagement() {
     setEditName(b.name);
     setEditPhone(b.phone || "");
     setEditEmail(b.email || "");
+
+    // si el barbero ya tiene horario cargado lo usamos, sino
+    // arrancamos con un horario por defecto (lunes a sábado)
+    if (b.schedule?.length === 7) {
+      setEditSchedule(
+        [...b.schedule].sort((a, c) => a.dayOfWeek - c.dayOfWeek)
+      );
+    } else {
+      setEditSchedule(defaultSchedule());
+    }
+  };
+
+  const updateScheduleDay = (dayOfWeek, changes) => {
+    setEditSchedule((prev) =>
+      prev.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, ...changes } : d))
+    );
   };
 
   const updateBarber = async () => {
@@ -83,6 +110,7 @@ function AdminManagement() {
         name: editName,
         phone: editPhone,
         email: editEmail,
+        schedule: editSchedule,
       });
 
       setToast("Barbero actualizado ✂️");
@@ -243,6 +271,51 @@ function AdminManagement() {
           onChange={(e) => setEditEmail(e.target.value)}
           placeholder="Email"
         />
+
+        <div className="schedule-editor">
+          <h4 className="schedule-editor-title"><FaClock /> Disponibilidad</h4>
+          <p className="stats-hint" style={{ marginTop: -4 }}>
+            Define los días y horarios en los que este profesional aparece disponible para reservar.
+          </p>
+
+          {editSchedule.map((day) => (
+            <div key={day.dayOfWeek} className="schedule-day-row">
+              <label className="schedule-day-toggle">
+                <input
+                  type="checkbox"
+                  checked={day.active}
+                  onChange={(e) =>
+                    updateScheduleDay(day.dayOfWeek, { active: e.target.checked })
+                  }
+                />
+                <span>{DAY_NAMES[day.dayOfWeek]}</span>
+              </label>
+
+              {day.active && (
+                <div className="schedule-day-times">
+                  <input
+                    type="time"
+                    className="input"
+                    value={day.start}
+                    onChange={(e) =>
+                      updateScheduleDay(day.dayOfWeek, { start: e.target.value })
+                    }
+                  />
+                  <span>a</span>
+                  <input
+                    type="time"
+                    className="input"
+                    value={day.end}
+                    onChange={(e) =>
+                      updateScheduleDay(day.dayOfWeek, { end: e.target.value })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
         <button className="button danger full" style={{ marginTop: 16 }} onClick={() => setConfirmDelete(true)}>
           Eliminar barbero
         </button>

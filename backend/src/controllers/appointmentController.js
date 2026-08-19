@@ -118,10 +118,36 @@ const getAvailability = async (req, res) => {
       return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     };
 
+    // 🗓️ Si el barbero tiene disponibilidad configurada, el
+    // horario de ESE día le gana al horario general del negocio.
+    // Si no tiene nada cargado (array vacío), seguimos como antes
+    // usando el horario general para no romper barberos viejos.
+    let open = config.open;
+    let close = config.close;
+
+    if (barber && date) {
+      const barberUser = await User.findById(barber).select("schedule");
+
+      if (barberUser?.schedule?.length) {
+        const [y, m, d] = date.split("-").map(Number);
+        const dayOfWeek = new Date(y, m - 1, d).getDay();
+
+        const dayConfig = barberUser.schedule.find((s) => s.dayOfWeek === dayOfWeek);
+
+        if (!dayConfig || !dayConfig.active) {
+          // el barbero no trabaja ese día — no hay horarios
+          return res.json({ available: [] });
+        }
+
+        open = dayConfig.start;
+        close = dayConfig.end;
+      }
+    }
+
     const slots = [];
 
-    let start = toMinutes(config.open);
-    const end = toMinutes(config.close);
+    let start = toMinutes(open);
+    const end = toMinutes(close);
 
     const breakStart = config.hasBreak ? toMinutes(config.breakStart) : null;
     const breakEnd = config.hasBreak ? toMinutes(config.breakEnd) : null;

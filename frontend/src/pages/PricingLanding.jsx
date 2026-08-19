@@ -104,7 +104,7 @@ function PricingLanding() {
       <section className="saas-hero">
         <div className="saas-hero-inner">
           <span className="saas-badge">
-            <FaCut /> TurnosIA · Automatización para tu negocio
+            <FaCut /> Turnos Ahora · Automatización para tu negocio
           </span>
           <h1>
             Dejá que la <span className="highlight">IA</span> se encargue de tus turnos
@@ -112,7 +112,7 @@ function PricingLanding() {
           <p>
             Reservas online, recordatorios automáticos, fidelización de clientes y estadísticas de tu negocio —
             todo se automatiza solo. Barberías, peluquerías, manicura, spas y más.
-            Vos atendé, TurnosIA se encarga del resto.
+            Vos atendé, Turnos Ahora se encarga del resto.
           </p>
           <div className="saas-hero-cta">
             <a href="#planes" className="button primary">

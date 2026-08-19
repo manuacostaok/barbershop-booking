@@ -3,6 +3,33 @@ import api from "../../api";
 import { compressImage } from "../../utils/imageUpload";
 import { FaCamera, FaSpinner } from "react-icons/fa";
 
+const THEMES = [
+  {
+    id: "esmeralda",
+    label: "Esmeralda",
+    desc: "Oscuro y llamativo — barberías, negocios urbanos",
+    gradient: "linear-gradient(135deg, #21e6b0, #ffb020)",
+  },
+  {
+    id: "rosa",
+    label: "Rosa",
+    desc: "Claro y suave — manicura, estética, spas",
+    gradient: "linear-gradient(135deg, #e85d8a, #f4a4c0)",
+  },
+  {
+    id: "claro",
+    label: "Claro",
+    desc: "Neutro y luminoso — cualquier rubro",
+    gradient: "linear-gradient(135deg, #0d9488, #f59e0b)",
+  },
+  {
+    id: "nocturno",
+    label: "Nocturno",
+    desc: "Oscuro, azul en vez de verde",
+    gradient: "linear-gradient(135deg, #5b8def, #22d3ee)",
+  },
+];
+
 function AdminConfig() {
   const [config, setConfig] = useState({
     open: "09:00",
@@ -26,6 +53,7 @@ function AdminConfig() {
     logo: "",
     coverImage: "",
     description: "",
+    theme: "esmeralda",
   });
 
   const [toast, setToast] = useState("");
@@ -64,6 +92,7 @@ function AdminConfig() {
           logo: res.data.logo || "",
           coverImage: res.data.coverImage || "",
           description: res.data.description || "",
+          theme: res.data.theme || "esmeralda",
         });
       })
       .catch(() => setToast("Error cargando local"));
@@ -145,14 +174,40 @@ function AdminConfig() {
   };
 
   // ------------------------
-  // GUARDAR LOCAL
+  // GUARDAR LOCAL (+ config de abajo, en la misma acción)
   // ------------------------
   const saveLocal = async () => {
     try {
       await api.put("/local", local);
-      setToast("Perfil del local actualizado");
+
+      // 🔥 "Guardar perfil" ahora también guarda la configuración
+      // de horarios/premios de más abajo, con un solo toast que
+      // confirma las dos cosas — antes quedaba sin guardar si el
+      // usuario solo tocaba el botón de arriba.
+      const error = validate(config);
+
+      if (error) {
+        setToast(`Perfil guardado. Revisá la configuración: ${error}`);
+        return;
+      }
+
+      await api.put("/config", config);
+      setToast("Perfil y configuración guardados");
     } catch {
-      setToast("Error guardando local");
+      setToast("Error guardando los cambios");
+    }
+  };
+
+  const selectTheme = async (themeId) => {
+    const updated = { ...local, theme: themeId };
+    setLocal(updated);
+    document.documentElement.setAttribute("data-theme", themeId); // preview instantáneo
+
+    try {
+      await api.put("/local", updated);
+      setToast("Apariencia actualizada");
+    } catch {
+      setToast("Error guardando la apariencia");
     }
   };
 
@@ -268,8 +323,37 @@ function AdminConfig() {
           className="button primary full"
           onClick={saveLocal}
         >
-          Guardar perfil
+          Guardar todo
         </button>
+      </div>
+
+      {/* ========================= */}
+      {/* 🎨 APARIENCIA / PALETA DE COLORES */}
+      {/* ========================= */}
+
+      <div className="page-header" style={{ marginTop: 32 }}>
+        <h2>Apariencia</h2>
+      </div>
+
+      <div className="card config-card">
+        <p className="stats-hint" style={{ marginTop: -4 }}>
+          Elegí la paleta que mejor le quede a tu negocio. Se aplica a tu página
+          pública de reservas al instante.
+        </p>
+
+        <div className="theme-picker">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              className={`theme-option ${local.theme === t.id ? "active" : ""}`}
+              onClick={() => selectTheme(t.id)}
+            >
+              <span className="theme-swatch" style={{ background: t.gradient }} />
+              <span className="theme-option-name">{t.label}</span>
+              <span className="theme-option-desc">{t.desc}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ========================= */}

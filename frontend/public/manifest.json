@@ -1,6 +1,6 @@
 {
-  "name": "TurnosIA",
-  "short_name": "TurnosIA",
+  "name": "Turnos Ahora",
+  "short_name": "Turnos",
   "description": "Reservá tu turno online en segundos",
   "start_url": "/",
   "display": "standalone",

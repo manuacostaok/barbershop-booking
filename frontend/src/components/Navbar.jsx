@@ -128,7 +128,7 @@ function Navbar() {
             >
               <FaCalendarCheck />
             </motion.span>
-            <span className="brand-name">TurnosIA</span>
+            <span className="brand-name">Turnos Ahora</span>
           </motion.div>
 
           {/* NAV — visible siempre, sin hamburguesa; envuelve en mobile */}
