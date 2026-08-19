@@ -381,6 +381,8 @@ textarea:focus-visible {
 ========================= */
 .input {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 14px;
   margin-bottom: 15px;
   border-radius: 10px;
@@ -399,6 +401,15 @@ textarea:focus-visible {
 
 html[data-mode="claro"] .input {
   color-scheme: light;
+}
+
+/* inputs de hora/fecha: el selector nativo del sistema tiene un
+   ancho mínimo propio que puede superar el contenedor en mobile
+   y salirse del margen — lo forzamos a respetar el ancho real */
+input[type="time"].input,
+input[type="date"].input {
+  min-width: 0;
+  width: 100%;
 }
 
 /* selects: sacamos la flecha nativa del sistema (se veía
@@ -3072,6 +3083,10 @@ img, video {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
+  min-width: 0; /* sin esto, un item dentro de .form-row (grid)
+    no se achica por debajo del ancho intrínseco de su contenido
+    — y los inputs type="time" tienen un ancho mínimo propio del
+    selector nativo del sistema que se sale del margen en mobile */
 }
 
 .form-group label {
