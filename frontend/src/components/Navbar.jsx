@@ -12,7 +12,7 @@ import {
   FaUser,
   FaBars,
   FaTimes,
-  FaCalendarCheck,
+  FaEye,
 } from "react-icons/fa";
 
 function Navbar() {
@@ -68,7 +68,21 @@ function Navbar() {
 
   const btnClass = (active) => `nav-btn ${active ? "active" : ""}`;
 
-  const navLinks = (
+  // Dentro de un panel (admin/barbero/cliente) el Sidebar ya
+  // resuelve toda la navegación interna — acá solo hace falta
+  // una forma rápida de ver la página pública (para chequear
+  // cambios de perfil del local) y salir.
+  const navLinks = isInsidePanel ? (
+    <>
+      <button className={btnClass(false)} onClick={() => navigate("/")}>
+        <FaEye /> Ver mi página
+      </button>
+
+      <button className="nav-btn danger" onClick={handleLogout}>
+        <FaSignOutAlt /> Salir
+      </button>
+    </>
+  ) : (
     <>
       {!isHome && (
         <button className={btnClass(false)} onClick={() => navigate("/")}>
@@ -76,27 +90,21 @@ function Navbar() {
         </button>
       )}
 
-      {location.pathname !== "/planes" && (
-        <button className={btnClass(false)} onClick={() => navigate("/planes")}>
-          <FaCalendarCheck /> Planes
-        </button>
-      )}
-
       {user ? (
         <>
-          {isAdmin && !isAdminPanel && (
+          {isAdmin && (
             <button className={btnClass(false)} onClick={() => navigate("/admin")}>
               <FaUserShield /> Admin
             </button>
           )}
 
-          {isBarber && !isBarberPanel && (
+          {isBarber && (
             <button className={btnClass(false)} onClick={() => navigate("/barber")}>
               <FaUserShield /> Panel
             </button>
           )}
 
-          {isClient && !isClientPanel && (
+          {isClient && (
             <button className={btnClass(false)} onClick={() => navigate("/client")}>
               <FaUser /> Mi cuenta
             </button>

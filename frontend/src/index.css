@@ -256,12 +256,12 @@ textarea:focus-visible {
 }
 
 .slot:hover {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: #fff;
 }
 
 .slot.active {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: #fff;
 }
 
@@ -297,7 +297,7 @@ textarea:focus-visible {
 
 .progress div {
   height: 100%;
-  background: var(--color-text);
+  background: var(--gradient-brand);
   border-radius: 10px;
   transition: 0.3s;
 }
@@ -334,7 +334,7 @@ textarea:focus-visible {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: #fff;
   padding: 14px 20px;
   border-radius: 10px;
@@ -401,7 +401,7 @@ textarea:focus-visible {
 }
 
 .nav-btn:hover {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: #fff;
 }
 
@@ -451,7 +451,7 @@ textarea:focus-visible {
 }
 
 .delete-btn {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
 }
 
@@ -656,7 +656,7 @@ textarea:focus-visible {
 .btn-primary {
   padding: 10px 14px;
   border-radius: 10px;
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
   border: none;
   cursor: pointer;
@@ -689,7 +689,7 @@ textarea:focus-visible {
 
 /* PRIMARY */
 .btn-primary {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
 }
 
@@ -835,12 +835,12 @@ textarea:focus-visible {
 
 .barber-pill:hover {
   transform: translateY(-2px);
-  border-color: rgba(0,0,0,0.2);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .barber-pill.active-all {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: #fff;
   border: 1px solid var(--color-text);
 }
@@ -925,34 +925,16 @@ textarea:focus-visible {
 }
 
 .barber-pill:hover {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
 }
 
 .barber-pill.active {
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
 }
 
-.service-card {
-  flex: 0 0 auto;
-  min-width: 180px;
-
-  background: var(--color-text);
-  color: white;
-
-  border-radius: 12px;
-  padding: 12px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.service-card:hover {
-  transform: translateY(-2px);
-}
-
+/* (.service-card viejo eliminado — no se usa) */
 
 .section h2 {
   display: flex;
@@ -1063,7 +1045,7 @@ textarea:focus-visible {
   border-radius: 8px;
   border: none;
 
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: white;
 
   display: flex;
@@ -1151,9 +1133,7 @@ textarea:focus-visible {
   }
 }
 
-.card,
-.modal,
-.service-card {
+.card {
   backdrop-filter: blur(6px);
 }
 /* =========================
@@ -1260,85 +1240,154 @@ body::after {
 
 /* calendario base */
 .react-calendar {
-  
   background: var(--color-surface-card);
-  border: none;
-  border-radius: 16px;
-  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-sm);
   font-family: inherit;
 }
 
 /* navegación (mes) */
 .react-calendar__navigation {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .react-calendar__navigation button {
   background: none;
   border: none;
   font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  transition: background var(--transition), color var(--transition);
 }
 
 .react-calendar__navigation button:hover {
-  background: var(--color-surface-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.react-calendar__navigation button:disabled {
+  opacity: 0.3;
 }
 
 /* días de la semana */
 .react-calendar__month-view__weekdays {
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
   color: var(--color-text-muted);
   margin-bottom: 8px;
 }
 
-/* GRID de días (IMPORTANTE) */
-
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+}
 
 /* cada día */
 .react-calendar__tile {
   background: none;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   text-align: center;
   cursor: pointer;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 500;
 
-  transition: all 0.2s ease;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
 }
 
 /* hover */
 .react-calendar__tile:hover {
-  background: var(--color-surface-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
-/* hoy */
+/* hoy — anillo sutil en vez de fondo plano, para distinguirlo del seleccionado */
 .react-calendar__tile--now {
-  background: var(--color-surface-2);
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+  font-weight: 700;
+}
+
+.react-calendar__tile--now:hover {
+  background: var(--color-primary-light);
 }
 
 /* seleccionado */
 .react-calendar__tile--active {
-  background: var(--color-text) !important;
-  color: #fff;
+  background: var(--gradient-brand) !important;
+  color: var(--color-text-inverse) !important;
+  font-weight: 700;
+  box-shadow: var(--shadow-glow);
 }
 
 /* deshabilitados */
 .react-calendar__tile:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
-.filter-section {
+.filter-card {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+}
+
+.filter-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+
+.filter-clear-btn:hover {
+  text-decoration: underline;
 }
 
 .confirm-modal {
@@ -1381,24 +1430,53 @@ body::after {
   opacity: 1;
 }
 
-.register-cta {
-  margin-top: 14px;
-  font-size: 0.9rem;
+/* Banner de conversión — antes esto era una notita al pie del
+   hero, casi invisible. Ahora es el gancho principal para
+   registrarse (fidelización = beneficio real y visible). */
+.register-banner {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 560px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.register-banner-icon {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.register-banner strong {
+  display: block;
+  font-size: 0.98rem;
+  margin-bottom: 2px;
+}
+
+.register-banner p {
+  margin: 0;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.75);
 }
 
-.link-register {
-  cursor: pointer;
-  font-weight: 700;
-  color: var(--color-primary);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(33, 230, 176, 0.4);
-  transition: color var(--transition), border-color var(--transition);
+.register-banner .button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.link-register:hover {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
+@media (max-width: 560px) {
+  .register-banner {
+    flex-wrap: wrap;
+  }
+
+  .register-banner .button {
+    width: 100%;
+  }
 }
 
 .profile {
@@ -1763,7 +1841,7 @@ html, body {
 .hero {
   position: relative;
   width: 100%;
-  height: 70vh;
+  min-height: 70vh;
   border-radius: 0 0 30px 30px;
   overflow: hidden;
 }
@@ -1780,17 +1858,25 @@ html, body {
 }
 
 .hero-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 0;
 }
 
+/* El overlay ya NO es absolute/inset:0 — así su altura la
+   determina el contenido (título+desc+chips+CTA+aviso de
+   registro), en vez de quedar forzado a los 70vh del padre
+   y cortarse con overflow:hidden si el contenido es más alto. */
 .hero-overlay {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 1;
+  min-height: 70vh;
   background: linear-gradient(
-    rgba(0,0,0,0.4),
-    rgba(0,0,0,0.8)
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.75)
   );
   color: white;
   display: flex;
@@ -2038,6 +2124,12 @@ html, body {
   }
 }
 
+/* wrapper seguro */
+.calendar-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 .calendar-wrapper {
   width: 100%;
   overflow-x: hidden;
@@ -2087,39 +2179,7 @@ button {
   color: var(--color-text); /* evita azul raro */
 }
 
-/* =========================
-   🔥 CALENDAR FIX RESPONSIVE
-========================= */
-
-/* grid correcto (7 días) */
-.react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-
-/* tamaño consistente */
-.react-calendar__tile {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* mobile */
-@media (max-width: 768px) {
-  .react-calendar {
-    width: 100% !important;
-    padding: 10px;
-  }
-
-  .react-calendar__tile {
-    height: 36px;
-    font-size: 12px;
-  }
-}
-
-/* wrapper seguro */
+/* wrapper seguro (calendario) */
 .calendar-wrapper {
   width: 100%;
   overflow-x: hidden;
@@ -2186,50 +2246,7 @@ button {
 }
 
 /* layout booking */
-@media (max-width: 900px) {
-  .schedule-layout {
-    grid-template-columns: 1fr !important;
-    width: 100%;
-  }
-}
-
-/* =========================
-   🔥 CALENDAR FIX RESPONSIVE
-========================= */
-
-/* grid correcto */
-.react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-
-/* tamaño de días */
-.react-calendar__tile {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* mobile */
-@media (max-width: 768px) {
-  .react-calendar {
-    width: 100% !important;
-    padding: 10px;
-  }
-
-  .react-calendar__tile {
-    height: 36px;
-    font-size: 12px;
-  }
-}
-
-/* wrapper */
-.calendar-wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
+/* (.schedule-layout eliminado — no se usa) */
 
 /* =========================
    🔥 HERO LEFT ALIGN FIX
@@ -2237,16 +2254,7 @@ button {
 
 /* contenedor principal del hero */
 .hero-overlay {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: flex-start; /* 🔥 izquierda */
-
-  padding: 40px;
-  color: white;
 }
 
 /* marca (logo + textos) */
@@ -2446,10 +2454,8 @@ img, video {
   box-shadow: 0 0 0 3px rgba(33, 230, 176, 0.15);
 }
 
-/* Mobile: el hero tenía height fijo (70vh) que podía recortar
-   el contenido si había mucha info (título+descripción+4 datos+cta).
-   Lo pasamos a height:auto con min-height, así el contenido
-   nunca queda cortado, sea cual sea el largo del texto. */
+/* Mobile: el hero ahora usa min-height (definido en la regla
+   base más arriba), acá solo ajustamos tamaños de fuente */
 @media (max-width: 480px) {
   .hero-overlay h1 {
     font-size: 1.9rem;
@@ -2460,19 +2466,7 @@ img, video {
   }
 
   .hero {
-    height: auto;
-    min-height: 46vh;
-  }
-
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-
-  .hero-overlay {
-    position: relative;
-    padding: 32px 20px 28px;
+    min-height: 50vh;
   }
 }
 
@@ -3018,7 +3012,7 @@ img, video {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-text);
+  background: var(--gradient-brand);
   color: var(--color-primary);
   display: flex;
   align-items: center;
@@ -4005,4 +3999,158 @@ img, video {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   🗺️ UBICACIÓN — mapa embebido en la página de reservas
+========================================================= */
+.location-section {
+  padding-bottom: 60px;
+}
+
+.location-map-wrapper {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  height: 320px;
+}
+
+.location-map {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: grayscale(0.15) contrast(1.05);
+}
+
+.location-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.location-map-link:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   📊 ESTADÍSTICAS — selector de período + tabla de payroll
+========================================================= */
+.stats-period-tabs {
+  display: inline-flex;
+  background: var(--color-surface-2);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.stats-period-tab {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.stats-period-tab.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+}
+
+.stats-date-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.stats-date-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--color-text);
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.stats-date-label:hover {
+  border-color: var(--color-primary);
+}
+
+.stats-hint {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: -8px 0 16px;
+}
+
+.premium-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.payroll-table {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.payroll-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  gap: 12px;
+  padding: 14px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.payroll-row:last-child {
+  border-bottom: none;
+}
+
+.payroll-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+}
+
+.payroll-row:not(.payroll-header) div:last-child {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+@media (max-width: 600px) {
+  .payroll-row {
+    grid-template-columns: 1.5fr 0.7fr 1fr;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+  }
 }

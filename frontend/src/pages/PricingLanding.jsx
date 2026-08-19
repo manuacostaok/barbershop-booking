@@ -50,6 +50,8 @@ const PLANS = [
       "Todo lo del plan Pro",
       "Profesionales ilimitados",
       "Múltiples locales",
+      "Estadísticas por día, semana, mes y año",
+      "Rendimiento e ingresos por profesional (para pagar sueldos/comisiones)",
       "Soporte prioritario",
       "Personalización de marca",
     ],

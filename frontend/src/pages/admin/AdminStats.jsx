@@ -1,46 +1,102 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../../api";
 import Calendar from "react-calendar";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaChevronLeft, FaChevronRight, FaCalendarAlt } from "react-icons/fa";
+
+const PERIODS = [
+  { id: "day", label: "Día" },
+  { id: "week", label: "Semana" },
+  { id: "month", label: "Mes" },
+  { id: "year", label: "Año" },
+];
+
+const MONTHS = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
+
+function formatDate(date) {
+  if (!date) return "";
+  if (!(date instanceof Date)) date = new Date(date);
+  if (isNaN(date)) return "";
+  return (
+    date.getFullYear() +
+    "-" +
+    String(date.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(date.getDate()).padStart(2, "0")
+  );
+}
+
+// Devuelve el rango [start,end] (strings YYYY-MM-DD, inclusive) y una
+// etiqueta legible, según el período elegido y una fecha ancla.
+function getRange(period, anchor) {
+  const d = new Date(anchor);
+
+  if (period === "day") {
+    const s = formatDate(d);
+    return { start: s, end: s, label: s };
+  }
+
+  if (period === "week") {
+    const day = d.getDay(); // 0=domingo
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() + diffToMonday);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return {
+      start: formatDate(monday),
+      end: formatDate(sunday),
+      label: `${formatDate(monday)} al ${formatDate(sunday)}`,
+    };
+  }
+
+  if (period === "month") {
+    const first = new Date(d.getFullYear(), d.getMonth(), 1);
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    return {
+      start: formatDate(first),
+      end: formatDate(last),
+      label: `${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
+    };
+  }
+
+  // year
+  const first = new Date(d.getFullYear(), 0, 1);
+  const last = new Date(d.getFullYear(), 11, 31);
+  return {
+    start: formatDate(first),
+    end: formatDate(last),
+    label: `${d.getFullYear()}`,
+  };
+}
+
+function shiftAnchor(period, anchor, dir) {
+  const d = new Date(anchor);
+  if (period === "day") d.setDate(d.getDate() + dir);
+  if (period === "week") d.setDate(d.getDate() + dir * 7);
+  if (period === "month") d.setMonth(d.getMonth() + dir);
+  if (period === "year") d.setFullYear(d.getFullYear() + dir);
+  return d;
+}
 
 function AdminStats() {
   const [appointments, setAppointments] = useState([]);
   const [services, setServices] = useState([]);
 
-  const [statsDate, setStatsDate] = useState(new Date());
+  const [period, setPeriod] = useState("month");
+  const [anchor, setAnchor] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const formatDate = (date) => {
-    if (!date) return "";
-    if (!(date instanceof Date)) date = new Date(date);
-    if (isNaN(date)) return "";
-
-    return (
-      date.getFullYear() +
-      "-" +
-      String(date.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(date.getDate()).padStart(2, "0")
-    );
-  };
-
-  // FETCH
-  const fetchData = async () => {
-    try {
-      const [a, s] = await Promise.all([
-        api.get("/appointments/all"),
-        api.get("/services"),
-      ]);
-
-      setAppointments(a.data);
-      setServices(s.data);
-    } catch (err) {
-      console.log("error stats", err);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
+    Promise.all([api.get("/appointments/all"), api.get("/services")])
+      .then(([a, s]) => {
+        setAppointments(a.data);
+        setServices(s.data);
+      })
+      .catch((err) => console.log("error stats", err));
   }, []);
 
   const getPrice = (serviceName) => {
@@ -48,52 +104,47 @@ function AdminStats() {
     return service ? service.price : 0;
   };
 
-  const selectedDate = formatDate(statsDate);
+  const range = useMemo(() => getRange(period, anchor), [period, anchor]);
 
-  const selectedAppointments = appointments.filter(
-    (a) => a.date === selectedDate && a.status !== "cancelled"
+  const inRange = (appt) => appt.date >= range.start && appt.date <= range.end;
+
+  const periodAppointments = appointments.filter(
+    (a) => inRange(a) && a.status !== "cancelled"
   );
 
-  const cancelledSelected = appointments.filter(
-    (a) => a.date === selectedDate && a.status === "cancelled"
+  const cancelledCount = appointments.filter(
+    (a) => inRange(a) && a.status === "cancelled"
   ).length;
 
-  const totalSelected = selectedAppointments.length;
+  const totalAppointments = periodAppointments.length;
 
-  const selectedRevenue = selectedAppointments.reduce((acc, appt) => {
-    return acc + getPrice(appt.service);
-  }, 0);
+  const totalRevenue = periodAppointments.reduce(
+    (acc, a) => acc + getPrice(a.service),
+    0
+  );
 
-  // POR BARBERO
-  const revenueByBarber = {};
+  const avgTicket = totalAppointments ? totalRevenue / totalAppointments : 0;
 
-  selectedAppointments.forEach((appt) => {
+  // POR BARBERO — turnos + ingresos, para poder calcular sueldos/comisiones
+  const byBarber = {};
+  periodAppointments.forEach((appt) => {
     const name = appt.barber?.name || "Sin nombre";
     const price = getPrice(appt.service);
-
-    revenueByBarber[name] = (revenueByBarber[name] || 0) + price;
+    if (!byBarber[name]) byBarber[name] = { count: 0, revenue: 0 };
+    byBarber[name].count += 1;
+    byBarber[name].revenue += price;
   });
 
   // POR SERVICIO
-  const revenueByService = {};
-
-  selectedAppointments.forEach((appt) => {
-    const service = appt.service;
-    const price = getPrice(service);
-
-    revenueByService[service] = (revenueByService[service] || 0) + price;
+  const byService = {};
+  periodAppointments.forEach((appt) => {
+    const price = getPrice(appt.service);
+    if (!byService[appt.service]) byService[appt.service] = { count: 0, revenue: 0 };
+    byService[appt.service].count += 1;
+    byService[appt.service].revenue += price;
   });
 
-  // MES
-  const month = selectedDate.slice(0, 7);
-
-  const monthAppointments = appointments.filter(
-    (a) => a.date.startsWith(month) && a.status !== "cancelled"
-  );
-
-  const monthRevenue = monthAppointments.reduce((acc, appt) => {
-    return acc + getPrice(appt.service);
-  }, 0);
+  const money = (n) => `$${n.toLocaleString("es-AR")}`;
 
   return (
     <div className="section">
@@ -102,97 +153,126 @@ function AdminStats() {
         <h2>Estadísticas</h2>
       </div>
 
-      {/* FECHA */}
-      <div className="card">
-        <h3>Seleccionar fecha</h3>
-
-        <button className="button primary full" onClick={() => setShowCalendar(!showCalendar)}>
-          {selectedDate}
-        </button>
-        <br />
-        <AnimatePresence>
-          {showCalendar && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            className="calendar-wrapper"
-
-            >
-              <Calendar
-                value={statsDate}
-                onChange={(date) => {
-                  setStatsDate(date);
-                  setShowCalendar(false);
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* SELECTOR DE PERÍODO */}
+      <div className="stats-period-tabs">
+        {PERIODS.map((p) => (
+          <button
+            key={p.id}
+            className={`stats-period-tab ${period === p.id ? "active" : ""}`}
+            onClick={() => setPeriod(p.id)}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
+
+      {/* NAVEGACIÓN DE FECHA */}
+      <div className="stats-date-nav">
+        <button className="date-strip-arrow" onClick={() => setAnchor(shiftAnchor(period, anchor, -1))}>
+          <FaChevronLeft />
+        </button>
+
+        <button className="stats-date-label" onClick={() => setShowCalendar(!showCalendar)}>
+          <FaCalendarAlt /> {range.label}
+        </button>
+
+        <button className="date-strip-arrow" onClick={() => setAnchor(shiftAnchor(period, anchor, 1))}>
+          <FaChevronRight />
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showCalendar && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="calendar-wrapper"
+          >
+            <Calendar
+              value={anchor}
+              onChange={(date) => {
+                setAnchor(date);
+                setShowCalendar(false);
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* RESUMEN */}
       <div className="stat-grid" style={{ marginTop: 20 }}>
-
         <div className="stat-card tone-primary">
           <div>
-            <div className="stat-value">{totalSelected}</div>
+            <div className="stat-value">{totalAppointments}</div>
             <div className="stat-label">Turnos</div>
           </div>
         </div>
 
         <div className="stat-card tone-success">
           <div>
-            <div className="stat-value">${selectedRevenue.toLocaleString("es-AR")}</div>
-            <div className="stat-label">Ganancia del día</div>
+            <div className="stat-value">{money(totalRevenue)}</div>
+            <div className="stat-label">Ingresos</div>
           </div>
         </div>
 
         <div className="stat-card tone-danger">
           <div>
-            <div className="stat-value">{cancelledSelected}</div>
+            <div className="stat-value">{cancelledCount}</div>
             <div className="stat-label">Cancelados</div>
           </div>
         </div>
 
         <div className="stat-card tone-neutral">
           <div>
-            <div className="stat-value">${monthRevenue.toLocaleString("es-AR")}</div>
-            <div className="stat-label">Ganancia del mes</div>
+            <div className="stat-value">{money(Math.round(avgTicket))}</div>
+            <div className="stat-label">Ticket promedio</div>
           </div>
         </div>
-
       </div>
 
-      {/* BARBEROS */}
-      <div className="section-title" style={{ marginTop: 32 }}>Por barbero</div>
+      {/* BARBEROS — pensado para calcular sueldos/comisiones */}
+      <div className="section-title" style={{ marginTop: 32 }}>
+        Por profesional <span className="premium-tag">Premium</span>
+      </div>
+      <p className="stats-hint">Turnos realizados e ingresos generados por cada profesional en el período.</p>
 
-      {Object.keys(revenueByBarber).length === 0 ? (
-        <div className="empty-state"><p>Sin turnos ese día</p></div>
+      {Object.keys(byBarber).length === 0 ? (
+        <div className="empty-state"><p>Sin turnos en este período</p></div>
       ) : (
-        <div className="grid">
-          {Object.entries(revenueByBarber).map(([name, total]) => (
-            <div className="card" key={name}>
-              <h3>{name}</h3>
-              <p>${total.toLocaleString("es-AR")}</p>
-            </div>
-          ))}
+        <div className="payroll-table">
+          <div className="payroll-row payroll-header">
+            <div>Profesional</div>
+            <div>Turnos</div>
+            <div>Ingresos generados</div>
+          </div>
+          {Object.entries(byBarber)
+            .sort((a, b) => b[1].revenue - a[1].revenue)
+            .map(([name, data]) => (
+              <div className="payroll-row" key={name}>
+                <div>{name}</div>
+                <div>{data.count}</div>
+                <div>{money(data.revenue)}</div>
+              </div>
+            ))}
         </div>
       )}
 
       {/* SERVICIOS */}
       <div className="section-title" style={{ marginTop: 32 }}>Por servicio</div>
 
-      {Object.keys(revenueByService).length === 0 ? (
-        <div className="empty-state"><p>Sin turnos ese día</p></div>
+      {Object.keys(byService).length === 0 ? (
+        <div className="empty-state"><p>Sin turnos en este período</p></div>
       ) : (
         <div className="grid">
-          {Object.entries(revenueByService).map(([name, total]) => (
-            <div className="card" key={name}>
-              <h3>{name}</h3>
-              <p>${total.toLocaleString("es-AR")}</p>
-            </div>
-          ))}
+          {Object.entries(byService)
+            .sort((a, b) => b[1].revenue - a[1].revenue)
+            .map(([name, data]) => (
+              <div className="card" key={name}>
+                <h3>{name}</h3>
+                <p>{data.count} turnos · {money(data.revenue)}</p>
+              </div>
+            ))}
         </div>
       )}
 

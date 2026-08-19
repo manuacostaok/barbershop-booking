@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Calendar from "react-calendar";
 import Toast from "../../components/Toast";
 import BaseModal from "../../components/BaseModal";
-import { FaTimes, FaUndo, FaCheck } from "react-icons/fa";
+import { FaTimes, FaUndo, FaCheck, FaCalendarAlt, FaFilter } from "react-icons/fa";
 
 function BarberAppointments() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -178,41 +178,55 @@ function BarberAppointments() {
       </div>
 
       {/* FILTROS */}
-      <div className="section">
+      <div className="filter-card">
 
-        <button
-          className="button secondary"
-          onClick={() => setShowCalendar(!showCalendar)}
-        >
-          📅 {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
-        </button>
-
-        <AnimatePresence>
-          {showCalendar && (
-            <motion.div
-              className="calendar-wrapper"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <Calendar
-                onChange={(date) => setFilterDate(date)}
-                value={filterDate}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="barber-filter-row">
-          {["", "pending", "confirmed", "completed", "cancelled"].map((s) => (
+        <div className="filter-group">
+          <span className="filter-label"><FaCalendarAlt /> Fecha</span>
+          <div className="filter-date-row">
             <button
-              key={s}
-              className={`barber-pill ${filterStatus === s ? "active" : ""}`}
-              onClick={() => setFilterStatus(s)}
+              className="button secondary"
+              onClick={() => setShowCalendar(!showCalendar)}
             >
-              {s || "Todos"}
+              {filterDate ? formatDate(filterDate) : "Cualquier fecha"}
             </button>
-          ))}
+
+            {filterDate && (
+              <button className="filter-clear-btn" onClick={() => setFilterDate(null)}>
+                Quitar
+              </button>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {showCalendar && (
+              <motion.div
+                className="calendar-wrapper"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <Calendar
+                  onChange={(date) => setFilterDate(date)}
+                  value={filterDate}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="filter-group">
+          <span className="filter-label"><FaFilter /> Estado</span>
+          <div className="barber-filter-row">
+            {["", "pending", "confirmed", "completed", "cancelled"].map((s) => (
+              <button
+                key={s}
+                className={`barber-pill ${filterStatus === s ? "active" : ""}`}
+                onClick={() => setFilterStatus(s)}
+              >
+                {s || "Todos"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

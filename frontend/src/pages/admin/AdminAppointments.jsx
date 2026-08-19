@@ -6,9 +6,19 @@ import {
   FaTrash,
   FaUndo,
   FaTimes,
-  FaCheck
+  FaCheck,
+  FaCalendarAlt,
+  FaFilter,
 } from "react-icons/fa";
 import BaseModal from "../../components/BaseModal";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "Todos" },
+  { value: "pending", label: "Pendiente" },
+  { value: "confirmed", label: "Confirmado" },
+  { value: "completed", label: "Completado" },
+  { value: "cancelled", label: "Cancelado" },
+];
 
 function AdminAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -67,7 +77,7 @@ function AdminAppointments() {
   const completeAppointment = async (id) => {
     try {
       await api.patch(`/appointments/${id}/complete`);
-      setToast("Turno completado ✅");
+      setToast("Turno completado");
       fetchAppointments();
     } catch {
       setToast("Error");
@@ -77,7 +87,7 @@ function AdminAppointments() {
   const reactivateAppointment = async (id) => {
     try {
       await api.patch(`/appointments/${id}/reactivate`);
-      setToast("Turno reactivado 🔄");
+      setToast("Turno reactivado");
       fetchAppointments();
     } catch {
       setToast("Error");
@@ -94,12 +104,12 @@ function AdminAppointments() {
     try {
       if (actionType === "cancel") {
         await api.patch(`/appointments/${selectedId}/cancel`);
-        setToast("Turno cancelado ❌");
+        setToast("Turno cancelado");
       }
 
       if (actionType === "delete") {
         await api.delete(`/appointments/${selectedId}`);
-        setToast("Turno eliminado 🗑️");
+        setToast("Turno eliminado");
       }
 
       setModalOpen(false);
@@ -120,6 +130,15 @@ function AdminAppointments() {
     );
   });
 
+  const activeFilterCount =
+    (filterDate ? 1 : 0) + (filterBarber ? 1 : 0) + (filterStatus ? 1 : 0);
+
+  const clearFilters = () => {
+    setFilterDate("");
+    setFilterBarber("");
+    setFilterStatus("");
+  };
+
   // =========================
   // UI
   // =========================
@@ -128,67 +147,94 @@ function AdminAppointments() {
 
       <div className="page-header">
         <h2>Turnos</h2>
+        {activeFilterCount > 0 && (
+          <button className="button secondary" onClick={clearFilters}>
+            Limpiar filtros ({activeFilterCount})
+          </button>
+        )}
       </div>
 
       {/* ================= FILTERS ================= */}
-      <div className="filter-section">
+      <div className="filter-card">
 
-        {/* DATE */}
-        <button
-          className="button secondary"
-          onClick={() => setShowCalendar(!showCalendar)}
-        >
-          📅 {filterDate ? formatDate(filterDate) : "Seleccionar fecha"}
-        </button>
-
-        <AnimatePresence>
-          {showCalendar && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="calendar-wrapper"
+        <div className="filter-group">
+          <span className="filter-label"><FaCalendarAlt /> Fecha</span>
+          <div className="filter-date-row">
+            <button
+              className="button secondary"
+              onClick={() => setShowCalendar(!showCalendar)}
             >
-              <Calendar
-                value={filterDate}
-                onChange={(date) => {
-                  setFilterDate(date);
-                  setShowCalendar(false);
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {filterDate ? formatDate(filterDate) : "Cualquier fecha"}
+            </button>
+
+            {filterDate && (
+              <button className="filter-clear-btn" onClick={() => setFilterDate("")}>
+                <FaTimes /> Quitar
+              </button>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {showCalendar && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="calendar-wrapper"
+              >
+                <Calendar
+                  value={filterDate}
+                  onChange={(date) => {
+                    setFilterDate(date);
+                    setShowCalendar(false);
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* STATUS */}
-        <div className="barber-filter-row">
-          <button className="barber-pill" onClick={() => setFilterStatus("")}>Todos</button>
-          <button className="barber-pill" onClick={() => setFilterStatus("pending")}>Pendiente</button>
-          <button className="barber-pill" onClick={() => setFilterStatus("confirmed")}>Confirmado</button>
-          <button className="barber-pill" onClick={() => setFilterStatus("completed")}>Completado</button>
-          <button className="barber-pill" onClick={() => setFilterStatus("cancelled")}>Cancelado</button>
+        <div className="filter-group">
+          <span className="filter-label"><FaFilter /> Estado</span>
+          <div className="barber-filter-row">
+            {STATUS_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                className={`barber-pill ${filterStatus === opt.value ? "active" : ""}`}
+                onClick={() => setFilterStatus(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* BARBERS */}
-        <div className="barber-filter-row">
-          <button
-            className={`barber-pill ${filterBarber === "" ? "active-all" : ""}`}
-            onClick={() => setFilterBarber("")}
-          >
-            Todos
-          </button>
+        {barbers.length > 0 && (
+          <div className="filter-group">
+            <span className="filter-label">Profesional</span>
+            <div className="barber-filter-row">
+              <button
+                className={`barber-pill ${filterBarber === "" ? "active" : ""}`}
+                onClick={() => setFilterBarber("")}
+              >
+                Todos
+              </button>
 
-          {barbers.map((b) => (
-            <button
-              key={b._id}
-              className={`barber-pill ${filterBarber === b._id ? "active" : ""}`}
-              onClick={() => setFilterBarber(b._id)}
-            >
-              <img src={b.avatar || "https://i.pravatar.cc/100"} />
-              {b.name}
-            </button>
-          ))}
-        </div>
+              {barbers.map((b) => (
+                <button
+                  key={b._id}
+                  className={`barber-pill ${filterBarber === b._id ? "active" : ""}`}
+                  onClick={() => setFilterBarber(b._id)}
+                >
+                  <img src={b.avatar || "https://i.pravatar.cc/100"} />
+                  {b.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ================= LIST ================= */}
@@ -207,7 +253,7 @@ function AdminAppointments() {
             <div className="row header-row">
               <div>Cliente</div>
               <div>Servicio</div>
-              <div>Barbero</div>
+              <div>Profesional</div>
               <div>Fecha</div>
               <div>Hora</div>
               <div>Estado</div>
@@ -302,7 +348,7 @@ function AdminAppointments() {
         </div>
 
         <div className="modal-actions">
-          <button className="button" onClick={() => setModalOpen(false)}>
+          <button className="button secondary" onClick={() => setModalOpen(false)}>
             Volver
           </button>
 

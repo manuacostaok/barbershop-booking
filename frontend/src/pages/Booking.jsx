@@ -15,6 +15,7 @@ import {
   FaSun,
   FaCloudSun,
   FaMoon,
+  FaGift,
 } from "react-icons/fa";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
@@ -340,12 +341,16 @@ function Booking() {
           </button>
 
           {!user && (
-            <p className="register-cta">
-              ¿Sos nuevo cliente?{" "}
-              <span className="link-register" onClick={() => setModal("register")}>
-                Registrate y obtené beneficios
-              </span>
-            </p>
+            <div className="register-banner">
+              <FaGift className="register-banner-icon" />
+              <div>
+                <strong>Registrate y sumá puntos en cada visita</strong>
+                <p>Cada corte cuenta para tu premio de fidelidad — creá tu cuenta gratis.</p>
+              </div>
+              <button className="button primary" onClick={() => setModal("register")}>
+                Registrarme
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -566,6 +571,30 @@ function Booking() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* UBICACIÓN */}
+      {local?.address && (
+        <div className="main-content location-section">
+          <h2 className="section-title">Cómo llegar</h2>
+          <div className="location-map-wrapper">
+            <iframe
+              title="Ubicación del local"
+              className="location-map"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(local.address)}&output=embed`}
+            />
+          </div>
+          <a
+            className="location-map-link"
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaMapMarkerAlt /> Abrir en Google Maps
+          </a>
+        </div>
+      )}
 
       <Toast message={toast} show={!!toast} onClose={() => setToast("")} />
     </div>
