@@ -206,6 +206,13 @@ function AdminConfig() {
     setLocal(updated);
     document.documentElement.setAttribute("data-palette", paletteId); // preview instantáneo
 
+    // 🔥 el Aurora de fondo vive en Layout.jsx con su propio estado
+    // de React — el atributo data-palette de arriba actualiza los
+    // colores de TODO lo demás (que usa variables CSS), pero el
+    // Aurora no se enteraba de este cambio hasta recargar la
+    // página. Este evento lo avisa en el momento.
+    window.dispatchEvent(new CustomEvent("themechange", { detail: { palette: paletteId } }));
+
     try {
       await api.put("/local", updated);
       setToast("Paleta actualizada");
@@ -218,6 +225,7 @@ function AdminConfig() {
     const updated = { ...local, themeMode: modeId };
     setLocal(updated);
     document.documentElement.setAttribute("data-mode", modeId); // preview instantáneo
+    window.dispatchEvent(new CustomEvent("themechange", { detail: { mode: modeId } }));
 
     try {
       await api.put("/local", updated);

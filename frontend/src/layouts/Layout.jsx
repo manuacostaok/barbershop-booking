@@ -42,6 +42,21 @@ function Layout({ children }) {
       .catch(() => {});
   }, []);
 
+  // Si el admin cambia la apariencia desde Configuración mientras
+  // esta misma pestaña sigue abierta, nos avisa por acá — sin esto,
+  // el Aurora se quedaba con los colores viejos hasta recargar,
+  // aunque el resto de la UI (basada en variables CSS) sí se
+  // actualizaba al instante.
+  useEffect(() => {
+    const handleThemeChange = (e) => {
+      if (e.detail?.palette) setPalette(e.detail.palette);
+      if (e.detail?.mode) setMode(e.detail.mode);
+    };
+
+    window.addEventListener("themechange", handleThemeChange);
+    return () => window.removeEventListener("themechange", handleThemeChange);
+  }, []);
+
   const isDark = mode === "oscuro";
   const hues = PALETTE_HUES[palette] || PALETTE_HUES.esmeralda;
 
