@@ -5,11 +5,25 @@ import { FaCamera, FaSpinner, FaSun, FaMoon } from "react-icons/fa";
 
 // Paleta y modo son dos ejes independientes — cualquier paleta
 // funciona con cualquier modo (ej: rosa+oscuro, esmeralda+claro).
-const PALETTES = [
-  { id: "esmeralda", label: "Esmeralda", gradient: "linear-gradient(135deg, #21e6b0, #ffb020)" },
-  { id: "rosa", label: "Rosa", gradient: "linear-gradient(135deg, #e85d8a, #f4a4c0)" },
-  { id: "azul", label: "Azul", gradient: "linear-gradient(135deg, #5b8def, #22d3ee)" },
-  { id: "neutro", label: "Neutro", gradient: "linear-gradient(135deg, #0d9488, #f59e0b)" },
+// 3 con energía más "urbana" + 3 más suaves/cálidas, para que
+// cualquier tipo de negocio encuentre algo que le quede bien.
+const PALETTE_GROUPS = [
+  {
+    label: "Urbanas",
+    options: [
+      { id: "esmeralda", label: "Esmeralda", gradient: "linear-gradient(135deg, #21e6b0, #ffb020)" },
+      { id: "azul", label: "Azul", gradient: "linear-gradient(135deg, #5b8def, #22d3ee)" },
+      { id: "neutro", label: "Neutro", gradient: "linear-gradient(135deg, #0d9488, #f59e0b)" },
+    ],
+  },
+  {
+    label: "Suaves",
+    options: [
+      { id: "rosa", label: "Rosa", gradient: "linear-gradient(135deg, #e85d8a, #f4a4c0)" },
+      { id: "lavanda", label: "Lavanda", gradient: "linear-gradient(135deg, #9b7ee8, #e8b34a)" },
+      { id: "durazno", label: "Durazno", gradient: "linear-gradient(135deg, #ff8266, #ffb949)" },
+    ],
+  },
 ];
 
 const MODES = [
@@ -216,10 +230,16 @@ function AdminConfig() {
   return (
     <div className="section">
 
+      {/* En desktop, Perfil y Apariencia van lado a lado —
+          sobraba mucho espacio con todo apilado en una sola
+          columna angosta en pantallas de monitor. */}
+      <div className="config-two-col">
+
       {/* ========================= */}
       {/* 🏪 PERFIL DEL LOCAL */}
       {/* ========================= */}
 
+      <div>
       <div className="page-header">
         <h2>Perfil del local</h2>
       </div>
@@ -328,12 +348,14 @@ function AdminConfig() {
           Guardar todo
         </button>
       </div>
+      </div>
 
       {/* ========================= */}
       {/* 🎨 APARIENCIA / PALETA DE COLORES */}
       {/* ========================= */}
 
-      <div className="page-header" style={{ marginTop: 32 }}>
+      <div>
+      <div className="page-header">
         <h2>Apariencia</h2>
       </div>
 
@@ -344,18 +366,23 @@ function AdminConfig() {
         </p>
 
         <p className="config-subsection-label">Color</p>
-        <div className="theme-picker">
-          {PALETTES.map((p) => (
-            <button
-              key={p.id}
-              className={`theme-option ${local.themePalette === p.id ? "active" : ""}`}
-              onClick={() => selectPalette(p.id)}
-            >
-              <span className="theme-swatch" style={{ background: p.gradient }} />
-              <span className="theme-option-name">{p.label}</span>
-            </button>
-          ))}
-        </div>
+        {PALETTE_GROUPS.map((group) => (
+          <div key={group.label} style={{ marginBottom: 14 }}>
+            <p className="config-group-label">{group.label}</p>
+            <div className="theme-picker">
+              {group.options.map((p) => (
+                <button
+                  key={p.id}
+                  className={`theme-option ${local.themePalette === p.id ? "active" : ""}`}
+                  onClick={() => selectPalette(p.id)}
+                >
+                  <span className="theme-swatch" style={{ background: p.gradient }} />
+                  <span className="theme-option-name">{p.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
 
         <p className="config-subsection-label" style={{ marginTop: 18 }}>Modo</p>
         <div className="mode-picker">
@@ -370,6 +397,9 @@ function AdminConfig() {
             </button>
           ))}
         </div>
+      </div>
+      </div>
+
       </div>
 
       {/* ========================= */}

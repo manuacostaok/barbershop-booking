@@ -56,10 +56,18 @@ const localSchema = new mongoose.Schema(
     // que el mismo sistema sirva a rubros distintos (barbería,
     // manicura/estética, spa, etc.) sin que se vea "de barbero"
     // para todos.
-    theme: {
+    // 🎨 Apariencia de la página pública — dos ejes independientes:
+    // paleta (color de marca) y modo (claro/oscuro). Cualquier
+    // combinación es válida (ej: rosa+oscuro, esmeralda+claro).
+    themePalette: {
       type: String,
-      enum: ["esmeralda", "rosa", "claro", "nocturno"],
+      enum: ["esmeralda", "azul", "neutro", "rosa", "lavanda", "durazno"],
       default: "esmeralda",
+    },
+    themeMode: {
+      type: String,
+      enum: ["oscuro", "claro"],
+      default: "oscuro",
     },
   },
   { timestamps: true }

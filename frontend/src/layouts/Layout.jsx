@@ -2,33 +2,23 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import InstallPrompt from "../components/InstallPrompt";
 import Aurora from "../components/Aurora";
+import NeuralBackground from "../components/NeuralBackground";
 import api from "../api";
 
-// Colores del Aurora por PALETA — el color intermedio (fondo) y
-// la opacidad dependen del MODO. Pedido explícito: el Aurora
-// tiene que ser consistente con la combinación paleta+modo
-// elegida en Admin > Config > Apariencia, en toda la app.
+// Colores del Aurora, uno por PALETA — solo se usa en modo
+// oscuro. En modo claro el Aurora se saca por completo (no solo
+// se atenúa): un glow tipo WebGL con blending aditivo, pensado
+// para fondo oscuro, no queda bien sobre fondo blanco por más
+// que se le baje la opacidad — se ve "sucio". En modo claro la
+// red neuronal de puntos ya aporta el movimiento de fondo.
 const PALETTE_HUES = {
   esmeralda: { from: "#21e6b0", to: "#ffb020" },
-  rosa: { from: "#e85d8a", to: "#f4a4c0" },
   azul: { from: "#5b8def", to: "#22d3ee" },
   neutro: { from: "#0d9488", to: "#f59e0b" },
+  rosa: { from: "#e85d8a", to: "#f4a4c0" },
+  lavanda: { from: "#9b7ee8", to: "#e8b34a" },
+  durazno: { from: "#ff8266", to: "#ffb949" },
 };
-
-const MODE_SETTINGS = {
-  oscuro: { mid: "#0a0a11", opacity: 0.4 },
-  claro: { mid: "#f7f7f9", opacity: 0.2 },
-};
-
-function getAurora(palette, mode) {
-  const hues = PALETTE_HUES[palette] || PALETTE_HUES.esmeralda;
-  const modeCfg = MODE_SETTINGS[mode] || MODE_SETTINGS.oscuro;
-
-  return {
-    colors: [hues.from, modeCfg.mid, hues.to],
-    opacity: modeCfg.opacity,
-  };
-}
 
 function Layout({ children }) {
   const [palette, setPalette] = useState("esmeralda");
@@ -52,13 +42,18 @@ function Layout({ children }) {
       .catch(() => {});
   }, []);
 
-  const aurora = getAurora(palette, mode);
+  const isDark = mode === "oscuro";
+  const hues = PALETTE_HUES[palette] || PALETTE_HUES.esmeralda;
 
   return (
     <div className="app">
-      <div className="app-aurora-bg" style={{ opacity: aurora.opacity }}>
-        <Aurora colorStops={aurora.colors} amplitude={1.0} blend={0.6} speed={0.5} />
-      </div>
+      {isDark && (
+        <div className="app-aurora-bg">
+          <Aurora colorStops={[hues.from, "#0a0a11", hues.to]} amplitude={1.0} blend={0.6} speed={0.5} />
+        </div>
+      )}
+
+      <NeuralBackground />
 
       <Navbar />
 
