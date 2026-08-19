@@ -3,6 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
+const Local = require("../models/Local");
+const { getPlanLimits } = require("../utils/planLimits");
 const { protect, requireRole } = require("../middlewares/authMiddleware");
 
 // ===============================
@@ -32,6 +34,19 @@ router.post("/barbers", protect, requireRole("admin"), async (req, res) => {
 
     if (password.length < 8) {
       return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
+    }
+
+    // 💳 Límite real por plan — antes cualquiera podía crear
+    // barberos sin tope, sin importar el plan contratado.
+    const local = await Local.findOne();
+    const { maxBarbers } = getPlanLimits(local?.plan);
+
+    const currentBarberCount = await User.countDocuments({ role: "barber" });
+
+    if (currentBarberCount >= maxBarbers) {
+      return res.status(403).json({
+        message: `Tu plan actual (${local?.plan || "básico"}) permite hasta ${maxBarbers} profesional${maxBarbers === 1 ? "" : "es"}. Actualizá tu plan para agregar más.`,
+      });
     }
 
     const exists = await User.findOne({ email: email.toLowerCase().trim() });

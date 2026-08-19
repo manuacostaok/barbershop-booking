@@ -385,8 +385,33 @@ textarea:focus-visible {
   margin-bottom: 15px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
   font-size: 14px;
+  font-family: inherit;
   transition: 0.2s;
+
+  /* 🔥 sin esto, iOS renderiza el picker nativo de hora/fecha con
+     SU propio cromo claro por defecto, que se ve como un "recuadro
+     fantasma" asomando detrás del input oscuro */
+  color-scheme: dark;
+}
+
+html[data-mode="claro"] .input {
+  color-scheme: light;
+}
+
+/* selects: sacamos la flecha nativa del sistema (se veía
+   inconsistente con el resto) y ponemos una propia */
+select.input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239691a5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
 .input:focus {
@@ -766,9 +791,10 @@ textarea:focus-visible {
   width: 100%;
   max-width: 420px;
   background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 28px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  box-shadow: var(--shadow-md);
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -1220,9 +1246,8 @@ textarea:focus-visible {
   }
 }
 
-.card {
-  backdrop-filter: blur(6px);
-}
+/* (segunda definición de .card, más débil, eliminada — pisaba
+   la sombra buena de la primera con una más plana) */
 /* =========================
    BASE + GRID SUAVE
 ========================= */
@@ -1354,6 +1379,14 @@ body {
   text-decoration: none;
 }
 
+/* grilla de 7 columnas — sin esto el calendario no arma
+   filas de semana correctas */
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
 /* cada día */
 .react-calendar__tile {
   background: none;
@@ -1364,6 +1397,7 @@ body {
   color: var(--color-text);
   font-size: 0.88rem;
   font-weight: 500;
+  height: 38px;
 
   transition: background var(--transition), color var(--transition), transform var(--transition);
 }
@@ -1768,41 +1802,9 @@ html, body {
 
 
 
-.sidebar {
-  width: 240px;
-  background: #6b6969;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.logo {
-  margin-bottom: 20px;
-}
-
-.nav-item {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  color: rgb(0, 0, 0);
-  text-decoration: none;
-}
-
-.nav-item.active {
-  background: var(--color-surface-card);
-}
-
-.admin-content {
-  flex: 1;
-  padding: 20px;
-}
-
-.nav-item.active {
-  background: #222;
-  color: white;
-}
+/* (bloque viejo de sidebar/admin-content con fondo gris y texto
+   negro, restos de antes del rediseño completo — eliminado.
+   Todo lo consolidado más abajo en "ADMIN LAYOUT / SIDEBAR".) */
 
 /* ===== ADMIN LAYOUT ===== */
 
@@ -1812,16 +1814,37 @@ html, body {
   background: transparent; /* deja ver el fondo Aurora detrás */
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR =====
+   Única definición — antes había 4 bloques de .sidebar y 3 de
+   .admin-content dispersos por el archivo, pisándose entre sí de
+   formas impredecibles según el ancho de pantalla. Consolidado
+   todo acá, en un solo lugar, mobile-first. */
 
 .sidebar {
-  width: 240px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+
   background: var(--color-surface-card);
   border-right: 1px solid var(--color-border);
+
   padding: 20px;
+
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  /* mobile-first: oculto por default, se muestra con .open */
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+
+  z-index: 1000;
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 /* LOGO */
@@ -1845,6 +1868,11 @@ html, body {
   color: var(--color-text-muted);
   font-weight: 500;
   font-size: 0.94rem;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 
   transition: background var(--transition), color var(--transition), transform var(--transition);
 }
@@ -1863,15 +1891,50 @@ html, body {
   box-shadow: var(--shadow-glow);
 }
 
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+
+  z-index: 999;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: 0.3s;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
 /* ===== CONTENIDO ===== */
 
 .admin-content {
   flex: 1;
+  min-width: 0; /* evita overflow horizontal dentro del flex */
   padding: 30px;
+  margin-left: 0; /* mobile-first: sin sidebar fijo al costado */
   overflow-y: auto;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== DESKTOP — acá y solo acá el sidebar pasa a ocupar
+   su propio lugar en el layout (position:relative) y el
+   contenido le deja el margen correspondiente. ===== */
+@media (min-width: 769px) {
+  .sidebar {
+    position: relative;
+    transform: translateX(0);
+  }
+
+  .overlay {
+    display: none;
+  }
+}
+
+/* ===== RESPONSIVE (mobile) ===== */
 
 @media (max-width: 768px) {
   .sidebar {
@@ -1887,12 +1950,8 @@ html, body {
   }
 }
 
-.card {
-  background: var(--color-surface-card);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
+/* (.card consolidada arriba — esta duplicada con sombra más
+   débil pisaba la buena, causaba que las cards se vieran planas) */
 
 .menu-btn {
   font-size: 22px;
@@ -2015,191 +2074,11 @@ html, body {
 
 
 
-/* CONTENEDOR LOGO */
-/* (.logo viejo de navbar + .nav-logo-img eliminados —
-   la marca actual usa .brand-mark / .brand-name) */
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 260px;
-
-  background: var(--color-surface-card);
-  border-right: 1px solid var(--color-border);
-
-  padding: 20px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-
-  z-index: 1000;
-}
-
-.sidebar.open {
-  transform: translateX(0);
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(4px);
-
-  z-index: 999;
-
-  opacity: 0;
-  pointer-events: none;
-
-  transition: 0.3s;
-}
-
-.overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-@media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0);
-    position: relative;
-  }
-
-  .overlay {
-    display: none;
-  }
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 240px;
-  color: white;
-  padding: 20px;
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-/* 🔥 MOBILE (OCULTA) */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-}
-
-/* 💻 DESKTOP */
-@media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0);
-  }
-
-  .sidebar.collapsed {
-    width: 70px;
-  }
-}
-
-/* ITEMS */
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  transition: all 0.2s;
-}
-
-.nav-item:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* ICONOS */
-.nav-item svg {
-  font-size: 18px;
-  min-width: 18px;
-}
-
-/* TEXTO */
-.label {
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-/* 🔥 OCULTAR TEXTO EN COLAPSADO */
-.sidebar.collapsed .label {
-  opacity: 0;
-  transform: translateX(-10px);
-  pointer-events: none;
-}
-
-/* CONTENIDO */
-.admin-content {
-  margin-left: 240px;
-  transition: all 0.3s ease;
-}
-
-/* CUANDO ESTA COLAPSADA */
-.sidebar.collapsed ~ .admin-content {
-  margin-left: 70px;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .admin-content {
-    margin-left: 0;
-  }
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-  backdrop-filter: blur(3px);
-}
-
-.react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-.react-calendar__tile {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-@media (max-width: 768px) {
-  .react-calendar {
-    width: 100% !important;
-    padding: 10px;
-  }
-
-  .react-calendar__tile {
-    height: 36px;
-    font-size: 12px;
-  }
-}
-
-/* wrapper seguro */
-.calendar-wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.calendar-wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
+/* (todo este tramo era un segundo juego COMPLETO de reglas de
+   sidebar/admin-content/overlay/calendar-wrapper, duplicado del
+   que ya quedó consolidado arriba en "ADMIN LAYOUT / SIDEBAR" —
+   eran 4 versiones de .sidebar y 3 de .admin-content en total
+   peleándose entre sí. Eliminado de punta a punta.) */
 
 /* =========================
    🔥 GLOBAL FIX MOBILE (ANTI SCROLL + RESET)
@@ -4975,4 +4854,50 @@ img, video {
   font-size: 0.88rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
+}
+
+/* =========================================================
+   💳 PLAN GATING — tabs bloqueados + card de upsell
+========================================================= */
+.stats-period-tab.locked {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.stats-period-tab.locked:hover {
+  opacity: 0.75;
+}
+
+.upsell-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-surface-card);
+  border: 1.5px dashed var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  flex-wrap: wrap;
+}
+
+.upsell-card-icon {
+  font-size: 1.6rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.upsell-card strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.upsell-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.upsell-card .button {
+  margin-left: auto;
+  flex-shrink: 0;
 }

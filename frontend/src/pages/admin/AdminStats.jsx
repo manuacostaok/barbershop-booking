@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import Calendar from "react-calendar";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaChevronLeft, FaChevronRight, FaCalendarAlt } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaLock, FaCrown } from "react-icons/fa";
 
 const PERIODS = [
   { id: "day", label: "Día" },
@@ -10,6 +11,18 @@ const PERIODS = [
   { id: "month", label: "Mes" },
   { id: "year", label: "Año" },
 ];
+
+// 💳 Espejo del límite real que ya aplica el backend
+// (backend/src/utils/planLimits.js) — acá solo decide qué se
+// puede TOCAR en la UI; la fuente de verdad sigue siendo el
+// backend para todo lo que de verdad importa (crear barberos, etc).
+const PLAN_GRANULARITY = {
+  basico: ["month"],
+  pro: ["day", "week", "month"],
+  premium: ["day", "week", "month", "year"],
+};
+
+const PLAN_LABELS = { basico: "Básico", pro: "Pro", premium: "Premium" };
 
 const MONTHS = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -83,21 +96,27 @@ function shiftAnchor(period, anchor, dir) {
 }
 
 function AdminStats() {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [services, setServices] = useState([]);
+  const [plan, setPlan] = useState("basico");
 
   const [period, setPeriod] = useState("month");
   const [anchor, setAnchor] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
-    Promise.all([api.get("/appointments/all"), api.get("/services")])
-      .then(([a, s]) => {
+    Promise.all([api.get("/appointments/all"), api.get("/services"), api.get("/local")])
+      .then(([a, s, l]) => {
         setAppointments(a.data);
         setServices(s.data);
+        setPlan(l.data?.plan || "basico");
       })
       .catch((err) => console.log("error stats", err));
   }, []);
+
+  const allowedPeriods = PLAN_GRANULARITY[plan] || PLAN_GRANULARITY.basico;
+  const canSeePayroll = plan === "premium";
 
   const getPrice = (serviceName) => {
     const service = services.find((s) => s.name === serviceName);
@@ -151,19 +170,28 @@ function AdminStats() {
 
       <div className="page-header">
         <h2>Estadísticas</h2>
+        <span className="premium-tag" style={{ background: "var(--color-surface-2)", color: "var(--color-text-muted)" }}>
+          Plan {PLAN_LABELS[plan]}
+        </span>
       </div>
 
       {/* SELECTOR DE PERÍODO */}
       <div className="stats-period-tabs">
-        {PERIODS.map((p) => (
-          <button
-            key={p.id}
-            className={`stats-period-tab ${period === p.id ? "active" : ""}`}
-            onClick={() => setPeriod(p.id)}
-          >
-            {p.label}
-          </button>
-        ))}
+        {PERIODS.map((p) => {
+          const allowed = allowedPeriods.includes(p.id);
+          return (
+            <button
+              key={p.id}
+              className={`stats-period-tab ${period === p.id ? "active" : ""} ${!allowed ? "locked" : ""}`}
+              onClick={() => {
+                if (!allowed) return navigate("/planes");
+                setPeriod(p.id);
+              }}
+            >
+              {!allowed && <FaLock size={10} />} {p.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* NAVEGACIÓN DE FECHA */}
@@ -235,27 +263,43 @@ function AdminStats() {
       <div className="section-title" style={{ marginTop: 32 }}>
         Por profesional <span className="premium-tag">Premium</span>
       </div>
-      <p className="stats-hint">Turnos realizados e ingresos generados por cada profesional en el período.</p>
 
-      {Object.keys(byBarber).length === 0 ? (
-        <div className="empty-state"><p>Sin turnos en este período</p></div>
-      ) : (
-        <div className="payroll-table">
-          <div className="payroll-row payroll-header">
-            <div>Profesional</div>
-            <div>Turnos</div>
-            <div>Ingresos generados</div>
+      {!canSeePayroll ? (
+        <div className="upsell-card">
+          <FaCrown className="upsell-card-icon" />
+          <div>
+            <strong>Desglose por profesional — función Premium</strong>
+            <p>Vas a poder ver turnos e ingresos generados por cada profesional, para calcular sueldos y comisiones.</p>
           </div>
-          {Object.entries(byBarber)
-            .sort((a, b) => b[1].revenue - a[1].revenue)
-            .map(([name, data]) => (
-              <div className="payroll-row" key={name}>
-                <div>{name}</div>
-                <div>{data.count}</div>
-                <div>{money(data.revenue)}</div>
-              </div>
-            ))}
+          <button className="button primary" onClick={() => navigate("/planes")}>
+            Mejorar plan
+          </button>
         </div>
+      ) : (
+        <>
+          <p className="stats-hint">Turnos realizados e ingresos generados por cada profesional en el período.</p>
+
+          {Object.keys(byBarber).length === 0 ? (
+            <div className="empty-state"><p>Sin turnos en este período</p></div>
+          ) : (
+            <div className="payroll-table">
+              <div className="payroll-row payroll-header">
+                <div>Profesional</div>
+                <div>Turnos</div>
+                <div>Ingresos generados</div>
+              </div>
+              {Object.entries(byBarber)
+                .sort((a, b) => b[1].revenue - a[1].revenue)
+                .map(([name, data]) => (
+                  <div className="payroll-row" key={name}>
+                    <div>{name}</div>
+                    <div>{data.count}</div>
+                    <div>{money(data.revenue)}</div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* SERVICIOS */}

@@ -82,6 +82,16 @@ const localSchema = new mongoose.Schema(
       default: "",
       maxlength: 200,
     },
+
+    // 💳 Plan contratado — determina qué funciones están
+    // habilitadas. Hasta ahora "Premium" era solo una etiqueta
+    // decorativa en Estadísticas, sin ninguna restricción real
+    // detrás. Esto lo hace cumplir de verdad.
+    plan: {
+      type: String,
+      enum: ["basico", "pro", "premium"],
+      default: "basico",
+    },
   },
   { timestamps: true }
 );
