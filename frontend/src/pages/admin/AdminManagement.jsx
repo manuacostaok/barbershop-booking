@@ -161,17 +161,17 @@ function AdminManagement() {
       </div>
 
       {/* BARBEROS */}
-      <h3 className="section-title" style={{ marginTop: 28 }}>Barberos</h3>
+      <h3 className="section-title" style={{ marginTop: 28 }}>Profesionales</h3>
 
       {barbers.length === 0 ? (
-        <div className="empty-state"><p>Todavía no cargaste barberos</p></div>
+        <div className="empty-state"><p>Todavía no cargaste profesionales</p></div>
       ) : (
         <div className="grid">
           {barbers.map((b) => (
-            <div key={b._id} className="card">
+            <div key={b._id} className="card barber-manage-card">
               <div className="barber-edit" onClick={() => openEditBarber(b)}>
-                  <FaEdit />
-                </div>
+                <FaEdit />
+              </div>
 
               <img src={b.avatar || "https://i.pravatar.cc/100"} />
               <p>{b.name}</p>
@@ -188,9 +188,11 @@ function AdminManagement() {
       ) : (
         <div className="grid">
           {services.map((s) => (
-            <div key={s._id} className="card">
-              <p>{s.name}</p>
-              <p>${s.price}</p>
+            <div key={s._id} className="card service-manage-card">
+              <div className="service-manage-info">
+                <p className="service-manage-name">{s.name}</p>
+                <p className="service-manage-price">${s.price}</p>
+              </div>
 
               <button className="delete-service-btn" onClick={() => deleteService(s._id)}>
                 <FaTrash />
@@ -255,8 +257,8 @@ function AdminManagement() {
         <p>¿Seguro que querés eliminar a {editBarber?.name}? Esta acción no se puede deshacer.</p>
 
         <div className="modal-actions">
-          <button onClick={() => setConfirmDelete(false)}>Cancelar</button>
-          <button className="danger" onClick={deleteBarber}>Sí, eliminar</button>
+          <button className="button secondary" onClick={() => setConfirmDelete(false)}>Cancelar</button>
+          <button className="button danger" onClick={deleteBarber}>Sí, eliminar</button>
         </div>
       </BaseModal>
 

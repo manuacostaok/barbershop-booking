@@ -335,7 +335,7 @@ function BarberAppointments() {
         </div>
 
         <div className="modal-actions">
-          <button onClick={() => setModalOpen(false)}>
+          <button className="button secondary" onClick={() => setModalOpen(false)}>
             Volver
           </button>
 

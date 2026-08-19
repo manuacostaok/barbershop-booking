@@ -73,12 +73,12 @@ function CreateBarberModal({
       </div>
 
       <div className="modal-actions">
-        <button className="btn-secondary" onClick={onClose}>
+        <button className="button secondary" onClick={onClose}>
           {t.cancel}
         </button>
 
         <button
-          className="btn-primary"
+          className="button primary"
           data-confirm="true"
           onClick={onCreate}
         >

@@ -56,7 +56,7 @@ function AdminDashboard() {
     { label: "Pendientes", value: pending, icon: <FaHourglassHalf />, tone: "warning" },
     { label: "Completados", value: completed, icon: <FaCheckCircle />, tone: "success" },
     { label: "Cancelados", value: cancelled, icon: <FaTimesCircle />, tone: "danger" },
-    { label: "Barberos", value: barbers.length, icon: <FaUserTie />, tone: "neutral" },
+    { label: "Profesionales", value: barbers.length, icon: <FaUserTie />, tone: "neutral" },
     { label: "Servicios", value: services.length, icon: <FaCut />, tone: "neutral" },
   ];
 

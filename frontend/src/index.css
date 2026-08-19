@@ -439,26 +439,63 @@ textarea:focus-visible {
 .delete-btn,
 .reactivate-btn,
 .complete-btn {
-  padding: 8px 12px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
   border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
+  transition: transform var(--transition), filter var(--transition), background var(--transition);
+}
+
+.cancel-btn:hover,
+.delete-btn:hover,
+.reactivate-btn:hover,
+.complete-btn:hover {
+  transform: translateY(-1px);
+}
+
+.complete-btn {
+  background: rgba(33, 230, 176, 0.15);
+  color: var(--color-primary);
+}
+
+.complete-btn:hover {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .cancel-btn {
-  background: #ffecec;
-  color: #d33;
+  background: rgba(255, 92, 108, 0.12);
+  color: var(--color-danger);
 }
 
+.cancel-btn:hover {
+  background: rgba(255, 92, 108, 0.22);
+}
+
+.reactivate-btn {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.reactivate-btn:hover {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+/* 🔥 antes usaba el gradiente de marca — una acción destructiva
+   (borrar) no puede verse igual que el CTA principal (reservar) */
 .delete-btn {
-  background: var(--gradient-brand);
-  color: white;
+  background: var(--color-danger);
+  color: #fff;
 }
 
-.reactivate-btn,
-.complete-btn {
-  background: #e6f7ee;
-  color: #1a7f37;
+.delete-btn:hover {
+  filter: brightness(1.1);
 }
 
 /* =========================
@@ -649,63 +686,8 @@ textarea:focus-visible {
   margin-top: 20px;
 }
 
-/* =========================
-   BUTTON SYSTEM UNIFICADO
-========================= */
-
-.btn-primary {
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--gradient-brand);
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--color-surface-2);
-  border: none;
-  cursor: pointer;
-}
-
-
-
-
-.btn {
-  flex: 1;               /* 🔥 MISMO TAMAÑO */
-  padding: 12px 14px;
-
-  border-radius: 10px;
-  border: none;
-
-  font-weight: 600;
-  cursor: pointer;
-
-  transition: 0.2s;
-  text-align: center;
-}
-
-/* PRIMARY */
-.btn-primary {
-  background: var(--gradient-brand);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #333;
-}
-
-/* SECONDARY */
-.btn-secondary {
-  background: var(--color-surface-2);
-  color: var(--color-text);
-}
-
-.btn-secondary:hover {
-  background: var(--color-surface);
-}
+/* (.btn / .btn-primary / .btn-secondary eliminados — quedaron
+   sin uso tras unificar todo al sistema .button de más abajo) */
 
 /* =========================
    🔘 BOTONES — sistema único y consistente
@@ -1406,17 +1388,8 @@ body::after {
   gap: 12px;
 }
 
-.modal-actions button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.modal-actions .danger {
-  background: #ff4d4f;
-  color: white;
-}
+/* (.modal-actions button / .modal-actions .danger eliminados
+   — todos los modales ya usan .button secondary/primary/danger) */
 
 .link-register {
   cursor: pointer;
@@ -4153,4 +4126,48 @@ img, video {
 
 .sidebar-home-link:hover {
   color: var(--color-primary) !important;
+}
+
+/* =========================================================
+   👥 GESTIÓN — cards de profesionales y servicios
+========================================================= */
+.barber-manage-card {
+  text-align: center;
+  padding: 20px 16px;
+}
+
+.barber-manage-card img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 10px;
+  border: 2px solid var(--color-border);
+}
+
+.barber-manage-card p {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.service-manage-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.service-manage-name {
+  margin: 0 0 2px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.service-manage-price {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.05rem;
 }

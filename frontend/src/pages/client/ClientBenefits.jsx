@@ -99,12 +99,12 @@ export default function ClientBenefits() {
           </p>
 
           <div className="modal-actions">
-            <button onClick={() => setRedeemModal(false)}>
+            <button className="button secondary" onClick={() => setRedeemModal(false)}>
               Cancelar
             </button>
 
             <button
-              className="danger"
+              className="button primary"
               onClick={async () => {
                 await redeemCut(selectedService);
                 setRedeemModal(false);
