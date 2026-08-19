@@ -12,6 +12,7 @@ import {
   FaUser,
   FaBars,
   FaEye,
+  FaCalendarCheck,
 } from "react-icons/fa";
 
 function Navbar() {
@@ -82,6 +83,12 @@ function Navbar() {
       {!isHome && (
         <button className={btnClass(false)} onClick={() => navigate("/")}>
           <FaHome /> Inicio
+        </button>
+      )}
+
+      {location.pathname !== "/planes" && (
+        <button className={btnClass(false)} onClick={() => navigate("/planes")}>
+          <FaCalendarCheck /> Planes
         </button>
       )}
 

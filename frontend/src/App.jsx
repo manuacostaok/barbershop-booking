@@ -14,6 +14,7 @@ import AdminAppointments from "./pages/admin/AdminAppointments";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminStats from "./pages/admin/AdminStats";
 import AdminConfig from "./pages/admin/AdminConfig";
+import AdminFeedback from "./pages/admin/AdminFeedback";
 
 
 import ClientLayout from "./layouts/ClientLayout";
@@ -58,6 +59,7 @@ function App() {
             <Route path="management" element={<AdminManagement />} />
             <Route path="stats" element={<AdminStats />} />
             <Route path="config" element={<AdminConfig />} />
+            <Route path="feedback" element={<AdminFeedback />} />
 
           </Route>
 

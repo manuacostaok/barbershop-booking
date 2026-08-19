@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,6 +17,7 @@ import {
   FaCloudSun,
   FaMoon,
   FaGift,
+  FaStar,
 } from "react-icons/fa";
 import Toast from "../components/Toast";
 import LoginModal from "../components/LoginModal";
@@ -35,6 +37,7 @@ const MONTH_LABELS = [
 ];
 
 function Booking() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
 
@@ -58,7 +61,15 @@ function Booking() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [user, setUser] = useState(null);
+  const isClient = user?.role === "client";
   const [local, setLocal] = useState(null);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    api.get("/reviews/public")
+      .then((res) => setReviews(res.data))
+      .catch(() => {});
+  }, []);
 
   const stripRef = useRef(null);
 
@@ -340,18 +351,30 @@ function Booking() {
             Reservar turno
           </button>
 
-          {!user && (
-            <div className="register-banner">
-              <FaGift className="register-banner-icon" />
-              <div>
-                <strong>Registrate y sumá puntos en cada visita</strong>
-                <p>Cada corte cuenta para tu premio de fidelidad — creá tu cuenta gratis.</p>
-              </div>
-              <button className="button primary" onClick={() => setModal("register")}>
-                Registrarme
-              </button>
-            </div>
-          )}
+          <div className="register-banner">
+            <FaGift className="register-banner-icon" />
+            {isClient ? (
+              <>
+                <div>
+                  <strong>Ya sumás puntos en cada visita</strong>
+                  <p>Revisá cuánto te falta para tu próximo premio de fidelidad.</p>
+                </div>
+                <button className="button primary" onClick={() => navigate("/client/benefits")}>
+                  Ver mis beneficios
+                </button>
+              </>
+            ) : (
+              <>
+                <div>
+                  <strong>Registrate y sumá puntos en cada visita</strong>
+                  <p>Cada corte cuenta para tu premio de fidelidad — creá tu cuenta gratis.</p>
+                </div>
+                <button className="button primary" onClick={() => setModal("register")}>
+                  Registrarme
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -572,27 +595,52 @@ function Booking() {
         </AnimatePresence>
       </div>
 
-      {/* UBICACIÓN */}
-      {local?.address && (
-        <div className="main-content location-section">
-          <h2 className="section-title">Cómo llegar</h2>
-          <div className="location-map-wrapper">
-            <iframe
-              title="Ubicación del local"
-              className="location-map"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(local.address)}&output=embed`}
-            />
+      {/* UBICACIÓN — siempre visible; si el admin no cargó
+          dirección, mostramos el Obelisco (Bs As) como referencia */}
+      <div className="main-content location-section">
+        <h2 className="section-title">Cómo llegar</h2>
+        <div className="location-map-wrapper">
+          <iframe
+            title="Ubicación del local"
+            className="location-map"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            src={`https://www.google.com/maps?q=${encodeURIComponent(local?.address || "Obelisco, Buenos Aires, Argentina")}&output=embed`}
+          />
+        </div>
+        <a
+          className="location-map-link"
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local?.address || "Obelisco, Buenos Aires, Argentina")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaMapMarkerAlt /> Abrir en Google Maps
+        </a>
+      </div>
+
+      {/* RESEÑAS — solo se muestran las positivas (4-5 estrellas) */}
+      {reviews.length > 0 && (
+        <div className="main-content reviews-section">
+          <h2 className="section-title">Lo que dicen nuestros clientes</h2>
+
+          <div className="reviews-grid">
+            {reviews.map((r) => (
+              <div key={r._id} className="review-card">
+                <div className="review-stars">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <FaStar key={i} className={i < r.rating ? "filled" : ""} />
+                  ))}
+                </div>
+
+                {r.comment && <p className="review-comment">"{r.comment}"</p>}
+
+                <div className="review-author">
+                  <span>{r.clientName}</span>
+                  {r.barber?.name && <span className="review-barber">· con {r.barber.name}</span>}
+                </div>
+              </div>
+            ))}
           </div>
-          <a
-            className="location-map-link"
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.address)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaMapMarkerAlt /> Abrir en Google Maps
-          </a>
         </div>
       )}
 

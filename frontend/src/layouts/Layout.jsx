@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import InstallPrompt from "../components/InstallPrompt";
 
 function Layout({ children }) {
   return (
@@ -8,6 +9,8 @@ function Layout({ children }) {
       <main className="main-content">
         {children}
       </main>
+
+      <InstallPrompt />
     </div>
   );
 }

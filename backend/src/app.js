@@ -83,6 +83,7 @@ app.use("/api/services", require("./routes/serviceRoutes"));
 app.use("/api/availability", require("./routes/availabilityRoutes"));
 app.use("/api/config", require("./routes/configRoutes"));
 app.use("/api/subscriptions", require("./routes/subscriptionRoutes"));
+app.use("/api/reviews", require("./routes/reviewRoutes"));
 
 app.use("/api/coupons", couponRoutes);
 
