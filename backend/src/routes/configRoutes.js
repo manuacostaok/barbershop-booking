@@ -22,7 +22,10 @@ router.get("/", async (req, res) => {
 
 router.put("/", protect, requireRole("admin"), async (req, res) => {
   try {
-    const { open, close, interval, hasBreak, breakStart, breakEnd } = req.body;
+    const {
+      open, close, interval, hasBreak, breakStart, breakEnd,
+      loyaltyEnabled, loyaltyCuts, loyaltyReward,
+    } = req.body;
 
     const toMinutes = (t) => {
       const [h, m] = t.split(":").map(Number);
@@ -52,6 +55,17 @@ router.put("/", protect, requireRole("admin"), async (req, res) => {
       }
     }
 
+    const loyaltyEnabledBool = loyaltyEnabled === true || loyaltyEnabled === "true";
+
+    if (loyaltyEnabledBool) {
+      if (!loyaltyCuts || Number(loyaltyCuts) <= 0) {
+        return res.status(400).json({ message: "Cantidad de cortes inválida" });
+      }
+      if (!loyaltyReward) {
+        return res.status(400).json({ message: "Definí el premio" });
+      }
+    }
+
     let config = await Config.findOne();
 
     if (!config) {
@@ -67,6 +81,11 @@ router.put("/", protect, requireRole("admin"), async (req, res) => {
     // 🔥 SOLO seteamos break si está activo
     config.breakStart = hasBreakBool ? breakStart : null;
     config.breakEnd = hasBreakBool ? breakEnd : null;
+
+    // 🎁 PREMIOS DE FIDELIDAD
+    config.loyaltyEnabled = loyaltyEnabledBool;
+    config.loyaltyCuts = loyaltyEnabledBool ? Number(loyaltyCuts) : config.loyaltyCuts;
+    config.loyaltyReward = loyaltyEnabledBool ? loyaltyReward : config.loyaltyReward;
 
     await config.save();
 

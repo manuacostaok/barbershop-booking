@@ -1,13 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const Coupon = require("../models/Coupon");
-const { protect } = require("../middlewares/authMiddleware"); // 🔥 FALTABA ESTO
+const { protect, requireRole } = require("../middlewares/authMiddleware"); // 🔥 FALTABA ESTO
 
-router.post("/validate", protect, async (req, res) => {
+// 🔒 Solo barbero/admin pueden validar y canjear cupones — antes
+// cualquier cliente logueado podía canjear cupones ajenos (o el
+// propio) sin que un barbero lo confirme en persona. Además el
+// populate traía el usuario completo, hash de contraseña incluido.
+router.post("/validate", protect, requireRole(["barber", "admin"]), async (req, res) => {
   try {
     const { code } = req.body;
 
-    const coupon = await Coupon.findOne({ code }).populate("userId");
+    const coupon = await Coupon.findOne({ code }).populate("userId", "name");
 
     // ❌ No existe
     if (!coupon) {

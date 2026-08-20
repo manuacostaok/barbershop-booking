@@ -13,6 +13,8 @@ const generateToken = (user) => {
   );
 };
 const Coupon = require("../models/Coupon");
+const Config = require("../models/Config");
+const Appointment = require("../models/Appointment");
 
 // ===============================
 // 🔐 LOGIN
@@ -207,6 +209,37 @@ const redeemFreeCut = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // 🔒 VALIDACIÓN REAL DE ELEGIBILIDAD — antes este endpoint creaba
+    // el cupón sin chequear nada, cualquier cliente logueado podía
+    // pedir cupones infinitos sin haberse cortado el pelo nunca.
+    const config = await Config.findOne();
+
+    if (!config?.loyaltyEnabled) {
+      return res.status(400).json({ message: "El sistema de premios no está activo" });
+    }
+
+    const cutsNeeded = config.loyaltyCuts || 5;
+
+    const completedCuts = await Appointment.countDocuments({
+      status: "completed",
+      service,
+      $or: [
+        { clientId: user._id },
+        { clientEmail: { $regex: `^${user.email}$`, $options: "i" } },
+      ],
+    });
+
+    const eligibleRewards = Math.floor(completedCuts / cutsNeeded);
+
+    const alreadyRedeemed = await Coupon.countDocuments({
+      userId: user._id,
+      service,
+    });
+
+    if (alreadyRedeemed >= eligibleRewards) {
+      return res.status(400).json({ message: "Todavía no llegaste a tu próximo premio" });
     }
 
     // 🔥 GENERAR CÓDIGO ÚNICO

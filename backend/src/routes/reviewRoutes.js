@@ -3,6 +3,7 @@ const router = express.Router();
 const rateLimit = require("express-rate-limit");
 
 const Review = require("../models/Review");
+const User = require("../models/User");
 const { protect, requireRole } = require("../middlewares/authMiddleware");
 
 const limiter = rateLimit({
@@ -28,9 +29,13 @@ router.post("/", protect, limiter, async (req, res) => {
     // nunca se muestra en la página pública.
     const isPublic = numericRating >= 4;
 
+    // 🔥 el JWT solo trae { id, role, email }, no el nombre — antes
+    // esto guardaba "Cliente" para todas las reseñas sin excepción.
+    const client = await User.findById(req.user.id).select("name");
+
     const review = await Review.create({
       clientId: req.user.id,
-      clientName: req.user.name || "Cliente",
+      clientName: client?.name || "Cliente",
       barber: barber || undefined,
       appointment: appointment || undefined,
       rating: numericRating,

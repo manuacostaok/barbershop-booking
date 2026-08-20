@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api";
 import {
   FaCut,
@@ -66,11 +66,20 @@ const money = (n) =>
 
 function PricingLanding() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [modalPlan, setModalPlan] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", businessName: "" });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+
+  const returnedFromCheckout = searchParams.get("status") === "success";
+
+  useEffect(() => {
+    if (returnedFromCheckout) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [returnedFromCheckout, setSearchParams]);
 
   const openCheckout = (planId) => {
     setResult(null);
@@ -90,7 +99,14 @@ function PricingLanding() {
     setLoading(true);
     try {
       const res = await api.post("/subscriptions", { ...form, plan: modalPlan });
-      setResult(res.data);
+
+      if (res.data.demo) {
+        setResult(res.data);
+      } else {
+        // Integración real: mandamos al checkout de Mercado Pago,
+        // no mostramos ningún resultado local.
+        window.location.href = res.data.checkoutUrl;
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Error procesando la solicitud");
     } finally {
@@ -102,6 +118,11 @@ function PricingLanding() {
 
   return (
     <div className="saas-landing">
+      {returnedFromCheckout && (
+        <div className="saas-security-note" style={{ margin: "16px auto", maxWidth: 480 }}>
+          <FaCheck /> ¡Listo! Registramos tu suscripción. En breve nos contactamos para activar tu cuenta.
+        </div>
+      )}
       {/* HERO */}
       <section className="saas-hero">
         <div className="saas-hero-inner">
