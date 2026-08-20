@@ -4,14 +4,8 @@ const crypto = require("crypto");
 const rateLimit = require("express-rate-limit");
 const { MercadoPagoConfig, PreApproval } = require("mercadopago");
 const Subscription = require("../models/Subscription");
-
-// Planes y precios ARS — única fuente de verdad en el backend
-// (el frontend no debe decidir el precio, solo mostrarlo)
-const PLANS = {
-  basico: { label: "Básico", price: 19999 },
-  pro: { label: "Pro", price: 32999 },
-  premium: { label: "Premium", price: 54999 },
-};
+const Local = require("../models/Local");
+const { PLANS } = require("../config/plans");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -22,11 +16,7 @@ const limiter = rateLimit({
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// El SDK solo se inicializa si hay Access Token cargado — sin esto
-// la app sigue funcionando con el checkout de demostración de antes.
-const mpClient = process.env.MP_ACCESS_TOKEN
-  ? new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN })
-  : null;
+const { mpClient } = require("../config/mercadopago");
 
 // ===============================
 // 📌 CREAR INTENCIÓN DE SUSCRIPCIÓN
@@ -151,18 +141,40 @@ router.post("/webhook", async (req, res) => {
     const preapproval = new PreApproval(mpClient);
     const result = await preapproval.get({ id: preapprovalId });
 
+    const statusMap = {
+      authorized: "active",
+      paused: "cancelled",
+      cancelled: "cancelled",
+      pending: "pending",
+    };
+
+    // Caso 1: lead nuevo capturado en /planes (todavía sin instancia
+    // propia — el alta la hacés vos a mano, esto solo marca el lead).
     const subscription = await Subscription.findOne({ mpPreapprovalId: preapprovalId });
 
     if (subscription) {
-      const statusMap = {
-        authorized: "active",
-        paused: "cancelled",
-        cancelled: "cancelled",
-        pending: "pending",
-      };
-
       subscription.status = statusMap[result.status] || subscription.status;
       await subscription.save();
+    }
+
+    // Caso 2: cliente que YA tiene su propia instancia y cambió de
+    // plan desde adentro de su panel (ver /api/billing). Acá sí
+    // impactamos el plan real apenas Mercado Pago confirma el pago.
+    const local = await Local.findOne({ mpPreapprovalId: preapprovalId });
+
+    if (local) {
+      if (result.status === "authorized" && local.pendingPlan) {
+        local.plan = local.pendingPlan;
+        local.pendingPlan = null;
+      } else if (result.status === "cancelled" || result.status === "paused") {
+        // Dejó de pagar (o canceló) — vuelve al plan gratuito/básico,
+        // no se quedan con funciones pagas sin pagar.
+        local.plan = "basico";
+        local.pendingPlan = null;
+        local.mpPreapprovalId = null;
+      }
+
+      await local.save();
     }
 
     res.sendStatus(200);

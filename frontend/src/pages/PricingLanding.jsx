@@ -73,6 +73,15 @@ function PricingLanding() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
+  // 🔥 Si quien está mirando /planes ya es el admin logueado de esta
+  // instancia, no le mostramos el formulario de lead — le dejamos
+  // cambiar su propio plan directo (ver /api/billing).
+  const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+  const isAdmin = storedUser?.role === "admin";
+  const [billing, setBilling] = useState(null);
+  const [changingPlan, setChangingPlan] = useState(null);
+  const [planMessage, setPlanMessage] = useState("");
+
   const returnedFromCheckout = searchParams.get("status") === "success";
 
   useEffect(() => {
@@ -80,6 +89,23 @@ function PricingLanding() {
       setSearchParams({}, { replace: true });
     }
   }, [returnedFromCheckout, setSearchParams]);
+
+  const loadBilling = () => {
+    if (!isAdmin) return;
+    api.get("/billing")
+      .then((res) => setBilling(res.data))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadBilling();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (returnedFromCheckout) loadBilling();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [returnedFromCheckout]);
 
   const openCheckout = (planId) => {
     setResult(null);
@@ -114,13 +140,36 @@ function PricingLanding() {
     }
   };
 
+  const changePlan = async (planId) => {
+    setPlanMessage("");
+    setChangingPlan(planId);
+    try {
+      const res = await api.post("/billing/change-plan", { plan: planId });
+
+      if (res.data.checkoutUrl) {
+        // eslint-disable-next-line react-hooks/immutability -- redirect a Mercado Pago, no un valor de render
+        window.location.href = res.data.checkoutUrl;
+      } else {
+        setPlanMessage(`Listo, ya estás en el plan ${res.data.plan?.label || planId}.`);
+        loadBilling();
+      }
+    } catch (err) {
+      setPlanMessage(err.response?.data?.message || "Error cambiando de plan");
+    } finally {
+      setChangingPlan(null);
+    }
+  };
+
   const currentPlan = PLANS.find((p) => p.id === modalPlan);
 
   return (
     <div className="saas-landing">
       {returnedFromCheckout && (
         <div className="saas-security-note" style={{ margin: "16px auto", maxWidth: 480 }}>
-          <FaCheck /> ¡Listo! Registramos tu suscripción. En breve nos contactamos para activar tu cuenta.
+          <FaCheck />{" "}
+          {isAdmin
+            ? "¡Listo! En cuanto Mercado Pago confirme el pago, tu plan se actualiza solo."
+            : "¡Listo! Registramos tu suscripción. En breve nos contactamos para activar tu cuenta."}
         </div>
       )}
       {/* HERO */}
@@ -285,34 +334,68 @@ function PricingLanding() {
           base de datos y dominio propio — no pagás infraestructura aparte.
         </p>
 
+        {isAdmin && billing && (
+          <p className="saas-pricing-sub">
+            Tu plan actual: <strong>{PLANS.find((p) => p.id === billing.plan)?.label || billing.plan}</strong>
+            {billing.pendingPlan && (
+              <> — cambio a <strong>{PLANS.find((p) => p.id === billing.pendingPlan)?.label}</strong> pendiente de confirmación de pago</>
+            )}
+          </p>
+        )}
+
+        {isAdmin && planMessage && (
+          <p className="saas-pricing-sub" style={{ fontWeight: 600 }}>{planMessage}</p>
+        )}
+
         <div className="saas-pricing-grid">
-          {PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              className={`saas-plan-card ${plan.highlighted ? "highlighted" : ""}`}
-            >
-              {plan.highlighted && <span className="saas-plan-tag">Más elegido</span>}
-              <h3>{plan.label}</h3>
-              <p className="saas-plan-tagline">{plan.tagline}</p>
-              <div className="saas-plan-price">
-                {money(plan.price)}
-                <span>/mes</span>
-              </div>
-              <ul className="saas-plan-features">
-                {plan.features.map((f, i) => (
-                  <li key={i}>
-                    <FaCheck /> {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                className={`button ${plan.highlighted ? "primary" : ""} full`}
-                onClick={() => openCheckout(plan.id)}
+          {PLANS.map((plan) => {
+            const isCurrent = isAdmin && billing?.plan === plan.id && !billing?.pendingPlan;
+
+            return (
+              <div
+                key={plan.id}
+                className={`saas-plan-card ${plan.highlighted ? "highlighted" : ""}`}
               >
-                Suscribirme
-              </button>
-            </div>
-          ))}
+                {plan.highlighted && <span className="saas-plan-tag">Más elegido</span>}
+                <h3>{plan.label}</h3>
+                <p className="saas-plan-tagline">{plan.tagline}</p>
+                <div className="saas-plan-price">
+                  {money(plan.price)}
+                  <span>/mes</span>
+                </div>
+                <ul className="saas-plan-features">
+                  {plan.features.map((f, i) => (
+                    <li key={i}>
+                      <FaCheck /> {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {isAdmin ? (
+                  <button
+                    className={`button ${plan.highlighted ? "primary" : ""} full`}
+                    disabled={isCurrent || changingPlan === plan.id}
+                    onClick={() => changePlan(plan.id)}
+                  >
+                    {isCurrent
+                      ? "Tu plan actual"
+                      : changingPlan === plan.id
+                        ? "Procesando..."
+                        : billing?.plan && PLANS.findIndex((p) => p.id === plan.id) < PLANS.findIndex((p) => p.id === billing.plan)
+                          ? "Bajar a este plan"
+                          : "Subir a este plan"}
+                  </button>
+                ) : (
+                  <button
+                    className={`button ${plan.highlighted ? "primary" : ""} full`}
+                    onClick={() => openCheckout(plan.id)}
+                  >
+                    Suscribirme
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="saas-security-note">

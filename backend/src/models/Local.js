@@ -92,6 +92,22 @@ const localSchema = new mongoose.Schema(
       enum: ["basico", "pro", "premium"],
       default: "basico",
     },
+
+    // 💳 Suscripción recurrente de Mercado Pago que paga el plan de
+    // ARRIBA (no confundir con las suscripciones de /api/subscriptions,
+    // que son leads de clientes nuevos sin instancia propia todavía).
+    // Se completan solo desde /api/billing — nunca a mano.
+    mpPreapprovalId: {
+      type: String,
+      default: null,
+    },
+    // Plan al que se pasa una vez que Mercado Pago confirme el pago
+    // (alta nueva o cambio recién solicitado, todavía no confirmado).
+    pendingPlan: {
+      type: String,
+      enum: ["basico", "pro", "premium", null],
+      default: null,
+    },
   },
   { timestamps: true }
 );
