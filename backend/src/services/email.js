@@ -106,6 +106,42 @@ async function sendAppointmentConfirmation(appointment) {
   });
 }
 
+// ------------------------------------------------------------
+// 💰 AVISO DE VENTA NUEVA (a vos, no al cliente) — se dispara desde
+// el webhook de Mercado Pago apenas se confirma el primer pago de
+// un lead de /planes. Sin esto no había forma de enterarte de que
+// alguien pagó salvo mirando el dashboard de MP a mano.
+// ------------------------------------------------------------
+async function sendNewPaidSubscriptionNotice({ name, email, phone, businessName, plan, planLabel, mpPreapprovalId }) {
+  const to = process.env.OWNER_NOTIFICATION_EMAIL;
+  if (!to) {
+    console.log("📧 [OWNER_NOTIFICATION_EMAIL no configurado] Se omitió el aviso de venta nueva");
+    return { skipped: true, reason: "OWNER_NOTIFICATION_EMAIL no configurado" };
+  }
+
+  const html = wrapTemplate(
+    "💰 Nueva suscripción pagada",
+    `
+      <p>Alguien acaba de pagar el plan <strong>${planLabel}</strong> en /planes.</p>
+      <ul style="line-height: 1.8;">
+        <li><strong>Nombre:</strong> ${name}</li>
+        <li><strong>Negocio:</strong> ${businessName || "(no puso)"}</li>
+        <li><strong>Email:</strong> ${email}</li>
+        <li><strong>Teléfono:</strong> ${phone || "(no puso)"}</li>
+      </ul>
+      <p>Para aprovisionarlo, usá:</p>
+      <pre style="background:#f4f4f4; padding:12px; border-radius:8px; overflow-x:auto;">node src/scripts/createAdmin.js "${name}" ${email} &lt;contraseña&gt; ${phone || ""} --plan=${plan} --mp-preapproval-id=${mpPreapprovalId}</pre>
+      <p style="font-size:13px; color:#666;">Ojo: copiá el <code>mpPreapprovalId</code> tal cual — si te lo salteás, el día que este cliente cambie de plan desde su propio panel se le va a crear una suscripción nueva en paralelo y le vas a cobrar dos veces.</p>
+    `
+  );
+
+  return sendMail({
+    to,
+    subject: `💰 Nueva suscripción: ${businessName || name} (${planLabel})`,
+    html,
+  });
+}
+
 async function sendAppointmentCancellation(appointment) {
   const { clientEmail, clientName, service, date, time } = appointment;
 
@@ -135,4 +171,5 @@ module.exports = {
   sendMail,
   sendAppointmentConfirmation,
   sendAppointmentCancellation,
+  sendNewPaidSubscriptionNotice,
 };

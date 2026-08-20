@@ -6,6 +6,7 @@ const { MercadoPagoConfig, PreApproval } = require("mercadopago");
 const Subscription = require("../models/Subscription");
 const Local = require("../models/Local");
 const { PLANS } = require("../config/plans");
+const { sendNewPaidSubscriptionNotice } = require("../services/email");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -153,8 +154,23 @@ router.post("/webhook", async (req, res) => {
     const subscription = await Subscription.findOne({ mpPreapprovalId: preapprovalId });
 
     if (subscription) {
+      const wasActive = subscription.status === "active";
       subscription.status = statusMap[result.status] || subscription.status;
       await subscription.save();
+
+      // Recién ahora te avisamos — antes no había forma de enterarte
+      // de una venta nueva salvo mirando el dashboard de MP a mano.
+      if (!wasActive && subscription.status === "active") {
+        sendNewPaidSubscriptionNotice({
+          name: subscription.name,
+          email: subscription.email,
+          phone: subscription.phone,
+          businessName: subscription.businessName,
+          plan: subscription.plan,
+          planLabel: PLANS[subscription.plan]?.label,
+          mpPreapprovalId: subscription.mpPreapprovalId,
+        }).catch((err) => console.error("Error mandando aviso de venta nueva:", err.message));
+      }
     }
 
     // Caso 2: cliente que YA tiene su propia instancia y cambió de
