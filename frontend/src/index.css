@@ -757,6 +757,21 @@ select.input {
   box-shadow: 0 0 0 3px rgba(33, 230, 176, 0.15);
 }
 
+/* 🔥 .input (14px) y .login-field input (15px) tienen más
+   especificidad que la regla "evita zoom de iOS" de más arriba
+   (@media max-width:768px → input,select,textarea) y la pisaban.
+   Resultado: en iPhone, tocar CUALQUIER campo de la app (login,
+   registro, editar barbero, cupón, etc.) disparaba el zoom nativo
+   de Safari y la página quedaba "pegada" con zoom hasta que el
+   usuario hacía pinch para volver atrás. Repetimos los mismos
+   selectores acá (después de sus definiciones base) para que
+   ganen por orden de cascada sin tocar su especificidad. */
+@media (max-width: 768px) {
+  .input, .login-field input {
+    font-size: 16px;
+  }
+}
+
 .page, .main-content {
   overflow-x: hidden;
 }
@@ -1801,7 +1816,15 @@ html, body {
 
 .admin-layout {
   display: flex;
+  /* 100dvh en vez de (solo) 100vh: en Safari de iOS, 100vh se
+     calcula con la barra de direcciones OCULTA, así que el layout
+     queda más alto que el viewport real visible y el navegador
+     compensa reduciendo la escala visual — se sentía como que
+     "la página tiene más zoom". 100dvh sigue el viewport visible
+     real; dejamos 100vh antes como fallback para navegadores que
+     no soportan dvh todavía. */
   height: 100vh;
+  height: 100dvh;
   background: transparent; /* deja ver el fondo Aurora detrás */
 }
 
@@ -1816,16 +1839,27 @@ html, body {
   top: 0;
   left: 0;
   height: 100vh;
-  width: 260px;
+  height: 100dvh; /* ver nota de .admin-layout sobre 100vh en iOS */
+
+  /* 🔥 antes era un ancho fijo de 260px — en pantallas muy angostas
+     (iPhone SE, 375px) quedaba ocupando más del 69% del ancho sin
+     margen de aire, y en pantallas aún más chicas se sentía
+     apretado. Con min() nunca supera 260px pero cede a un 85% del
+     viewport si hace falta, así siempre queda un margen visible
+     del contenido/overlay detrás. */
+  width: min(260px, 85vw);
 
   background: var(--color-surface-card);
   border-right: 1px solid var(--color-border);
 
   padding: 20px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
 
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow-y: auto;
 
   /* mobile-first: oculto por default, se muestra con .open */
   transform: translateX(-100%);
@@ -1979,11 +2013,20 @@ html, body {
   position: relative;
   z-index: 1;
   min-height: 70vh;
+
+  /* 🔥 antes era un degradado negro fijo (rgba(0,0,0,...)), sin
+     importar el modo elegido — en modo claro quedaba como un
+     bloque oscuro pegado justo debajo de la navbar, totalmente
+     fuera de lugar contra el resto de la página clara. Ahora el
+     scrim usa el color de fondo del tema (--color-bg), así que en
+     oscuro se ve prácticamente igual que antes (casi negro) y en
+     claro se integra como una bruma clara, con el texto siguiendo
+     a --color-text para mantener contraste sobre la foto. */
   background: linear-gradient(
-    rgba(0,0,0,0.35),
-    rgba(0,0,0,0.75)
+    color-mix(in srgb, var(--color-bg) 35%, transparent),
+    color-mix(in srgb, var(--color-bg) 78%, transparent)
   );
-  color: white;
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -3782,7 +3825,11 @@ img, video {
 
 .booking-summary-card {
   background: var(--color-surface-2);
-  color: #fff;
+  /* 🔥 antes era "color: #fff" fijo — con --color-surface-2 claro
+     (modo claro) quedaba texto blanco sobre fondo casi blanco,
+     ilegible. Usamos los tokens de texto del tema, que ya se
+     adaptan solos a claro/oscuro. */
+  color: var(--color-text);
   border-radius: var(--radius-lg);
   padding: 24px;
   position: sticky;
@@ -3800,7 +3847,7 @@ img, video {
   gap: 10px;
   font-size: 0.9rem;
   margin-bottom: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-muted);
 }
 
 .summary-row svg {
@@ -3811,7 +3858,7 @@ img, video {
 .summary-total {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid var(--color-border);
   font-weight: 800;
   font-size: 1.1rem;
 }
@@ -4156,34 +4203,65 @@ img, video {
   background: rgba(255, 92, 108, 0.1);
 }
 
-/* Botón hamburguesa flotante — reemplaza al que vivía en la
-   navbar global (ya no se renderiza dentro de los paneles) */
-.mobile-sidebar-toggle {
+/* Barra superior de los paneles (admin/barbero/cliente) en mobile.
+   Antes solo había un botón hamburguesa flotante suelto — no había
+   navbar real dentro de los paneles en mobile, ni forma de volver
+   al inicio sin abrir primero el menú. Ahora es una franja fija
+   arriba de todo, siempre visible, con el menú a la izquierda y
+   el ícono de la marca a la derecha (toca ahí → vuelve a "/"). */
+.mobile-topbar {
   display: none;
-  position: fixed;
-  top: calc(14px + env(safe-area-inset-top));
-  left: 14px;
-  z-index: 150;
+}
 
+.mobile-sidebar-toggle {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface-card);
   color: var(--color-text);
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+}
+
+.mobile-topbar-home {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-size: 1.1rem;
+  text-decoration: none;
 }
 
 @media (max-width: 767px) {
-  .mobile-sidebar-toggle {
+  .mobile-topbar {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+
+    padding: 14px;
+    padding-top: calc(14px + env(safe-area-inset-top));
+
+    background: var(--navbar-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--navbar-border);
   }
 
-  /* deja lugar para que el botón flotante no tape el contenido */
+  /* deja lugar para que la barra fija no tape el contenido */
   .admin-content {
     padding-top: calc(70px + env(safe-area-inset-top)) !important;
   }

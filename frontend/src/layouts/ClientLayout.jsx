@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
+import MobileTopbar from "../components/MobileTopbar";
 import api from "../api";
 
 import {
@@ -8,7 +9,6 @@ import {
   FaCalendar,
   FaGift,
   FaHistory,
-  FaBars
 } from "react-icons/fa";
 
 export default function ClientLayout() {
@@ -90,13 +90,7 @@ export default function ClientLayout() {
   return (
     <div className="admin-layout">
 
-      <button
-        className="mobile-sidebar-toggle"
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Abrir menú"
-      >
-        <FaBars />
-      </button>
+      <MobileTopbar onMenuClick={() => setSidebarOpen(true)} />
 
       {/* SIDEBAR */}
       <Sidebar

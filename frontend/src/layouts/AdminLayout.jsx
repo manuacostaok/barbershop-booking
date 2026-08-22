@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
-import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots, FaBars, FaSignOutAlt, FaHome } from "react-icons/fa";
+import { FaCalendar, FaUsers, FaChartBar, FaCog, FaEye, FaCommentDots, FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useState } from "react";
+import MobileTopbar from "../components/MobileTopbar";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile
@@ -14,13 +15,7 @@ export default function AdminLayout() {
   return (
     <div className="admin-layout">
 
-      <button
-        className="mobile-sidebar-toggle"
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Abrir menú"
-      >
-        <FaBars />
-      </button>
+      <MobileTopbar onMenuClick={() => setSidebarOpen(true)} />
 
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
