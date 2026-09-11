@@ -59,9 +59,13 @@ const localSchema = new mongoose.Schema(
     // 🎨 Apariencia de la página pública — dos ejes independientes:
     // paleta (color de marca) y modo (claro/oscuro). Cualquier
     // combinación es válida (ej: rosa+oscuro, esmeralda+claro).
+    // Las últimas 3 ("barberia"/"estetica"/"peluqueria") son presets
+    // por rubro: además del color, cambian la tipografía del hero
+    // (ver --font-display en index.css) — las 6 de arriba son solo
+    // color, tipografía siempre Inter.
     themePalette: {
       type: String,
-      enum: ["esmeralda", "azul", "neutro", "rosa", "lavanda", "durazno"],
+      enum: ["esmeralda", "azul", "neutro", "rosa", "lavanda", "durazno", "barberia", "estetica", "peluqueria"],
       default: "esmeralda",
     },
     themeMode: {

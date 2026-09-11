@@ -18,6 +18,9 @@ const PALETTE_HUES = {
   rosa: { from: "#e85d8a", to: "#f4a4c0" },
   lavanda: { from: "#9b7ee8", to: "#e8b34a" },
   durazno: { from: "#ff8266", to: "#ffb949" },
+  barberia: { from: "#c9a24b", to: "#e2c374" },
+  estetica: { from: "#b9704f", to: "#d9b6a0" },
+  peluqueria: { from: "#6b6259", to: "#b8b0a0" },
 };
 
 function Layout({ children }) {

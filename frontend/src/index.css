@@ -134,6 +134,54 @@ html[data-palette="neutro"] {
 /* (paleta "esmeralda" [masculina] = valores por defecto de
    :root, no necesita bloque propio) */
 
+/* =========================================================
+   💈 PRESETS POR RUBRO — además del color, cambian la fuente
+   del nombre del negocio en el hero (--font-display, ver
+   .hero-overlay h1 más abajo). Los <link> de Google Fonts
+   están en index.html. Las 6 paletas de arriba se quedan en
+   Inter — solo estos 3 presets tienen tipografía propia.
+========================================================= */
+
+/* 💈 Barbería — carbón + dorado, condensada, confiada */
+html[data-palette="barberia"] {
+  --color-primary: #c9a24b;
+  --color-primary-dark: #a9843a;
+  --color-primary-light: rgba(201, 162, 75, 0.16);
+  --color-accent: #e2c374;
+  --color-danger: #e0524a;
+  --color-success: #6b8f71;
+  --gradient-brand: linear-gradient(135deg, #c9a24b 0%, #e2c374 100%);
+  --shadow-glow: 0 0 28px rgba(201, 162, 75, 0.25);
+  --font-display: 'Oswald', 'Inter', sans-serif;
+}
+
+/* 🌷 Centro de estética — terracota editorial, cálida */
+html[data-palette="estetica"] {
+  --color-primary: #b9704f;
+  --color-primary-dark: #9c5a3d;
+  --color-primary-light: rgba(185, 112, 79, 0.14);
+  --color-accent: #d9b6a0;
+  --color-danger: #c8534a;
+  --color-success: #7a9370;
+  --gradient-brand: linear-gradient(135deg, #b9704f 0%, #d9b6a0 100%);
+  --shadow-glow: 0 0 28px rgba(185, 112, 79, 0.22);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-display-style: italic;
+}
+
+/* ✂️ Peluquería — piedra neutra, minimal, sin género marcado */
+html[data-palette="peluqueria"] {
+  --color-primary: #6b6259;
+  --color-primary-dark: #524a43;
+  --color-primary-light: rgba(107, 98, 89, 0.12);
+  --color-accent: #b8b0a0;
+  --color-danger: #b8564a;
+  --color-success: #6b8066;
+  --gradient-brand: linear-gradient(135deg, #6b6259 0%, #b8b0a0 100%);
+  --shadow-glow: 0 0 28px rgba(107, 98, 89, 0.18);
+  --font-display: 'Manrope', 'Inter', sans-serif;
+}
+
 /* ---- MODO (fondo/superficie/texto, independiente de la paleta) ---- */
 
 /* ☀️ Claro — el modo oscuro ya es el default de :root */
@@ -2393,6 +2441,11 @@ img, video {
 .hero-overlay h1 {
   letter-spacing: -0.02em;
   line-height: 1.05;
+  /* Solo los presets por rubro (barberia/estetica/peluqueria)
+     definen --font-display — el resto de las paletas cae a
+     Inter (heredado) sin declarar nada extra. */
+  font-family: var(--font-display, inherit);
+  font-style: var(--font-display-style, normal);
 }
 
 /* 🔥 FIX CONTRASTE: esta regla venía de cuando el scrim del hero

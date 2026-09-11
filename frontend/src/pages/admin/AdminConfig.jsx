@@ -31,6 +31,37 @@ const MODES = [
   { id: "claro", label: "Claro", icon: <FaSun /> },
 ];
 
+// 💈 Presets por rubro — a diferencia de las paletas de arriba (solo
+// color), estos también traen tipografía propia para el nombre del
+// negocio en el hero y ya vienen con el modo que mejor les queda. Un
+// clic pisa paleta + modo juntos, en vez de elegirlos por separado.
+const VERTICAL_PRESETS = [
+  {
+    id: "barberia",
+    label: "Barbería",
+    mode: "oscuro",
+    gradient: "linear-gradient(135deg, #c9a24b, #e2c374)",
+    sample: "El Corte",
+    font: "'Oswald', sans-serif",
+  },
+  {
+    id: "estetica",
+    label: "Centro de estética",
+    mode: "claro",
+    gradient: "linear-gradient(135deg, #b9704f, #d9b6a0)",
+    sample: "Belle",
+    font: "'Fraunces', serif",
+  },
+  {
+    id: "peluqueria",
+    label: "Peluquería",
+    mode: "claro",
+    gradient: "linear-gradient(135deg, #6b6259, #b8b0a0)",
+    sample: "Estudio Norte",
+    font: "'Manrope', sans-serif",
+  },
+];
+
 function AdminConfig() {
   const [config, setConfig] = useState({
     open: "09:00",
@@ -239,6 +270,19 @@ function AdminConfig() {
     window.dispatchEvent(new CustomEvent("themechange", { detail: { mode: modeId } }));
   };
 
+  // Un preset de rubro pisa paleta Y modo en un solo clic. OJO: no se
+  // puede escribir como selectPalette(...) + selectMode(...) — las dos
+  // leen "local" del mismo closure sin actualizar entre sí, así que la
+  // segunda pisaba el cambio de la primera (el modo quedaba bien, la
+  // paleta volvía a la anterior). Un solo setLocal con los dos campos.
+  const selectVerticalPreset = (preset) => {
+    const updated = { ...local, themePalette: preset.id, themeMode: preset.mode };
+    setLocal(updated);
+    document.documentElement.setAttribute("data-palette", preset.id);
+    document.documentElement.setAttribute("data-mode", preset.mode);
+    window.dispatchEvent(new CustomEvent("themechange", { detail: { palette: preset.id, mode: preset.mode } }));
+  };
+
   return (
     <div className="section">
 
@@ -377,7 +421,25 @@ function AdminConfig() {
           a tu página pública y a todos los paneles al instante.
         </p>
 
-        <p className="config-subsection-label">Color</p>
+        <p className="config-subsection-label">Estilos por rubro</p>
+        <p className="stats-hint" style={{ marginTop: -6, marginBottom: 10 }}>
+          Un clic aplica color, modo y tipografía juntos, pensados para cada tipo de negocio. Después podés seguir ajustando color y modo por separado abajo.
+        </p>
+        <div className="theme-picker">
+          {VERTICAL_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              className={`theme-option ${local.themePalette === preset.id ? "active" : ""}`}
+              onClick={() => selectVerticalPreset(preset)}
+            >
+              <span className="theme-swatch" style={{ background: preset.gradient }} />
+              <span className="theme-option-name" style={{ fontFamily: preset.font }}>{preset.sample}</span>
+              <span className="theme-option-desc">{preset.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <p className="config-subsection-label" style={{ marginTop: 18 }}>Color</p>
         {PALETTE_GROUPS.map((group) => (
           <div key={group.label} style={{ marginBottom: 14 }}>
             <p className="config-group-label">{group.label}</p>
