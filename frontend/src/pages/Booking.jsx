@@ -214,6 +214,31 @@ function Booking() {
     });
   }, [step, services]);
 
+  // 🎬 Horarios — cada vez que terminan de cargar los slots de un día
+  // (cambia el día, el profesional, o se apagó "Cargando horarios...")
+  // los chips entran agrupados franja por franja (Mañana/Tarde/Noche),
+  // así se nota el orden en vez de aparecer todos de golpe.
+  useLayoutEffect(() => {
+    if (step !== 3 || loading || slots.length === 0) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const groups = document.querySelectorAll(".slot-period-group");
+    if (!groups.length) return;
+
+    groups.forEach((group, groupIndex) => {
+      const chips = group.querySelectorAll(".slot-chip");
+      if (!chips.length) return;
+
+      animate(chips, {
+        opacity: [0, 1],
+        scale: [0.85, 1],
+        duration: 320,
+        delay: stagger(28, { start: groupIndex * 90 }),
+        ease: "outBack",
+      });
+    });
+  }, [step, slots, loading]);
+
   // -------- CALENDARIO DE MES (reemplaza la tira horizontal vieja) --------
   const [calendarMonth, setCalendarMonth] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
@@ -308,6 +333,36 @@ function Booking() {
       setToast(err.response?.data?.message || "Error");
     }
   };
+
+  // 🎬 Pantalla de éxito — el check "aparece" con un poco de rebote
+  // (como un sello) y los datos del turno confirmado bajan en fila,
+  // uno atrás del otro. Es el momento de pago del flujo entero, se lo
+  // gana una animación con más carácter que un simple fade.
+  useLayoutEffect(() => {
+    if (!success) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const check = document.querySelector(".success-check");
+    const rows = document.querySelectorAll(".success-detail-row");
+    if (check) {
+      animate(check, {
+        opacity: [0, 1],
+        scale: [0.4, 1],
+        rotate: [-8, 0],
+        duration: 500,
+        ease: "outElastic(1,.6)",
+      });
+    }
+    if (rows.length) {
+      animate(rows, {
+        opacity: [0, 1],
+        translateX: [-12, 0],
+        duration: 350,
+        delay: stagger(70, { start: 250 }),
+        ease: "outQuad",
+      });
+    }
+  }, [success]);
 
   // ===================== SUCCESS SCREEN =====================
   if (success) {
