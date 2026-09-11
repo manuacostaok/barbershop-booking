@@ -5174,6 +5174,66 @@ img, video {
   color: var(--color-text-muted);
 }
 
+/* =========================================================
+   💈 SAAS LANDING — estilos por rubro (/planes)
+========================================================= */
+.saas-styles-section {
+  margin: 60px auto;
+  max-width: 1100px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.saas-styles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 28px;
+}
+
+@media (max-width: 760px) {
+  .saas-styles-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.saas-style-card {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: 22px 20px 24px;
+  text-align: left;
+}
+
+.saas-style-swatch {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.saas-style-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: var(--color-text);
+}
+
+.saas-style-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+  margin: 0 0 10px;
+}
+
+.saas-style-desc {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
 .service-create-thumb {
   width: 80px;
   height: 80px;

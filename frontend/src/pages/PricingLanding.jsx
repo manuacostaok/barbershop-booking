@@ -326,6 +326,40 @@ function PricingLanding() {
         <p className="saas-demo-disclaimer">*Datos de ejemplo — así se ve con la información real de tu negocio.</p>
       </section>
 
+      {/* ESTILOS POR RUBRO — no es una paleta más, cambia tipografía
+          y carácter junto con el color. Un clic desde Configuración
+          > Apariencia una vez que tenés tu cuenta. */}
+      <section className="saas-styles-section">
+        <h2 className="section-title">Un estilo pensado para tu rubro</h2>
+        <p className="saas-pricing-sub">
+          No es solo elegir un color — cada estilo trae su propia tipografía y carácter.
+          Lo cambiás vos mismo desde tu panel, cuando quieras.
+        </p>
+
+        <div className="saas-styles-grid">
+          <div className="saas-style-card">
+            <div className="saas-style-swatch" style={{ background: "linear-gradient(135deg, #c9a24b, #e2c374)" }} />
+            <p className="saas-style-name" style={{ fontFamily: "'Oswald', sans-serif" }}>El Corte</p>
+            <p className="saas-style-label">Barbería</p>
+            <p className="saas-style-desc">Carbón y dorado, tipografía condensada. Confiada, clásica.</p>
+          </div>
+          <div className="saas-style-card">
+            <div className="saas-style-swatch" style={{ background: "linear-gradient(135deg, #b9704f, #d9b6a0)" }} />
+            <p className="saas-style-name" style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic" }}>Belle</p>
+            <p className="saas-style-label">Centro de estética</p>
+            <p className="saas-style-desc">Terracota editorial, serif cálida. Sofisticada, no infantil.</p>
+          </div>
+          <div className="saas-style-card">
+            <div className="saas-style-swatch" style={{ background: "linear-gradient(135deg, #6b6259, #b8b0a0)" }} />
+            <p className="saas-style-name" style={{ fontFamily: "'Manrope', sans-serif" }}>Estudio Norte</p>
+            <p className="saas-style-label">Peluquería</p>
+            <p className="saas-style-desc">Piedra neutra, tipografía limpia. Minimal, sin género marcado.</p>
+          </div>
+        </div>
+
+        <p className="saas-demo-disclaimer">También podés armar tu propia combinación de color y modo — estos 3 son puntos de partida, no la única opción.</p>
+      </section>
+
       {/* PRICING */}
       <section className="saas-pricing" id="planes">
         <h2 className="section-title">Planes simples, sin letra chica</h2>
