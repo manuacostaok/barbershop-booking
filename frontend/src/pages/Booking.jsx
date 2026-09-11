@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { motion, AnimatePresence } from "framer-motion";
+import { animate, stagger } from "animejs";
 import {
   FaCut,
   FaUser,
@@ -171,6 +172,48 @@ function Booking() {
     getAvailability();
   }, [date, selectedBarber, config]);
 
+  // 🎬 Entrada del hero — se dispara una sola vez al montar. Con
+  // useLayoutEffect (no useEffect) para que anime.js fije el estado
+  // inicial (opacity 0, corrido) ANTES del primer paint del navegador
+  // — si no, se ve un flash del contenido ya armado antes de animar.
+  // Respeta prefers-reduced-motion: si el usuario lo pidió, no corre
+  // nada y el contenido queda en su estado final de siempre.
+  useLayoutEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const targets = document.querySelectorAll(
+      ".hero-overlay .hero-brand, .hero-overlay > h1, .hero-overlay > p, .hero-overlay .hero-info, .hero-overlay .cta, .hero-overlay .register-banner"
+    );
+    if (!targets.length) return;
+
+    animate(targets, {
+      opacity: [0, 1],
+      translateY: [16, 0],
+      duration: 600,
+      delay: stagger(80),
+      ease: "outQuad",
+    });
+  }, []);
+
+  // 🎬 Tarjetas de servicio — se re-dispara cada vez que se vuelve al
+  // paso 1 (el wrapper de framer-motion desmonta y remonta este bloque
+  // con key={step}, así que cada vez son nodos de DOM nuevos).
+  useLayoutEffect(() => {
+    if (step !== 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const cards = document.querySelectorAll(".service-card-v2");
+    if (!cards.length) return;
+
+    animate(cards, {
+      opacity: [0, 1],
+      translateY: [14, 0],
+      duration: 450,
+      delay: stagger(60),
+      ease: "outQuad",
+    });
+  }, [step, services]);
+
   // -------- CALENDARIO DE MES (reemplaza la tira horizontal vieja) --------
   const [calendarMonth, setCalendarMonth] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
@@ -338,11 +381,18 @@ function Booking() {
 
         <div className="hero-overlay">
           <div className="hero-brand">
-            <img
-              className="hero-logo"
-              src={local?.logo || "https://placehold.co/200x200/21e6b0/08080d?text=T"}
-              alt="logo"
-            />
+            {local?.logo ? (
+              <img className="hero-logo" src={local.logo} alt="logo" />
+            ) : (
+              // Antes esto era una imagen de placeholder.co con el verde
+              // esmeralda pisado en la URL — no importaba qué paleta o
+              // preset eligiera el negocio, este círculo nunca cambiaba.
+              // Ahora usa el gradiente de la paleta activa, como el resto
+              // de la marca.
+              <div className="hero-logo hero-logo-fallback" aria-label="logo" role="img">
+                {(local?.name || "T").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
 
           <h1>{local?.name || "Mi Negocio"}</h1>

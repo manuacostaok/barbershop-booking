@@ -2132,6 +2132,22 @@ html, body {
   backdrop-filter: blur(4px);
 }
 
+/* Fallback sin logo subido — antes era una <img> apuntando a un
+   placeholder externo con el verde esmeralda fijo en la URL, así
+   que no importaba la paleta/preset elegido, este círculo nunca
+   cambiaba. Ahora sigue el gradiente de la marca activa. */
+.hero-logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  font-family: var(--font-display, inherit);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1;
+}
+
 .hero-logo:hover {
   transform: scale(1.05);
   transition: 0.3s;
