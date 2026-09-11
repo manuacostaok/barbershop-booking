@@ -2259,13 +2259,18 @@ button {
   justify-content: flex-start; /* 🔥 izquierda */
 }
 
+/* 🔥 FIX CONTRASTE: mismo problema que .hero-overlay p — el chip
+   quedaba con blanco fijo sobre un fondo blanco/casi-blanco en
+   modo claro (la "bruma clara" de .hero-overlay), invisible. Usa
+   el mismo color-mix con --color-bg que ya usa el scrim del hero,
+   para que el chip sea legible sea cual sea la foto de portada. */
 .hero-info span {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
   backdrop-filter: blur(6px);
   padding: 6px 14px;
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
 }
 
 /* =========================
@@ -2390,8 +2395,13 @@ img, video {
   line-height: 1.05;
 }
 
+/* 🔥 FIX CONTRASTE: esta regla venía de cuando el scrim del hero
+   era siempre negro. Ahora el scrim sigue el tema (--color-bg,
+   ver .hero-overlay más arriba) y en modo claro es una bruma clara
+   — texto blanco fijo ahí queda casi invisible. Sigue a
+   --color-text como el resto del hero. */
 .hero-overlay p {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text);
 }
 
 /* Section titles: separador visual sutil con el color primario */
